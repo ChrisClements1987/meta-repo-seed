@@ -55,7 +55,7 @@ logs/
 .cache/
 
 # Project specific
-# Exclude generated test projects (but allow the quantum example)
+# Exclude generated test projects (but allow core directories)
 /*/ 
 !/quantum/
 !/templates/
@@ -63,3 +63,6 @@ logs/
 !/examples/
 !/schemas/
 !/.github/
+!/src/
+!/tests/
+!/scripts/

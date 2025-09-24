@@ -1,0 +1,16 @@
+{
+  "project_name": "data-science-project",
+  "github_username": "datascientist",
+  "created_at": "2025-09-24T18:40:00.000000",
+  "version": "1.1.0",
+  "template_path": null,
+  "replacements": {
+    "PROJECT_NAME": "data-science-project",
+    "GITHUB_USERNAME": "datascientist",
+    "CURRENT_DATE": "2025-09-24",
+    "DECISION_NUMBER": "002",
+    "DECISION_TITLE": "Choose ML Framework",
+    "STATUS": "Proposed", 
+    "ALTERNATIVE_NAME": "TensorFlow Alternative"
+  }
+}
