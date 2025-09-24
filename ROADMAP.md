@@ -5,10 +5,10 @@ This document outlines the planned features and improvements for the Meta-Repo S
 ## 🎯 Next Release (v1.1.0) - Q4 2025
 
 ### High Priority
-- [ ] **Update Command** - Add ability to update existing projects with new templates and features
-- [ ] **Configuration File Support** - Save and load project configurations in YAML/JSON format for reusable project templates
-- [ ] **Interactive Setup Wizard** - Step-by-step guided project creation with template selection and variable input validation
-- [ ] **Configuration File Support** - Allow users to save and reuse seeding configurations
+- [ ] **Update Command** ([#4](https://github.com/ChrisClements1987/meta-repo-seed/issues/4)) - Add ability to update existing projects with new templates and features
+- [ ] **Configuration File Support** ([#5](https://github.com/ChrisClements1987/meta-repo-seed/issues/5)) - Save and load project configurations in YAML/JSON format for reusable project templates
+- [ ] **Interactive Setup Wizard** ([#6](https://github.com/ChrisClements1987/meta-repo-seed/issues/6)) - Step-by-step guided project creation with template selection and variable input validation
+- [ ] **Configuration File Support** ([#5](https://github.com/ChrisClements1987/meta-repo-seed/issues/5)) - Allow users to save and reuse seeding configurations
   - YAML/JSON configuration files for project templates
   - Pre-defined configuration presets (e.g., "python-web-app", "data-science-project")
   - Configuration validation and schema support
@@ -43,44 +43,44 @@ This document outlines the planned features and improvements for the Meta-Repo S
 ## 🚀 Future Releases (v1.2.0+) - 2026
 
 ### Advanced Features
-- [ ] **VS Code Extension** - Integrate seeding system directly into VS Code with command palette and project creation UI
-- [ ] **Multi-Language Support** - Templates in multiple programming languages
+- [ ] **VS Code Extension** ([#12](https://github.com/ChrisClements1987/meta-repo-seed/issues/12)) - Integrate seeding system directly into VS Code with command palette and project creation UI
+- [ ] **Multi-Language Support** ([#8](https://github.com/ChrisClements1987/meta-repo-seed/issues/8)) - Templates in multiple programming languages
   - Language-specific template collections
   - Framework-specific templates (React, Django, FastAPI, etc.)
   - Language detection and recommendations
   
-- [ ] **Cloud Integration** - Direct cloud service setup
+- [ ] **Cloud Integration** ([#9](https://github.com/ChrisClements1987/meta-repo-seed/issues/9)) - Direct cloud service setup
   - AWS CloudFormation template generation
   - Azure Resource Manager templates
   - Google Cloud Deployment Manager
   - Terraform configuration generation
 
-- [ ] **Project Scaffolding Intelligence** - AI-powered project setup
+- [ ] **Project Scaffolding Intelligence** ([#10](https://github.com/ChrisClements1987/meta-repo-seed/issues/10)) - AI-powered project setup
   - Project type detection from description
   - Automatic template recommendation
   - Best practice suggestions
   - Dependency analysis and optimization
 
-- [ ] **Team Collaboration Features** - Multi-user project setup
+- [ ] **Team Collaboration Features** ([#11](https://github.com/ChrisClements1987/meta-repo-seed/issues/11)) - Multi-user project setup
   - Shared template repositories
   - Team-specific configurations
   - Role-based template access
   - Collaborative project initialization
 
 ### Developer Experience
-- [ ] **VS Code Extension** - IDE integration
+- [ ] **VS Code Extension** ([#12](https://github.com/ChrisClements1987/meta-repo-seed/issues/12)) - IDE integration
   - Command palette integration
   - Project creation from VS Code
   - Template preview and editing
   - Configuration management UI
 
-- [ ] **Web Interface** - Browser-based project creation
+- [ ] **Web Interface** ([#13](https://github.com/ChrisClements1987/meta-repo-seed/issues/13)) - Browser-based project creation
   - Online template editor
   - Project preview and download
   - Template sharing platform
   - Usage analytics dashboard
 
-- [ ] **CLI Enhancements** - Improved command-line experience
+- [ ] **CLI Enhancements** ([#14](https://github.com/ChrisClements1987/meta-repo-seed/issues/14)) - Improved command-line experience
   - Autocomplete support (bash, zsh, PowerShell)
   - Progress indicators and better output formatting
   - Template search and discovery
