@@ -1,0 +1,17 @@
+{
+  "project_name": "legacy-project",
+  "github_username": "legacyuser",
+  "created_date": "2024-01-01",
+  "version": "1.0",
+  "structure": {
+    "meta-repo": {
+      "governance": {
+        "structure": ["structure.json"],
+        "policies": ["contributing.md"]
+      }
+    },
+    "services": {
+      "web-app": ["index.html", "app.js"]
+    }
+  }
+}

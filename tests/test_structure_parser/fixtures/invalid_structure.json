@@ -1,0 +1,10 @@
+{
+  "metadata": {
+    "project_name": "",
+    "github_username": "testuser",
+    "version": "invalid-version",
+    "schema_version": "2.0.0"
+  },
+  "structure": "this should be an object not a string",
+  "invalid_field": 123
+}
