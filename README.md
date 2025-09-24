@@ -2,6 +2,8 @@
 
 An idempotent, cross-platform script for creating standardized project structures with comprehensive governance, automation, and documentation frameworks.
 
+> **Note**: This repository uses branch protection rules to ensure code quality and proper review processes.
+
 ## 🎯 Overview
 
 This seeding system creates a complete organizational structure for managing multiple repositories, projects, and teams. It establishes governance frameworks, automation pipelines, and documentation standards that scale across your entire organization.
