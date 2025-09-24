@@ -35,6 +35,11 @@ Welcome to the comprehensive documentation for Meta-Repo Seed! This documentatio
 - **[Release Process](./development/releases.md)** - Release workflow and versioning
 - **[Changelog](./development/changelog.md)** - Version history and changes
 
+### 🏗️ [Architecture](./architecture/)
+- **[Structure.json Processing](./architecture/structure-json-processing.md)** - Architecture analysis for structure.json parsing
+- **[Structure Parser Interface](./architecture/structure-parser-interface.md)** - Detailed API specification for structure parsing
+- **[Structure Migration Guide](./architecture/structure-migration-guide.md)** - Guide for migrating structure.json files
+
 ## 🔍 Quick Navigation
 
 | Task | Documentation |
@@ -47,6 +52,7 @@ Welcome to the comprehensive documentation for Meta-Repo Seed! This documentatio
 | See config examples | [Configuration Examples](./examples/configurations.md) |
 | Create an issue | [GitHub Issue Templates](../.github/ISSUE_TEMPLATE/) |
 | Understand workflow | [Issue Management](./development/issue-management.md) |
+| Review architecture | [Structure.json Processing](./architecture/structure-json-processing.md) |
 | Contribute code | [Contributing Guide](./development/contributing.md) |
 | Report issues | [GitHub Issues](https://github.com/ChrisClements1987/meta-repo-seed/issues) |
 
@@ -56,6 +62,7 @@ Welcome to the comprehensive documentation for Meta-Repo Seed! This documentatio
 - ⚙️ **Configuration** - Setup and customization
 - 📋 **Reference** - Technical specifications
 - 💡 **Examples** - Practical implementations
+- 🏗️ **Architecture** - System design and technical analysis
 - 🔧 **Development** - Contributor focused
 
 ---
