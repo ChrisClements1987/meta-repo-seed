@@ -129,12 +129,25 @@ Templates are stored in `templates/` directory - modify them directly to customi
 
 ## 📚 Documentation
 
-- [`TEMPLATES.md`](TEMPLATES.md) - Complete template structure and status
-- [`CHANGELOG.md`](CHANGELOG.md) - Track all released features and improvements  
-- [`ROADMAP.md`](ROADMAP.md) - Planned features and development priorities
-- [`WORKFLOW.md`](WORKFLOW.md) - Feature development and contribution process
-- Generated documentation in your project's `meta-repo/documentation/`
-- Governance policies in `meta-repo/governance/policies/`
+The project includes comprehensive documentation organized for easy navigation:
+
+### 🚀 Getting Started
+- **[Main Documentation](docs/README.md)** - Complete documentation index
+- **[Configuration Guide](docs/guides/configuration.md)** - Setup and configuration options
+- **[Template System Guide](docs/guides/templates.md)** - Working with templates
+- **[Quick Start Examples](docs/examples/configurations.md)** - Ready-to-use configurations
+
+### 📋 Reference
+- **[CLI Reference](docs/reference/cli.md)** - Command-line interface documentation
+- **[API Reference](docs/reference/api.md)** - Python API documentation
+- **[Template Reference](docs/reference/templates.md)** - Available templates
+- **[Configuration Schema](docs/reference/config-schema.md)** - Configuration format specification
+
+### 🔧 Development
+- **[Contributing Guide](docs/development/contributing.md)** - How to contribute
+- **[Workflow Guide](docs/guides/workflow.md)** - Development workflows and processes
+- **[Changelog](docs/development/changelog.md)** - Version history
+- **[Roadmap](docs/development/roadmap.md)** - Planned features and priorities
 
 ## 🔧 Development
 
@@ -199,7 +212,7 @@ We welcome contributions! Here's how you can help:
 3. **Check for existing reports** to avoid duplicates
 
 ### 🔧 Development Process
-1. **Read [`WORKFLOW.md`](WORKFLOW.md)** for detailed contribution guidelines
+1. **Read the [Contributing Guide](docs/development/contributing.md)** for detailed contribution guidelines
 2. **Fork and create feature branches** for your changes
 3. **Follow our branch protection rules** - PRs required for main branch
 4. **Use our roadmap manager**: `python scripts/roadmap_manager.py --help`
@@ -223,8 +236,8 @@ python scripts/roadmap_manager.py report
 
 - **Issues**: Use GitHub Issues for bug reports and feature requests
 - **Discussions**: Use GitHub Discussions for questions and ideas
-- **Documentation**: Check the generated documentation in your project
-- **Workflow**: See [`WORKFLOW.md`](WORKFLOW.md) for development process
+- **Documentation**: Check the [comprehensive documentation](docs/README.md)
+- **Workflow**: See [Contributing Guide](docs/development/contributing.md) for development process
 
 ## ⭐ Features Roadmap
 
