@@ -28,6 +28,8 @@ Welcome to the comprehensive documentation for Meta-Repo Seed! This documentatio
 
 ### 🔧 [Development](./development/)
 - **[Contributing Guide](./development/contributing.md)** - How to contribute to the project
+- **[Issue Management Guide](./development/issue-management.md)** - Issue types, labels, and workflow
+- **[Workflow Standards](./development/workflow-standards.md)** - Development process and standards
 - **[Development Setup](./development/setup.md)** - Setting up development environment
 - **[Architecture](./development/architecture.md)** - System design and architecture
 - **[Release Process](./development/releases.md)** - Release workflow and versioning
@@ -43,8 +45,10 @@ Welcome to the comprehensive documentation for Meta-Repo Seed! This documentatio
 | Set up GitHub features | [GitHub Integration Guide](./guides/github-integration.md) |
 | Find CLI commands | [CLI Reference](./reference/cli.md) |
 | See config examples | [Configuration Examples](./examples/configurations.md) |
+| Create an issue | [GitHub Issue Templates](../.github/ISSUE_TEMPLATE/) |
+| Understand workflow | [Issue Management](./development/issue-management.md) |
 | Contribute code | [Contributing Guide](./development/contributing.md) |
-| Report issues | [GitHub Issues](https://github.com/your-org/meta-repo-seed/issues) |
+| Report issues | [GitHub Issues](https://github.com/ChrisClements1987/meta-repo-seed/issues) |
 
 ## 🏷️ Documentation Tags
 

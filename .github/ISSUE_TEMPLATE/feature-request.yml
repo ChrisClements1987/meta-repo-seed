@@ -1,0 +1,86 @@
+name: Feature Request
+description: Suggest a new feature or enhancement
+title: "[FEATURE] "
+labels: ["enhancement", "priority: medium"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to suggest a new feature! Please fill out this template to help us understand your request.
+
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: 🎯 Feature Description
+      description: Clear description of the feature and its purpose
+      placeholder: Describe the feature you'd like to see added...
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem-use-case
+    attributes:
+      label: 💡 Problem/Use Case
+      description: What problem does this solve or use case does it enable?
+      placeholder: Explain the problem this feature would solve...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: 🏗️ Proposed Solution
+      description: High-level approach to implementing the feature
+      placeholder: Describe your ideas for how this could be implemented...
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: 📋 Acceptance Criteria
+      description: Specific, testable criteria for when this feature is complete
+      placeholder: |
+        - [ ] Specific requirement 1
+        - [ ] Specific requirement 2
+        - [ ] Documentation updated with examples
+        - [ ] Tests written for new functionality
+        - [ ] Feature works cross-platform
+      value: |
+        - [ ] Feature implemented according to description
+        - [ ] Documentation updated with examples
+        - [ ] Tests written for new functionality
+        - [ ] Feature works cross-platform (Windows, macOS, Linux)
+    validations:
+      required: true
+
+  - type: textarea
+    id: implementation-considerations
+    attributes:
+      label: 🔧 Implementation Considerations
+      description: Technical notes, dependencies, performance implications
+      placeholder: Any technical considerations, dependencies, or constraints...
+    validations:
+      required: false
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: How important is this feature?
+      options:
+        - Medium (default)
+        - High (blocking or critical)
+        - Low (nice to have)
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      description: Are you willing to contribute to this feature?
+      options:
+        - label: I would like to work on this feature
+        - label: I can help with testing
+        - label: I can help with documentation

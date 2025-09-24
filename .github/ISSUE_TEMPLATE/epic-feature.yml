@@ -1,0 +1,94 @@
+name: Epic Feature
+description: Large feature that needs to be broken down into smaller issues
+title: "[EPIC] "
+labels: ["epic", "enhancement", "priority: medium"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for large features that will require multiple issues to complete.
+
+  - type: textarea
+    id: epic-description
+    attributes:
+      label: 🎯 Epic Description
+      description: High-level description of the large feature
+      placeholder: Describe the overall scope and goals of this epic...
+    validations:
+      required: true
+
+  - type: textarea
+    id: breakdown-needed
+    attributes:
+      label: 🔄 Breakdown Required
+      description: Explain why this needs to be broken down
+      placeholder: This epic needs decomposition because...
+      value: "This epic represents a large body of work that needs to be broken down into smaller, focused issues."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-breakdown
+    attributes:
+      label: 📋 Proposed Breakdown
+      description: Suggested smaller issues with brief descriptions
+      placeholder: |
+        Suggested breakdown into smaller issues:
+        1. **Issue A**: Analysis and design work
+        2. **Issue B**: Core implementation
+        3. **Issue C**: Integration and testing
+        4. **Issue D**: Documentation and examples
+      value: |
+        Proposed breakdown:
+        1. **Analysis Issue**: Research and design requirements
+        2. **Implementation Issues**: Core functionality development
+        3. **Integration Issue**: Component integration and testing
+        4. **Documentation Issue**: User and developer documentation
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact-analysis
+    attributes:
+      label: ⚠️ Impact Analysis
+      description: Business impact and priority rationale
+      placeholder: |
+        - User impact: How this affects users
+        - Technical impact: Dependencies and complexity
+        - Business impact: Value and priority
+    validations:
+      required: true
+
+  - type: dropdown
+    id: epic-priority
+    attributes:
+      label: Epic Priority
+      description: Overall priority for this epic
+      options:
+        - Medium (default)
+        - High (strategic importance)
+        - Low (future consideration)
+    validations:
+      required: true
+
+  - type: textarea
+    id: success-criteria
+    attributes:
+      label: ✅ Epic Success Criteria
+      description: High-level criteria for when this epic is complete
+      placeholder: |
+        - [ ] All child issues completed
+        - [ ] Integration testing successful
+        - [ ] Documentation complete
+        - [ ] User acceptance criteria met
+    validations:
+      required: true
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: 🔗 Dependencies
+      description: Other epics, issues, or external dependencies
+      placeholder: List any dependencies that must be completed first...
+    validations:
+      required: false

@@ -2,6 +2,14 @@
 
 Welcome to the Meta-Repo Seed project! We appreciate your interest in contributing. This guide will help you understand how to contribute effectively to the project.
 
+## 📋 Essential Documentation
+
+Before contributing, please familiarize yourself with our workflow and standards:
+
+- **[Issue Management Guide](./issue-management.md)** - Issue types, labels, and backlog management
+- **[Workflow Standards](./workflow-standards.md)** - Development process, branches, and releases
+- **[GitHub Issue Templates](../../.github/ISSUE_TEMPLATE/)** - Structured templates for creating issues
+
 ## 🎯 Ways to Contribute
 
 ### 🐛 Bug Reports
