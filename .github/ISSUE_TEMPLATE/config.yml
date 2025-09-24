@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 General Discussion
+    url: https://github.com/ChrisClements1987/meta-repo-seed/discussions
+    about: Ask questions, share ideas, or discuss general topics about the project
+  - name: 📚 Documentation
+    url: https://github.com/ChrisClements1987/meta-repo-seed/tree/main/docs
+    about: Browse our comprehensive documentation before opening an issue
+  - name: 🆘 Support
+    url: https://github.com/ChrisClements1987/meta-repo-seed/discussions/categories/q-a
+    about: Get help with using the Meta-Repo Seed system

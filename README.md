@@ -234,10 +234,11 @@ python scripts/roadmap_manager.py report
 
 ## 🆘 Support
 
-- **Issues**: Use GitHub Issues for bug reports and feature requests
+- **Issues**: Use [GitHub Issues](https://github.com/ChrisClements1987/meta-repo-seed/issues) with our structured templates
 - **Discussions**: Use GitHub Discussions for questions and ideas
 - **Documentation**: Check the [comprehensive documentation](docs/README.md)
-- **Workflow**: See [Contributing Guide](docs/development/contributing.md) for development process
+- **Development**: See [Issue Management](docs/development/issue-management.md) and [Workflow Standards](docs/development/workflow-standards.md)
+- **Contributing**: Review the [Contributing Guide](docs/development/contributing.md) for development process
 
 ## ⭐ Features Roadmap
 
