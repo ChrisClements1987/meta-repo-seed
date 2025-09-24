@@ -64,6 +64,27 @@ your-project/
    python seeding.py
    ```
 
+### ⚙️ Configuration File Support
+
+Save and reuse project configurations for consistent setups:
+
+```bash
+# Save current settings to a configuration file
+python seeding.py --save-config my-project.yaml --project MyProject --username myusername
+
+# Load configuration from file
+python seeding.py --config my-project.yaml
+
+# Override specific values from config
+python seeding.py --config my-project.yaml --project DifferentName --dry-run
+
+# List available configurations
+python seeding.py --list-configs
+```
+
+**Supported formats**: YAML (`.yaml`, `.yml`) and JSON (`.json`)  
+**Examples**: See [`examples/`](examples/) directory for sample configurations and detailed usage guide.
+
 4. **Or specify custom parameters**
    ```bash
    python seeding.py --project myproject --username myusername
@@ -234,10 +255,11 @@ python scripts/roadmap_manager.py report
 
 ## 🆘 Support
 
-- **Issues**: Use GitHub Issues for bug reports and feature requests
+- **Issues**: Use [GitHub Issues](https://github.com/ChrisClements1987/meta-repo-seed/issues) with our structured templates
 - **Discussions**: Use GitHub Discussions for questions and ideas
 - **Documentation**: Check the [comprehensive documentation](docs/README.md)
-- **Workflow**: See [Contributing Guide](docs/development/contributing.md) for development process
+- **Development**: See [Issue Management](docs/development/issue-management.md) and [Workflow Standards](docs/development/workflow-standards.md)
+- **Contributing**: Review the [Contributing Guide](docs/development/contributing.md) for development process
 
 ## ⭐ Features Roadmap
 

@@ -1,0 +1,144 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Meta Repository Structure Schema",
+  "description": "Enhanced schema for validating meta-repository structure definitions",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "description": "Project metadata and versioning information",
+      "properties": {
+        "project_name": {
+          "type": "string",
+          "description": "Name of the project",
+          "minLength": 1,
+          "pattern": "^[a-zA-Z][a-zA-Z0-9-_]*$"
+        },
+        "github_username": {
+          "type": "string",
+          "description": "GitHub username or organization name",
+          "minLength": 1
+        },
+        "created_date": {
+          "type": "string",
+          "description": "Date when structure was created",
+          "format": "date"
+        },
+        "updated_date": {
+          "type": "string",
+          "description": "Date when structure was last updated",
+          "format": "date"
+        },
+        "version": {
+          "type": "string",
+          "description": "Structure version using semantic versioning",
+          "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9.-]+)?$"
+        },
+        "schema_version": {
+          "type": "string",
+          "description": "Schema version this structure conforms to",
+          "enum": ["2.0.0"]
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional description of the project structure"
+        }
+      },
+      "required": [
+        "project_name",
+        "github_username",
+        "version",
+        "schema_version"
+      ],
+      "additionalProperties": false
+    },
+    "structure": {
+      "type": "object",
+      "description": "Directory and file structure definition",
+      "patternProperties": {
+        "^[a-zA-Z][a-zA-Z0-9-_]*$": {
+          "$ref": "#/definitions/directory_node"
+        }
+      },
+      "additionalProperties": false,
+      "minProperties": 1
+    }
+  },
+  "required": [
+    "metadata",
+    "structure"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "directory_node": {
+      "description": "A directory that can contain subdirectories and/or files",
+      "oneOf": [
+        {
+          "type": "object",
+          "description": "Directory with subdirectories",
+          "patternProperties": {
+            "^[a-zA-Z][a-zA-Z0-9-_]*$": {
+              "oneOf": [
+                {"$ref": "#/definitions/directory_node"},
+                {"$ref": "#/definitions/file_list"}
+              ]
+            }
+          },
+          "additionalProperties": false,
+          "minProperties": 1
+        },
+        {"$ref": "#/definitions/file_list"}
+      ]
+    },
+    "file_list": {
+      "type": "array",
+      "description": "List of files that should exist in a directory",
+      "items": {
+        "type": "string",
+        "description": "Filename with extension",
+        "pattern": "^[a-zA-Z0-9][a-zA-Z0-9.-_]*\\.[a-zA-Z0-9]+$",
+        "minLength": 3
+      },
+      "uniqueItems": true
+    }
+  },
+  "examples": [
+    {
+      "metadata": {
+        "project_name": "my-project",
+        "github_username": "myusername",
+        "created_date": "2025-09-24",
+        "version": "1.0.0",
+        "schema_version": "2.0.0",
+        "description": "Example project structure"
+      },
+      "structure": {
+        "meta-repo": {
+          "governance": {
+            "policies": [
+              "contributing.md",
+              "code-of-conduct.md"
+            ],
+            "structure": [
+              "structure.json",
+              "meta-repo-schema.json"
+            ]
+          },
+          "automation": {
+            "scripts": [
+              "initialize_repo.py",
+              "enforce_structure.py"
+            ]
+          }
+        },
+        "cloud-storage": {
+          "strategy": [
+            "vision.md",
+            "mission.md"
+          ]
+        }
+      }
+    }
+  ]
+}

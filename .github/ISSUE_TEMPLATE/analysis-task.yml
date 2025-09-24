@@ -1,0 +1,135 @@
+name: Analysis Task
+description: Research, design, and architectural analysis
+title: "[ANALYSIS] "
+labels: ["analysis", "priority: high"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for research, design, and architectural analysis tasks that inform implementation work.
+
+  - type: textarea
+    id: analysis-description
+    attributes:
+      label: 🎯 Description
+      description: Clear description of the analysis needed
+      placeholder: Describe what needs to be researched or analyzed...
+    validations:
+      required: true
+
+  - type: textarea
+    id: parent-work
+    attributes:
+      label: 🔗 Parent Epic/Issue
+      description: Link to related epic or issues this analysis supports
+      placeholder: "Parent Epic: #XX - Epic Name"
+    validations:
+      required: false
+
+  - type: textarea
+    id: analysis-required
+    attributes:
+      label: 🔍 Analysis Required
+      description: Key questions to answer and areas to research
+      placeholder: |
+        Key questions to answer:
+        1. Question 1?
+        2. Question 2?
+        
+        Areas to research:
+        - Area 1: Specific research needed
+        - Area 2: Technical investigation required
+    validations:
+      required: true
+
+  - type: textarea
+    id: deliverables
+    attributes:
+      label: 📋 Deliverables
+      description: Specific analysis outputs and artifacts
+      placeholder: |
+        - [ ] Research document or specification
+        - [ ] Architecture diagram or design
+        - [ ] Implementation recommendations
+        - [ ] Risk assessment
+        - [ ] Technical feasibility analysis
+      value: |
+        - [ ] Analysis document with findings and recommendations
+        - [ ] Technical specifications or design artifacts
+        - [ ] Implementation approach recommendations
+        - [ ] Risk assessment and mitigation strategies
+    validations:
+      required: true
+
+  - type: textarea
+    id: success-criteria
+    attributes:
+      label: ✅ Definition of Done
+      description: Clear criteria for when analysis is complete
+      placeholder: |
+        - [ ] All key questions answered with evidence
+        - [ ] Recommendations documented with rationale
+        - [ ] Implementation plan ready for development issues
+        - [ ] Stakeholders reviewed and approved findings
+      value: |
+        - [ ] All research questions answered with supporting evidence
+        - [ ] Clear recommendations documented with rationale
+        - [ ] Implementation approach defined and ready for development
+        - [ ] Analysis reviewed and validated by relevant team members
+    validations:
+      required: true
+
+  - type: dropdown
+    id: analysis-type
+    attributes:
+      label: Analysis Type
+      description: What type of analysis is this?
+      options:
+        - Architecture Design
+        - Technical Feasibility
+        - Requirements Analysis
+        - Technology Research
+        - Performance Analysis
+        - Security Analysis
+        - User Experience Research
+        - Competitive Analysis
+    validations:
+      required: true
+
+  - type: textarea
+    id: constraints
+    attributes:
+      label: 🚧 Constraints and Requirements
+      description: Any constraints, requirements, or dependencies for this analysis
+      placeholder: |
+        - Technical constraints: Platform, technology, performance requirements
+        - Business constraints: Timeline, budget, compliance requirements  
+        - Dependencies: Other work that must be completed first
+    validations:
+      required: false
+
+  - type: textarea
+    id: related-work
+    attributes:
+      label: 🔗 Related Work
+      description: How this analysis will inform other issues or epics
+      placeholder: |
+        This analysis will inform:
+        - Issue #XX: Implementation task
+        - Epic #YY: Related epic
+        - Future work on...
+    validations:
+      required: false
+
+  - type: dropdown
+    id: timeline
+    attributes:
+      label: Expected Timeline
+      description: How long do you expect this analysis to take?
+      options:
+        - 1-2 days (quick research)
+        - 3-5 days (moderate analysis)
+        - 1-2 weeks (comprehensive analysis)
+        - 2+ weeks (major research effort)
+    validations:
+      required: true

@@ -1,0 +1,114 @@
+name: Documentation
+description: Missing or outdated documentation
+title: "[DOCUMENTATION] "
+labels: ["documentation", "priority: medium"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template to request new documentation or updates to existing docs.
+
+  - type: textarea
+    id: doc-description
+    attributes:
+      label: 🎯 Description
+      description: What documentation is missing or needs updates
+      placeholder: Describe what documentation needs to be created or updated...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: doc-type
+    attributes:
+      label: Documentation Type
+      description: What type of documentation is needed?
+      options:
+        - API Documentation
+        - User Guide/Tutorial
+        - Developer Documentation
+        - Configuration Guide
+        - Troubleshooting Guide
+        - README Updates
+        - Code Comments
+        - Architecture Documentation
+    validations:
+      required: true
+
+  - type: textarea
+    id: missing-docs
+    attributes:
+      label: 📝 Missing Documentation
+      description: Specific documentation gaps with file locations
+      placeholder: |
+        List specific documentation that's missing:
+        - File: docs/path/to/file.md - Missing section on...
+        - API: function_name() - Missing usage examples
+        - Feature: feature_name - No user documentation
+    validations:
+      required: true
+
+  - type: textarea
+    id: target-audience
+    attributes:
+      label: 👥 Target Audience
+      description: Who will use this documentation?
+      options:
+        - End Users
+        - Developers/Contributors
+        - System Administrators
+        - API Users
+        - New Contributors
+      multiple: true
+    validations:
+      required: true
+
+  - type: textarea
+    id: existing-docs
+    attributes:
+      label: 📋 Related Existing Documentation
+      description: Links to related documentation that already exists
+      placeholder: |
+        - Related file 1: docs/path/file1.md
+        - Related file 2: docs/path/file2.md
+    validations:
+      required: false
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: ✅ Acceptance Criteria
+      description: Specific documentation deliverables
+      placeholder: |
+        - [ ] Documentation created/updated at specific location
+        - [ ] Examples and usage patterns included
+        - [ ] Cross-references updated
+        - [ ] Documentation builds successfully
+      value: |
+        - [ ] Documentation created/updated with clear, accurate content
+        - [ ] Examples and usage patterns included where appropriate
+        - [ ] Cross-references and links updated
+        - [ ] Documentation follows project style guidelines
+        - [ ] Content reviewed for accuracy and clarity
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority-level
+    attributes:
+      label: Priority Level
+      description: How important is this documentation?
+      options:
+        - Medium (default)
+        - High (blocks user adoption or development)
+        - Low (nice to have improvement)
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 📚 Additional Context
+      description: Any additional context, requirements, or constraints
+      placeholder: Any additional information that would help create this documentation...
+    validations:
+      required: false

@@ -1,0 +1,108 @@
+name: Technical Debt
+description: Code improvements, refactoring, and TODO items
+title: "[TECHNICAL DEBT] "
+labels: ["technical-debt", "priority: medium"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template to track code improvements, refactoring needs, and TODO items.
+
+  - type: textarea
+    id: debt-description
+    attributes:
+      label: 🎯 Description
+      description: Clear description of the technical debt
+      placeholder: Describe the technical debt or improvement needed...
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-state
+    attributes:
+      label: 📍 Current State
+      description: What exists now (code location, current implementation)
+      placeholder: |
+        - File/location: path/to/file.py:line-number
+        - Current implementation: Brief description
+        - Issues with current approach: Problems or limitations
+    validations:
+      required: true
+
+  - type: textarea
+    id: desired-state
+    attributes:
+      label: 🎯 Desired State
+      description: What should be improved and why
+      placeholder: Describe the improved implementation or solution...
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact-assessment
+    attributes:
+      label: 📊 Impact
+      description: How this debt affects development, performance, or maintainability
+      placeholder: |
+        - Development impact: How it affects future development
+        - Performance impact: Any performance implications  
+        - Maintainability impact: How it affects code maintenance
+        - User impact: Any user-facing effects
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: 🔧 Proposed Solution
+      description: Approach to addressing the debt
+      placeholder: Describe your recommended approach to fixing this...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: debt-category
+    attributes:
+      label: Debt Category
+      description: What type of technical debt is this?
+      options:
+        - Code Quality (refactoring, cleanup)
+        - Architecture (structural improvements)
+        - Performance (optimization needs)
+        - Testing (missing or inadequate tests)
+        - Documentation (missing or outdated docs)
+        - Security (security improvements)
+        - Dependencies (outdated or problematic dependencies)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency Level
+      description: How urgent is addressing this debt?
+      options:
+        - Medium (default - should be addressed soon)
+        - High (blocks current work or causes issues)
+        - Low (can be deferred to future sprint)
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: ✅ Acceptance Criteria
+      description: Specific criteria for when this debt is resolved
+      placeholder: |
+        - [ ] Specific improvement implemented
+        - [ ] Tests updated or added
+        - [ ] Documentation updated
+        - [ ] No regression in functionality
+      value: |
+        - [ ] Technical debt addressed according to proposed solution
+        - [ ] Code quality improved (linting, structure, readability)
+        - [ ] Tests updated or added to cover changes
+        - [ ] Documentation updated if needed
+        - [ ] No functional regressions introduced
+    validations:
+      required: true
