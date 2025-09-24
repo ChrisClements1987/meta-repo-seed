@@ -1,37 +1,78 @@
----
 name: Feature Request
-about: Suggest a new feature or enhancement for the Meta-Repo Seeding System
+description: Suggest a new feature or enhancement for the Meta-Repo Seeding System
 title: '[FEATURE] '
 labels: ['enhancement', 'roadmap']
 assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to suggest a new feature! Please fill out the information below to help us understand your request.
 
----
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: 🎯 Feature Description
+      description: A clear and concise description of the feature you'd like to see added.
+      placeholder: Describe the feature you want...
+    validations:
+      required: true
 
-## 🎯 Feature Description
-A clear and concise description of the feature you'd like to see added.
+  - type: textarea
+    id: problem-use-case
+    attributes:
+      label: 💡 Problem/Use Case
+      description: What problem does this solve? How would this feature be used?
+      placeholder: Explain the problem this feature would solve...
+    validations:
+      required: true
 
-## 💡 Problem/Use Case
-What problem does this solve? How would this feature be used?
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: 🏗️ Proposed Solution
+      description: Describe your preferred solution or approach.
+      placeholder: Describe how you think this should work...
 
-## 🏗️ Proposed Solution
-Describe your preferred solution or approach.
+  - type: checkboxes
+    id: acceptance-criteria
+    attributes:
+      label: 📋 Acceptance Criteria
+      description: Define what "done" looks like for this feature
+      options:
+        - label: I can define what "done" looks like for this feature
+        - label: I can list key requirements and behaviors
+        - label: I can identify important edge cases
 
-## 📋 Acceptance Criteria
-- [ ] Define what "done" looks like for this feature
-- [ ] List key requirements and behaviors
-- [ ] Include any important edge cases
+  - type: textarea
+    id: implementation-considerations
+    attributes:
+      label: 🔧 Implementation Considerations
+      description: Any technical considerations, dependencies, or constraints to keep in mind?
+      placeholder: Technical details, dependencies, etc...
 
-## 🔧 Implementation Considerations
-Any technical considerations, dependencies, or constraints to keep in mind?
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 📊 Priority
+      description: How important is this feature?
+      options:
+        - High - Critical for next release
+        - Medium - Important but can wait
+        - Low - Nice to have
+    validations:
+      required: true
 
-## 📊 Priority
-- [ ] High - Critical for next release
-- [ ] Medium - Important but can wait
-- [ ] Low - Nice to have
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 🎨 Additional Context
+      description: Add any other context, mockups, examples, or screenshots about the feature request here.
+      placeholder: Any additional information...
 
-## 🎨 Additional Context
-Add any other context, mockups, examples, or screenshots about the feature request here.
-
-## 📚 Related Items
-- Link to any related issues, PRs, or roadmap items
-- Reference any existing templates or features that might be affected
+  - type: textarea
+    id: related-items
+    attributes:
+      label: 📚 Related Items
+      description: Link to any related issues, PRs, or roadmap items
+      placeholder: "#123, relates to roadmap item X..."
