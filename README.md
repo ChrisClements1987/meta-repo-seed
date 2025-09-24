@@ -125,6 +125,14 @@ python seeding.py --list-configs
 - **Documentation generation** - automatic README creation
 - **Structure validation** - ensures compliance
 
+### 🔒 Security Features
+- **Path traversal protection** - Project names are sanitized to prevent directory traversal attacks
+- **Input validation** - All user inputs are validated against safe character sets
+- **Safe file operations** - File creation operations include security checks
+- **No privilege escalation** - Script runs with user permissions only
+
+> **Security Note**: Project names are restricted to letters, numbers, hyphens, underscores, and periods. Path separators, parent directory references (`..`), and absolute paths are rejected to prevent security vulnerabilities.
+
 ## 📋 Template Variables
 
 Templates automatically replace these variables:

@@ -32,6 +32,56 @@ def setup_logging(verbose: bool = False) -> logging.Logger:
     return logging.getLogger(__name__)
 
 
+def sanitize_project_name(name: str) -> str:
+    """
+    Sanitize and validate project name to prevent path traversal attacks.
+    
+    Args:
+        name: The project name to sanitize
+        
+    Returns:
+        Sanitized project name
+        
+    Raises:
+        ValueError: If the project name is invalid or potentially dangerous
+    """
+    import re
+    
+    if not name or not name.strip():
+        raise ValueError("Project name cannot be empty")
+    
+    name = name.strip()
+    
+    # Check for reserved names
+    if name in ("", ".", ".."):
+        raise ValueError("Invalid project name: cannot be '.', '..', or empty")
+    
+    # Check for absolute paths
+    if Path(name).is_absolute():
+        raise ValueError("Project name must not be an absolute path")
+    
+    # Check for path separators
+    seps = {os.sep}
+    if os.altsep:  # Windows also has forward slash
+        seps.add(os.altsep)
+    if any(sep in name for sep in seps):
+        raise ValueError("Project name must not contain path separators")
+    
+    # Check for parent directory traversal
+    if ".." in name:
+        raise ValueError("Project name must not contain '..' sequences")
+    
+    # Validate against safe character set (allow Unicode letters/numbers plus common safe chars)
+    if not re.match(r"^[\w\-_\.]+$", name, re.UNICODE):
+        raise ValueError("Project name may only contain letters, numbers, hyphens, underscores, and periods")
+    
+    # Additional length check for sanity
+    if len(name) > 255:
+        raise ValueError("Project name too long (maximum 255 characters)")
+    
+    return name
+
+
 def get_project_name() -> str:
     """Get the project name from the current directory name."""
     current_dir = Path.cwd()
@@ -42,7 +92,13 @@ def get_project_name() -> str:
         project_name = current_dir.name
     
     logger.info(f"Detected project name: {project_name}")
-    return project_name
+    
+    # Sanitize the detected project name
+    try:
+        return sanitize_project_name(project_name)
+    except ValueError as e:
+        logger.error(f"Detected project name is invalid: {e}")
+        raise ValueError(f"Invalid project name '{project_name}': {e}")
 
 
 def get_github_username() -> str:
@@ -945,7 +1001,14 @@ def main():
             config_data = config.load_config(args.config)
         
         # Get project configuration (CLI args override config file)
-        project_name = args.project or (config.get_project_name() if config_data else None) or get_project_name()
+        raw_project_name = args.project or (config.get_project_name() if config_data else None) or get_project_name()
+        
+        # Sanitize project name for security
+        try:
+            project_name = sanitize_project_name(raw_project_name)
+        except ValueError as e:
+            logger.error(f"Invalid project name: {e}")
+            sys.exit(1)
         github_username = args.username or (config.get_github_username() if config_data else None) or get_github_username()
         
         # Handle save-config option (save and exit)
