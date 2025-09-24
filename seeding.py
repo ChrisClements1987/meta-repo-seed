@@ -617,23 +617,79 @@ class RepoSeeder:
         script_templates = {
             'initialise_repo': '''#!/usr/bin/env python3
 """
-Initial commit script to create the initial structure of the repo 
-based on governance/structure/structure.json
+Repository Initialization Script
+
+This script initializes repository structure based on governance/structure/structure.json.
+Uses the Repository Automation Module (Issue #32 implementation).
+
+Usage:
+    python initialise_repo.py [--dry-run] [--verbose] [--structure PATH] [--target PATH]
+
+Note: This script requires the Structure Parser Module and Repository Automation Module.
+      Run from the repository root directory.
 """
 
-import json
-import logging
+import sys
+import argparse
 from pathlib import Path
+
+# Add the src directory to Python path for imports
+src_path = Path(__file__).parent.parent.parent / 'src'
+if src_path.exists():
+    sys.path.insert(0, str(src_path))
+
+try:
+    from automation.repository_initializer import RepositoryInitializer
+except ImportError as e:
+    print(f"❌ Import error: {e}")
+    print("💡 Make sure you're running from the repository root with the src/ directory available")
+    print("💡 This script requires the Repository Automation Module (Issue #32)")
+    sys.exit(1)
 
 
 def main():
     """Initialize repository structure based on structure.json."""
-    print(f"Initializing repository structure...")
-    # TODO: Implementation needed
+    parser = argparse.ArgumentParser(
+        description="Initialize repository structure from structure.json"
+    )
     
+    parser.add_argument('--structure', type=Path, 
+                       default=Path('governance/structure/structure.json'),
+                       help='Path to structure.json file')
+    parser.add_argument('--target', type=Path,
+                       help='Target directory for initialization')
+    parser.add_argument('--dry-run', action='store_true',
+                       help='Preview changes without making them')
+    parser.add_argument('--verbose', action='store_true', 
+                       help='Enable verbose logging')
+    
+    args = parser.parse_args()
+    
+    print("🚀 Repository Structure Initializer")
+    print("=" * 40)
+    
+    if not args.structure.exists():
+        print(f"❌ Structure file not found: {args.structure}")
+        return 1
+    
+    try:
+        initializer = RepositoryInitializer(dry_run=args.dry_run, verbose=args.verbose)
+        success = initializer.initialize_repository(args.structure, args.target)
+        
+        if success:
+            print("✅ Repository initialization completed!")
+            return 0
+        else:
+            print("❌ Repository initialization failed.")
+            return 1
+            
+    except KeyboardInterrupt:
+        print("\\n⏹️  Initialization cancelled")
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
 ''',
             'enforce_structure': '''#!/usr/bin/env python3
 """
