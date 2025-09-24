@@ -1,0 +1,97 @@
+# {{DECISION_NUMBER}}. {{DECISION_TITLE}}
+
+Date: {{CURRENT_DATE}}
+
+## Status
+
+{{STATUS}} <!-- Proposed, Accepted, Deprecated, Superseded -->
+
+## Context
+
+What is the issue that we're seeing that is motivating this decision or change?
+
+## Decision
+
+What is the change that we're proposing and/or doing?
+
+## Consequences
+
+What becomes easier or more difficult to do because of this change?
+
+### Positive Consequences
+
+- List the positive impacts
+- Include benefits to the team/project
+- Note any performance improvements
+
+### Negative Consequences
+
+- List the negative impacts or tradeoffs
+- Include any technical debt introduced
+- Note any complexity added
+
+## Implementation
+
+### Action Items
+
+- [ ] Task 1
+- [ ] Task 2
+- [ ] Task 3
+
+### Timeline
+
+- Start Date: {{CURRENT_DATE}}
+- Target Completion: [Insert Date]
+
+### Resources Required
+
+- Personnel: [List team members involved]
+- Tools/Technology: [List any new tools needed]
+- Budget: [If applicable]
+
+## Alternatives Considered
+
+### Alternative 1: {{ALTERNATIVE_NAME}}
+
+**Description:** Brief description of the alternative
+
+**Pros:**
+- List advantages
+
+**Cons:**
+- List disadvantages
+
+**Why not chosen:** Explanation
+
+### Alternative 2: {{ALTERNATIVE_NAME}}
+
+**Description:** Brief description of the alternative
+
+**Pros:**
+- List advantages
+
+**Cons:**
+- List disadvantages
+
+**Why not chosen:** Explanation
+
+## References
+
+- Link to related discussions
+- Link to relevant documentation
+- Link to related ADRs
+- External references
+
+## Notes
+
+Any additional notes or context that doesn't fit elsewhere.
+
+---
+
+**Decision Makers:** [List the people who made this decision]
+
+**Consulted:** [List the people who were consulted]
+
+**Informed:** [List the people who were informed]
+
+*This ADR follows the {{PROJECT_NAME}} governance framework for architecture decisions.*

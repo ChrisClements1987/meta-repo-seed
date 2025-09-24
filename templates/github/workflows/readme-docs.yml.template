@@ -1,0 +1,42 @@
+# .github/workflows/readme-docs.yml
+
+name: Generate READMEs
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+      - 'release/**'
+      - 'hotfix/**'
+      - develop
+    paths:
+      - 'repo-schema.json'
+
+jobs:
+  generate-docs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Required to push changes back to the repo
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Generate README files
+        run: python ./scripts/generate_readmes.py
+
+      - name: Commit and push if changed
+        run: |
+          git config --global user.name 'GitHub Actions Bot'
+          git config --global user.email 'actions-bot@github.com'
+          git add .
+          if ! git diff --staged --quiet; then
+            git commit -m "docs: auto-generate README files from schema"
+            git push
+          else
+            echo "No changes to README files."
+          fi

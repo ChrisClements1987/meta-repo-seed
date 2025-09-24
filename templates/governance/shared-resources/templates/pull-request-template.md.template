@@ -1,0 +1,79 @@
+## Summary
+
+Brief description of the changes in this PR.
+
+## Type of Change
+
+Please select the relevant option:
+
+- [ ] 🐛 Bug fix (non-breaking change that fixes an issue)
+- [ ] ✨ New feature (non-breaking change that adds functionality)
+- [ ] 💥 Breaking change (fix or feature that causes existing functionality to not work as expected)
+- [ ] 📚 Documentation (changes to documentation only)
+- [ ] 🔧 Refactoring (code changes that neither fix bugs nor add features)
+- [ ] ⚡ Performance (changes that improve performance)
+- [ ] ✅ Tests (adding missing tests or correcting existing tests)
+- [ ] 🔨 Build/CI (changes to build process or CI configuration)
+
+## Changes Made
+
+- List the specific changes made
+- Use bullet points for clarity
+- Include any architectural decisions
+
+## Testing
+
+- [ ] Unit tests pass
+- [ ] Integration tests pass
+- [ ] Manual testing completed
+- [ ] Performance impact assessed (if applicable)
+
+### Test Coverage
+- Current coverage: __%
+- Coverage change: +/- __%
+
+## Documentation
+
+- [ ] Code comments updated
+- [ ] Documentation updated (if applicable)
+- [ ] README updated (if applicable)
+- [ ] API documentation updated (if applicable)
+
+## Governance Compliance
+
+- [ ] Follows [coding standards](../../governance/standards/coding-standards.md)
+- [ ] Adheres to [security standards](../../governance/standards/security-standards.md)
+- [ ] Complies with project structure requirements
+- [ ] No sensitive data exposed
+
+## Dependencies
+
+- [ ] No new dependencies added
+- [ ] New dependencies justified and documented
+- [ ] Dependencies security-scanned
+- [ ] License compatibility verified
+
+## Breaking Changes
+
+If this introduces breaking changes, please describe the impact and migration path:
+
+## Screenshots (if applicable)
+
+## Additional Context
+
+Add any other context about the PR here.
+
+## Checklist
+
+- [ ] Self-review completed
+- [ ] Code follows the style guidelines
+- [ ] Tests added/updated appropriately
+- [ ] Documentation updated appropriately
+- [ ] No merge conflicts
+- [ ] Ready for review
+
+---
+
+**Reviewers:** @mention-reviewers-here
+
+*This PR template ensures consistency and quality across all contributions to {{PROJECT_NAME}}.*

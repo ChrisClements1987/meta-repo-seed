@@ -1,0 +1,131 @@
+# Getting Started with {{PROJECT_NAME}}
+
+Welcome to {{PROJECT_NAME}}! This guide will help you get up and running with our project structure and development environment.
+
+## Overview
+
+{{PROJECT_NAME}} follows a structured approach to organization and automation, designed to scale across multiple teams and projects while maintaining consistency and governance.
+
+## Project Structure
+
+Our project is organized into several key areas:
+
+### 📁 cloud-storage/
+Local file storage for business assets that will sync with cloud storage providers:
+- `strategy/` - High-level strategy documents and shared resources
+- `architecture/` - Architecture principles, decision records, and designs  
+- `workspace/` - Ongoing initiatives, meeting minutes, and working files
+- `documentation/` - Published content from meta-repo documentation
+
+### 📦 meta-repo/
+Central GitHub repository for shared code and governance:
+- `governance/` - Structure definitions, policies, processes, and standards
+- `automation/` - CI/CD pipelines, scripts, and Infrastructure as Code
+- `documentation/` - Centralized documentation (synced to cloud-storage)
+
+### 📦 core-services/
+Shared services and platforms:
+- `contented-cms/` - Shared Content Management Platform
+- `lightbulb-innovation-hub/` - Innovation Hub for idea management
+- `product-backlog-management/` - Portfolio backlog management
+- `tasks/` - Shared Task Management Platform
+
+### 📦 saas-products/
+Individual SaaS product repositories:
+- `sports-league/` - Our first product
+- Additional products as they're developed
+
+### 📦 partner-products/
+Partner product collaborations organized by partner
+
+### 📦 charity-products/
+Charitable and open-source projects
+
+## Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+- **Git** (latest version)
+- **Python 3.8+** for automation scripts
+- **Your preferred IDE** (VS Code recommended)
+- **GitHub account** with appropriate access
+
+## Quick Setup
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/{{GITHUB_USERNAME}}/{{PROJECT_NAME}}-meta-repo.git
+   cd {{PROJECT_NAME}}-meta-repo
+   ```
+
+2. **Set up Python environment**
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
+
+3. **Verify structure**
+   ```bash
+   python automation/scripts/enforce_structure.py --check
+   ```
+
+## Development Workflow
+
+### Branch Strategy
+- `main` - Production-ready code
+- `develop` - Integration branch for features
+- `feature/*` - Feature development branches
+- `release/*` - Release preparation branches
+- `hotfix/*` - Emergency fixes
+
+### Making Changes
+1. Create a feature branch from `develop`
+2. Make your changes following our [coding standards](../governance/standards/coding-standards.md)
+3. Run tests and validation scripts
+4. Submit a pull request using our [PR template](../governance/shared-resources/templates/pull-request-template.md)
+
+## Governance Framework
+
+Our project follows strict governance guidelines:
+
+- **Policies**: Review all policies in `governance/policies/`
+- **Processes**: Follow processes defined in `governance/processes/`  
+- **Standards**: Adhere to standards in `governance/standards/`
+- **Templates**: Use templates from `governance/shared-resources/templates/`
+
+## Automation Scripts
+
+The project includes several automation scripts in `automation/scripts/`:
+
+- `initialise_repo.py` - Set up new repository structure
+- `enforce_structure.py` - Validate repository compliance
+- `generate_readmes.py` - Auto-generate documentation
+
+Run these scripts regularly to maintain project health.
+
+## Getting Help
+
+- **Documentation**: Check our comprehensive docs in `documentation/`
+- **Issues**: Use GitHub Issues with appropriate templates
+- **Discussions**: Join GitHub Discussions for questions
+- **Standards**: Review our standards and processes
+- **FAQ**: Check our [FAQ](../documentation/shared-resources/faq.md)
+
+## Next Steps
+
+1. **Review governance policies** in `governance/policies/`
+2. **Understand the project structure** using `governance/structure/structure.json`
+3. **Set up your development environment**
+4. **Join team communications** and introduce yourself
+5. **Pick up your first issue** from the project backlog
+
+## Contributing
+
+Ready to contribute? Great! Please read our [Contributing Guidelines](../governance/policies/contributing.md) and [Code of Conduct](../governance/policies/code-of-conduct.md).
+
+---
+
+*Welcome to the {{PROJECT_NAME}} team! 🚀*
+
+*Last Updated: {{CURRENT_DATE}}*

@@ -1,0 +1,77 @@
+# Contributing to {{PROJECT_NAME}}
+
+Thank you for your interest in contributing to {{PROJECT_NAME}}! This document outlines the guidelines and processes for contributing to our project.
+
+## Getting Started
+
+1. **Fork the repository** and clone it locally
+2. **Set up your development environment** following our [setup guide](../documentation/guides/getting-started.md)
+3. **Read our standards** in the `governance/standards/` directory
+4. **Check existing issues** to see what needs work
+
+## Code of Conduct
+
+All contributors must adhere to our [Code of Conduct](code-of-conduct.md). We are committed to providing a welcoming and inclusive environment for everyone.
+
+## How to Contribute
+
+### Reporting Issues
+- Use the [issue template](.github/issue_template.md)
+- Search existing issues first to avoid duplicates
+- Provide clear reproduction steps
+- Include relevant system information
+
+### Submitting Changes
+1. **Create a feature branch** from `develop`
+2. **Make your changes** following our coding standards
+3. **Write or update tests** as appropriate
+4. **Update documentation** if needed
+5. **Submit a pull request** using our [PR template](.github/pull_request_template.md)
+
+### Pull Request Process
+- PRs must target the `develop` branch
+- All checks must pass (CI, tests, code review)
+- Requires at least one approval from a core team member
+- Squash commits when merging
+
+## Development Guidelines
+
+### Coding Standards
+- Follow our [coding standards](standards/coding-standards.md)
+- Use consistent formatting and naming conventions
+- Write self-documenting code with clear comments
+- Ensure all tests pass
+
+### Testing
+- Write unit tests for new functionality
+- Maintain test coverage above 80%
+- Run tests locally before submitting PR
+- Follow our [testing standards](standards/testing-standards.md)
+
+### Documentation
+- Update relevant documentation
+- Follow our [documentation standards](standards/documentation-standards.md)
+- Include code comments for complex logic
+- Update API documentation if applicable
+
+## Review Process
+
+1. **Automated checks** run on all PRs
+2. **Code review** by at least one team member
+3. **Testing** in staging environment if applicable
+4. **Final approval** by project maintainer
+
+## Getting Help
+
+- Join our discussions in GitHub Discussions
+- Ask questions in issues using the "question" label  
+- Review our [FAQ](../documentation/shared-resources/faq.md)
+- Contact maintainers directly for sensitive issues
+
+## Recognition
+
+Contributors will be recognized in our [contributors list](CONTRIBUTORS.md) and release notes.
+
+---
+
+*This document is part of the {{PROJECT_NAME}} governance framework.*
