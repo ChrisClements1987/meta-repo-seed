@@ -18,6 +18,7 @@ import yaml
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union, Any
 import tempfile
+from datetime import datetime
 
 
 def setup_logging(verbose: bool = False) -> logging.Logger:
@@ -110,27 +111,6 @@ def copy_template_file(source: Path, destination: Path, description: str = "") -
         raise
 
 
-def process_template_content(content: str, replacements: Dict[str, str]) -> str:
-    """
-    Process template content by replacing placeholder variables.
-    
-    Args:
-        content: Template content with {{VARIABLE}} placeholders
-        replacements: Dictionary mapping variable names to replacement values
-    
-    Returns:
-        Processed content with variables replaced
-    """
-    if not content or not replacements:
-        return content
-    
-    # Replace each placeholder with its corresponding value
-    for placeholder, value in replacements.items():
-        content = content.replace(f"{{{{{placeholder}}}}}", str(value))
-    
-    return content
-
-
 def create_file_from_template(template_path: Path, destination: Path, replacements: Dict[str, str], description: str = "") -> bool:
     """
     Create a file from a template with placeholder replacements.
@@ -149,151 +129,136 @@ def create_file_from_template(template_path: Path, destination: Path, replacemen
         with open(template_path, 'r', encoding='utf-8') as f:
             content = f.read()
         
-        # Process template content
-        processed_content = process_template_content(content, replacements)
+        # Replace placeholders
+        for placeholder, value in replacements.items():
+            content = content.replace(f"{{{{{placeholder}}}}}", value)
         
         # Ensure destination directory exists
         destination.parent.mkdir(parents=True, exist_ok=True)
         
         # Write processed content to destination
         with open(destination, 'w', encoding='utf-8') as f:
-            f.write(processed_content)
+            f.write(content)
         
         logger.info(f"Created file from template: {destination} {description}")
         return True
     except Exception as e:
         logger.error(f"Failed to create {destination} from template {template_path}: {e}")
-        return False
+        raise
 
 
 class Configuration:
-    """
-    Configuration class for managing seeding parameters and file operations.
+    """Handle configuration file operations for seeding parameters."""
     
-    Supports loading and saving configuration in YAML or JSON formats.
-    """
+    def __init__(self):
+        self.config_data = {}
+        self.supported_formats = ['.yaml', '.yml', '.json']
     
-    def __init__(
-        self, 
-        project_name: Optional[str] = None,
-        github_username: Optional[str] = None,
-        dry_run: bool = False,
-        templates_dir: Optional[Union[str, Path]] = None,
-        base_path: Optional[Union[str, Path]] = None
-    ):
-        """Initialize configuration with optional parameters."""
-        self.project_name = project_name
-        self.github_username = github_username
-        self.dry_run = dry_run
-        self.templates_dir = Path(templates_dir) if templates_dir else None
-        self.base_path = Path(base_path) if base_path else None
-    
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'Configuration':
-        """Create Configuration instance from dictionary."""
-        return cls(
-            project_name=data.get('project_name'),
-            github_username=data.get('github_username'), 
-            dry_run=data.get('dry_run', False),
-            templates_dir=data.get('templates_dir'),
-            base_path=data.get('base_path')
-        )
-    
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert Configuration to dictionary."""
-        return {
-            'project_name': self.project_name,
-            'github_username': self.github_username,
-            'dry_run': self.dry_run,
-            'templates_dir': str(self.templates_dir) if self.templates_dir else None,
-            'base_path': str(self.base_path) if self.base_path else None
+    def save_config(self, config_path: Path, project_name: str, github_username: str, 
+                   template_path: Optional[str] = None, **kwargs) -> None:
+        """Save current configuration to a file."""
+        config_data = {
+            'project_name': project_name,
+            'github_username': github_username,
+            'created_at': datetime.now().isoformat(),
+            'version': '1.1.0',
+            'template_path': template_path,
+            'replacements': {
+                'PROJECT_NAME': project_name,
+                'GITHUB_USERNAME': github_username,
+                'CURRENT_DATE': datetime.now().strftime('%Y-%m-%d'),
+                'DECISION_NUMBER': kwargs.get('decision_number', '001'),
+                'DECISION_TITLE': kwargs.get('decision_title', 'Sample Decision'),
+                'STATUS': kwargs.get('status', 'Proposed'),
+                'ALTERNATIVE_NAME': kwargs.get('alternative_name', 'Alternative Option')
+            }
         }
-    
-    def save(self, config_file: Path) -> bool:
-        """
-        Save configuration to file.
         
-        Args:
-            config_file: Path to save configuration file
-            
-        Returns:
-            True if successful, False otherwise
-            
-        Raises:
-            ValueError: For unsupported file formats
-        """
-        try:
-            # Ensure parent directory exists
-            config_file.parent.mkdir(parents=True, exist_ok=True)
-            
-            # Determine format from file extension
-            suffix = config_file.suffix.lower()
-            
-            data = self.to_dict()
-            
-            if suffix == '.yaml' or suffix == '.yml':
-                with open(config_file, 'w', encoding='utf-8') as f:
-                    yaml.safe_dump(data, f, default_flow_style=False, indent=2)
-            elif suffix == '.json':
-                with open(config_file, 'w', encoding='utf-8') as f:
-                    json.dump(data, f, indent=2)
-            else:
-                raise ValueError(f"Unsupported config format: {suffix}")
-            
-            logger.info(f"Saved configuration to: {config_file}")
-            return True
-            
-        except Exception as e:
-            logger.error(f"Failed to save configuration to {config_file}: {e}")
-            # Re-raise ValueError for unsupported formats
-            if isinstance(e, ValueError) and "Unsupported config format" in str(e):
-                raise
-            return False
-    
-    @classmethod
-    def load(cls, config_file: Path) -> Optional['Configuration']:
-        """
-        Load configuration from file.
+        # Add any additional configuration options
+        for key, value in kwargs.items():
+            if key not in config_data and key not in config_data['replacements']:
+                config_data[key] = value
         
-        Args:
-            config_file: Path to configuration file
-            
-        Returns:
-            Configuration instance or None if failed
-        """
-        if not config_file.exists():
-            return None
-            
+        config_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        if config_path.suffix.lower() in ['.yaml', '.yml']:
+            try:
+                with open(config_path, 'w', encoding='utf-8') as f:
+                    yaml.safe_dump(config_data, f, default_flow_style=False, sort_keys=False)
+                logger.info(f"✓ Configuration saved to {config_path}")
+            except ImportError:
+                logger.warning("PyYAML not available, falling back to JSON format")
+                json_path = config_path.with_suffix('.json')
+                with open(json_path, 'w', encoding='utf-8') as f:
+                    json.dump(config_data, f, indent=2)
+                logger.info(f"✓ Configuration saved to {json_path}")
+        else:
+            with open(config_path, 'w', encoding='utf-8') as f:
+                json.dump(config_data, f, indent=2)
+            logger.info(f"✓ Configuration saved to {config_path}")
+    
+    def load_config(self, config_path: Path) -> Dict[str, Any]:
+        """Load configuration from a file."""
+        if not config_path.exists():
+            raise FileNotFoundError(f"Configuration file not found: {config_path}")
+        
+        if config_path.suffix.lower() not in self.supported_formats:
+            raise ValueError(f"Unsupported config format. Supported: {', '.join(self.supported_formats)}")
+        
         try:
-            suffix = config_file.suffix.lower()
+            with open(config_path, 'r', encoding='utf-8') as f:
+                if config_path.suffix.lower() in ['.yaml', '.yml']:
+                    try:
+                        self.config_data = yaml.safe_load(f) or {}
+                    except ImportError:
+                        raise ImportError("PyYAML is required for YAML config files. Install with: pip install pyyaml")
+                else:
+                    self.config_data = json.load(f)
             
-            if suffix == '.yaml' or suffix == '.yml':
-                with open(config_file, 'r', encoding='utf-8') as f:
-                    data = yaml.safe_load(f)
-            elif suffix == '.json':
-                with open(config_file, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-            else:
-                logger.warning(f"Unsupported config format: {suffix}")
-                return None
+            logger.info(f"✓ Configuration loaded from {config_path}")
+            return self.config_data
             
-            if data is None:
-                return None
-                
-            return cls.from_dict(data)
-            
+        except (yaml.YAMLError, json.JSONDecodeError) as e:
+            raise ValueError(f"Invalid configuration file format: {e}")
         except Exception as e:
-            logger.error(f"Failed to load configuration from {config_file}: {e}")
-            return None
+            raise Exception(f"Error loading configuration: {e}")
+    
+    def get_project_name(self) -> Optional[str]:
+        """Get project name from loaded configuration."""
+        return self.config_data.get('project_name')
+    
+    def get_github_username(self) -> Optional[str]:
+        """Get GitHub username from loaded configuration."""
+        return self.config_data.get('github_username')
+    
+    def get_template_path(self) -> Optional[str]:
+        """Get template path from loaded configuration."""
+        return self.config_data.get('template_path')
+    
+    def get_replacements(self) -> Dict[str, str]:
+        """Get template replacements from loaded configuration."""
+        return self.config_data.get('replacements', {})
+    
+    def list_available_configs(self, directory: Path = None) -> List[Path]:
+        """List available configuration files in a directory."""
+        search_dir = directory or Path.cwd()
+        config_files = []
+        
+        for ext in self.supported_formats:
+            config_files.extend(search_dir.glob(f"*{ext}"))
+        
+        return sorted(config_files)
 
 
 class RepoSeeder:
     """Main class for seeding repository structure."""
     
-    def __init__(self, project_name: str, github_username: str, dry_run: bool = False):
+    def __init__(self, project_name: str, github_username: str, dry_run: bool = False, 
+                 config_data: Optional[Dict[str, Any]] = None):
         self.project_name = project_name
         self.github_username = github_username
         self.dry_run = dry_run
+        self.config_data = config_data or {}
         self.base_path = Path.cwd().parent if Path.cwd().name == 'meta-repo-seed' else Path.cwd()
         self.project_root = self.base_path / project_name
         self.meta_repo_path = self.project_root / 'meta-repo'
@@ -301,22 +266,31 @@ class RepoSeeder:
         self.template_path = Path.cwd()  # Current directory contains templates
         self.templates_dir = self.template_path / 'templates'
         
-        # Template replacements dictionary
-        self.replacements = {
-            'PROJECT_NAME': project_name,
-            'GITHUB_USERNAME': github_username,
-            'CURRENT_DATE': '2025-09-24',
-            'DECISION_NUMBER': '001',
-            'DECISION_TITLE': 'Sample Decision',
-            'STATUS': 'Proposed',
-            'ALTERNATIVE_NAME': 'Alternative Option'
-        }
+        # Template replacements dictionary - use config data if available
+        if self.config_data and 'replacements' in self.config_data:
+            self.replacements = self.config_data['replacements'].copy()
+            # Update with current values to ensure they're fresh
+            self.replacements['PROJECT_NAME'] = project_name
+            self.replacements['GITHUB_USERNAME'] = github_username
+            self.replacements['CURRENT_DATE'] = datetime.now().strftime('%Y-%m-%d')
+        else:
+            self.replacements = {
+                'PROJECT_NAME': project_name,
+                'GITHUB_USERNAME': github_username,
+                'CURRENT_DATE': datetime.now().strftime('%Y-%m-%d'),
+                'DECISION_NUMBER': '001',
+                'DECISION_TITLE': 'Sample Decision',
+                'STATUS': 'Proposed',
+                'ALTERNATIVE_NAME': 'Alternative Option'
+            }
         
         logger.info(f"Initializing RepoSeeder for project: {project_name}")
         logger.info(f"GitHub username: {github_username}")
         logger.info(f"Project root: {self.project_root}")
         logger.info(f"Templates directory: {self.templates_dir}")
         logger.info(f"Dry run mode: {dry_run}")
+        if config_data:
+            logger.info(f"Using configuration data with {len(config_data)} settings")
     
     def run(self):
         """Main execution method."""
@@ -810,20 +784,19 @@ def parse_arguments():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python seeding.py                    # Run with auto-detection
-  python seeding.py --dry-run         # Preview changes without making them  
-  python seeding.py --verbose         # Enable detailed logging
+  python seeding.py                              # Run with auto-detection
+  python seeding.py --dry-run                   # Preview changes without making them  
+  python seeding.py --verbose                   # Enable detailed logging
   python seeding.py --project myproj --username johndoe
-  python seeding.py --config project.yaml  # Load settings from config file
+  
+Configuration file examples:
+  python seeding.py --save-config myproject.yaml    # Save current settings to config
+  python seeding.py --config myproject.yaml         # Load settings from config
+  python seeding.py --list-configs                  # List available config files
         """
     )
     
-    parser.add_argument(
-        '--config',
-        type=Path,
-        help='Configuration file (YAML or JSON format)'
-    )
-    
+    # Basic options
     parser.add_argument(
         '--project',
         type=str,
@@ -848,6 +821,32 @@ Examples:
         help='Enable verbose logging'
     )
     
+    # Configuration file options
+    parser.add_argument(
+        '--config',
+        type=Path,
+        help='Load configuration from YAML or JSON file'
+    )
+    
+    parser.add_argument(
+        '--save-config',
+        type=Path,
+        help='Save current configuration to file (supports .yaml, .yml, .json)'
+    )
+    
+    parser.add_argument(
+        '--list-configs',
+        action='store_true',
+        help='List available configuration files in current directory'
+    )
+    
+    # Advanced template options
+    parser.add_argument(
+        '--template-path',
+        type=Path,
+        help='Custom path to templates directory'
+    )
+    
     return parser.parse_args()
 
 
@@ -859,38 +858,80 @@ def main():
     logger = setup_logging(args.verbose)
     
     try:
-        # Load configuration from file if specified
-        config = None
-        if args.config:
-            config = Configuration.load(args.config)
-            if config is None:
-                logger.error(f"Failed to load configuration from: {args.config}")
-                sys.exit(1)
-            logger.info(f"Loaded configuration from: {args.config}")
-        else:
-            config = Configuration()
+        config = Configuration()
+        config_data = None
         
-        # Override config with command line arguments
-        project_name = args.project or config.project_name or get_project_name()
-        github_username = args.username or config.github_username or get_github_username()
-        dry_run = args.dry_run or config.dry_run
+        # Handle list-configs option
+        if args.list_configs:
+            config_files = config.list_available_configs()
+            if config_files:
+                logger.info("📋 Available configuration files:")
+                for config_file in config_files:
+                    try:
+                        # Try to load and show basic info
+                        temp_config = config.load_config(config_file)
+                        project_name = temp_config.get('project_name', 'Unknown')
+                        created_at = temp_config.get('created_at', 'Unknown')
+                        logger.info(f"  {config_file} - Project: {project_name}, Created: {created_at}")
+                    except Exception as e:
+                        logger.info(f"  {config_file} - Error reading: {e}")
+            else:
+                logger.info("No configuration files found in current directory")
+            return
+        
+        # Load configuration if specified
+        if args.config:
+            if not args.config.exists():
+                logger.error(f"Configuration file not found: {args.config}")
+                sys.exit(1)
+            
+            logger.info(f"Loading configuration from {args.config}")
+            config_data = config.load_config(args.config)
+        
+        # Get project configuration (CLI args override config file)
+        project_name = args.project or (config.get_project_name() if config_data else None) or get_project_name()
+        github_username = args.username or (config.get_github_username() if config_data else None) or get_github_username()
+        
+        # Handle save-config option (save and exit)
+        if args.save_config:
+            logger.info(f"Saving configuration to {args.save_config}")
+            config.save_config(
+                args.save_config, 
+                project_name, 
+                github_username,
+                template_path=str(args.template_path) if args.template_path else None
+            )
+            logger.info("✓ Configuration saved successfully!")
+            return
         
         # Initialize and run seeder
-        seeder = RepoSeeder(project_name, github_username, dry_run)
+        seeder = RepoSeeder(project_name, github_username, args.dry_run, config_data)
         
-        # Override templates_dir if specified in config
-        if config.templates_dir:
-            seeder.templates_dir = config.templates_dir
+        # Override template path if specified
+        if args.template_path:
+            if args.template_path.exists():
+                seeder.templates_dir = args.template_path
+                logger.info(f"Using custom template path: {args.template_path}")
+            else:
+                logger.warning(f"Template path does not exist, using default: {seeder.templates_dir}")
         
         seeder.run()
         
         logger.info("✓ Repository seeding completed successfully!")
-        if dry_run:
+        if args.dry_run:
             logger.info("This was a dry run - no actual changes were made.")
             logger.info("Run without --dry-run to apply changes.")
             
     except KeyboardInterrupt:
         logger.info("Operation cancelled by user")
+        sys.exit(1)
+    except ImportError as e:
+        if "yaml" in str(e).lower():
+            logger.error("PyYAML is required for YAML configuration files.")
+            logger.error("Install with: pip install pyyaml")
+            logger.error("Alternatively, use JSON format for configuration files.")
+        else:
+            logger.error(f"Import error: {e}")
         sys.exit(1)
     except Exception as e:
         logger.error(f"Fatal error: {e}")
