@@ -64,6 +64,27 @@ your-project/
    python seeding.py
    ```
 
+### ⚙️ Configuration File Support
+
+Save and reuse project configurations for consistent setups:
+
+```bash
+# Save current settings to a configuration file
+python seeding.py --save-config my-project.yaml --project MyProject --username myusername
+
+# Load configuration from file
+python seeding.py --config my-project.yaml
+
+# Override specific values from config
+python seeding.py --config my-project.yaml --project DifferentName --dry-run
+
+# List available configurations
+python seeding.py --list-configs
+```
+
+**Supported formats**: YAML (`.yaml`, `.yml`) and JSON (`.json`)  
+**Examples**: See [`examples/`](examples/) directory for sample configurations and detailed usage guide.
+
 4. **Or specify custom parameters**
    ```bash
    python seeding.py --project myproject --username myusername

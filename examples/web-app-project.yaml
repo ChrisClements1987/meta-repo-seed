@@ -1,0 +1,14 @@
+# Example Configuration: Web Application Project
+project_name: my-web-app
+github_username: johndoe
+created_at: '2025-09-24T18:40:00.000000'
+version: 1.1.0
+template_path: null
+replacements:
+  PROJECT_NAME: my-web-app
+  GITHUB_USERNAME: johndoe
+  CURRENT_DATE: '2025-09-24'
+  DECISION_NUMBER: '001'
+  DECISION_TITLE: Choose Frontend Framework
+  STATUS: Accepted
+  ALTERNATIVE_NAME: Vue.js Alternative
