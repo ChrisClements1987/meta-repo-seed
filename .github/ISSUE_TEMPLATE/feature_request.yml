@@ -1,0 +1,37 @@
+---
+name: Feature Request
+about: Suggest a new feature or enhancement for the Meta-Repo Seeding System
+title: '[FEATURE] '
+labels: ['enhancement', 'roadmap']
+assignees: []
+
+---
+
+## 🎯 Feature Description
+A clear and concise description of the feature you'd like to see added.
+
+## 💡 Problem/Use Case
+What problem does this solve? How would this feature be used?
+
+## 🏗️ Proposed Solution
+Describe your preferred solution or approach.
+
+## 📋 Acceptance Criteria
+- [ ] Define what "done" looks like for this feature
+- [ ] List key requirements and behaviors
+- [ ] Include any important edge cases
+
+## 🔧 Implementation Considerations
+Any technical considerations, dependencies, or constraints to keep in mind?
+
+## 📊 Priority
+- [ ] High - Critical for next release
+- [ ] Medium - Important but can wait
+- [ ] Low - Nice to have
+
+## 🎨 Additional Context
+Add any other context, mockups, examples, or screenshots about the feature request here.
+
+## 📚 Related Items
+- Link to any related issues, PRs, or roadmap items
+- Reference any existing templates or features that might be affected

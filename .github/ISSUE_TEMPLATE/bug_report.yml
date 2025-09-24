@@ -1,0 +1,44 @@
+---
+name: Bug Report
+about: Report a bug or issue with the Meta-Repo Seeding System
+title: '[BUG] '
+labels: ['bug']
+assignees: []
+
+---
+
+## 🐛 Bug Description
+A clear and concise description of what the bug is.
+
+## 🔄 Steps to Reproduce
+1. Run command: `python seeding.py ...`
+2. With these parameters: `...`
+3. See error/unexpected behavior
+
+## ✅ Expected Behavior
+A clear and concise description of what you expected to happen.
+
+## ❌ Actual Behavior
+A clear and concise description of what actually happened.
+
+## 📊 Environment
+- OS: [e.g., Windows 11, macOS 14, Ubuntu 22.04]
+- Python version: [e.g., 3.9.7]
+- Git version: [e.g., 2.42.0]
+- Meta-repo-seed version/commit: [e.g., v1.0.0 or commit hash]
+
+## 📝 Command Output
+```
+Paste the full command output here, including any error messages
+```
+
+## 📁 Generated Files (if applicable)
+If the bug affects file generation, please include:
+- List of files that were/weren't created
+- Content of any incorrectly generated files
+
+## 🔧 Workaround
+If you found a temporary workaround, please describe it.
+
+## 📚 Additional Context
+Add any other context about the problem here.

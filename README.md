@@ -130,6 +130,8 @@ Templates are stored in `templates/` directory - modify them directly to customi
 ## 📚 Documentation
 
 - [`TEMPLATES.md`](TEMPLATES.md) - Complete template structure and status
+- [`CHANGELOG.md`](CHANGELOG.md) - Track all released features and improvements  
+- [`ROADMAP.md`](ROADMAP.md) - Planned features and development priorities
 - Generated documentation in your project's `meta-repo/documentation/`
 - Governance policies in `meta-repo/governance/policies/`
 
