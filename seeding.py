@@ -14,8 +14,9 @@ import shutil
 import subprocess
 import argparse
 import logging
+import yaml
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Union, Any
 import tempfile
 
 
@@ -109,6 +110,27 @@ def copy_template_file(source: Path, destination: Path, description: str = "") -
         raise
 
 
+def process_template_content(content: str, replacements: Dict[str, str]) -> str:
+    """
+    Process template content by replacing placeholder variables.
+    
+    Args:
+        content: Template content with {{VARIABLE}} placeholders
+        replacements: Dictionary mapping variable names to replacement values
+    
+    Returns:
+        Processed content with variables replaced
+    """
+    if not content or not replacements:
+        return content
+    
+    # Replace each placeholder with its corresponding value
+    for placeholder, value in replacements.items():
+        content = content.replace(f"{{{{{placeholder}}}}}", str(value))
+    
+    return content
+
+
 def create_file_from_template(template_path: Path, destination: Path, replacements: Dict[str, str], description: str = "") -> bool:
     """
     Create a file from a template with placeholder replacements.
@@ -127,22 +149,142 @@ def create_file_from_template(template_path: Path, destination: Path, replacemen
         with open(template_path, 'r', encoding='utf-8') as f:
             content = f.read()
         
-        # Replace placeholders
-        for placeholder, value in replacements.items():
-            content = content.replace(f"{{{{{placeholder}}}}}", value)
+        # Process template content
+        processed_content = process_template_content(content, replacements)
         
         # Ensure destination directory exists
         destination.parent.mkdir(parents=True, exist_ok=True)
         
         # Write processed content to destination
         with open(destination, 'w', encoding='utf-8') as f:
-            f.write(content)
+            f.write(processed_content)
         
         logger.info(f"Created file from template: {destination} {description}")
         return True
     except Exception as e:
         logger.error(f"Failed to create {destination} from template {template_path}: {e}")
-        raise
+        return False
+
+
+class Configuration:
+    """
+    Configuration class for managing seeding parameters and file operations.
+    
+    Supports loading and saving configuration in YAML or JSON formats.
+    """
+    
+    def __init__(
+        self, 
+        project_name: Optional[str] = None,
+        github_username: Optional[str] = None,
+        dry_run: bool = False,
+        templates_dir: Optional[Union[str, Path]] = None,
+        base_path: Optional[Union[str, Path]] = None
+    ):
+        """Initialize configuration with optional parameters."""
+        self.project_name = project_name
+        self.github_username = github_username
+        self.dry_run = dry_run
+        self.templates_dir = Path(templates_dir) if templates_dir else None
+        self.base_path = Path(base_path) if base_path else None
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'Configuration':
+        """Create Configuration instance from dictionary."""
+        return cls(
+            project_name=data.get('project_name'),
+            github_username=data.get('github_username'), 
+            dry_run=data.get('dry_run', False),
+            templates_dir=data.get('templates_dir'),
+            base_path=data.get('base_path')
+        )
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert Configuration to dictionary."""
+        return {
+            'project_name': self.project_name,
+            'github_username': self.github_username,
+            'dry_run': self.dry_run,
+            'templates_dir': str(self.templates_dir) if self.templates_dir else None,
+            'base_path': str(self.base_path) if self.base_path else None
+        }
+    
+    def save(self, config_file: Path) -> bool:
+        """
+        Save configuration to file.
+        
+        Args:
+            config_file: Path to save configuration file
+            
+        Returns:
+            True if successful, False otherwise
+            
+        Raises:
+            ValueError: For unsupported file formats
+        """
+        try:
+            # Ensure parent directory exists
+            config_file.parent.mkdir(parents=True, exist_ok=True)
+            
+            # Determine format from file extension
+            suffix = config_file.suffix.lower()
+            
+            data = self.to_dict()
+            
+            if suffix == '.yaml' or suffix == '.yml':
+                with open(config_file, 'w', encoding='utf-8') as f:
+                    yaml.safe_dump(data, f, default_flow_style=False, indent=2)
+            elif suffix == '.json':
+                with open(config_file, 'w', encoding='utf-8') as f:
+                    json.dump(data, f, indent=2)
+            else:
+                raise ValueError(f"Unsupported config format: {suffix}")
+            
+            logger.info(f"Saved configuration to: {config_file}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Failed to save configuration to {config_file}: {e}")
+            # Re-raise ValueError for unsupported formats
+            if isinstance(e, ValueError) and "Unsupported config format" in str(e):
+                raise
+            return False
+    
+    @classmethod
+    def load(cls, config_file: Path) -> Optional['Configuration']:
+        """
+        Load configuration from file.
+        
+        Args:
+            config_file: Path to configuration file
+            
+        Returns:
+            Configuration instance or None if failed
+        """
+        if not config_file.exists():
+            return None
+            
+        try:
+            suffix = config_file.suffix.lower()
+            
+            if suffix == '.yaml' or suffix == '.yml':
+                with open(config_file, 'r', encoding='utf-8') as f:
+                    data = yaml.safe_load(f)
+            elif suffix == '.json':
+                with open(config_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+            else:
+                logger.warning(f"Unsupported config format: {suffix}")
+                return None
+            
+            if data is None:
+                return None
+                
+            return cls.from_dict(data)
+            
+        except Exception as e:
+            logger.error(f"Failed to load configuration from {config_file}: {e}")
+            return None
 
 
 class RepoSeeder:
@@ -672,7 +814,14 @@ Examples:
   python seeding.py --dry-run         # Preview changes without making them  
   python seeding.py --verbose         # Enable detailed logging
   python seeding.py --project myproj --username johndoe
+  python seeding.py --config project.yaml  # Load settings from config file
         """
+    )
+    
+    parser.add_argument(
+        '--config',
+        type=Path,
+        help='Configuration file (YAML or JSON format)'
     )
     
     parser.add_argument(
@@ -710,16 +859,33 @@ def main():
     logger = setup_logging(args.verbose)
     
     try:
-        # Get project configuration
-        project_name = args.project or get_project_name()
-        github_username = args.username or get_github_username()
+        # Load configuration from file if specified
+        config = None
+        if args.config:
+            config = Configuration.load(args.config)
+            if config is None:
+                logger.error(f"Failed to load configuration from: {args.config}")
+                sys.exit(1)
+            logger.info(f"Loaded configuration from: {args.config}")
+        else:
+            config = Configuration()
+        
+        # Override config with command line arguments
+        project_name = args.project or config.project_name or get_project_name()
+        github_username = args.username or config.github_username or get_github_username()
+        dry_run = args.dry_run or config.dry_run
         
         # Initialize and run seeder
-        seeder = RepoSeeder(project_name, github_username, args.dry_run)
+        seeder = RepoSeeder(project_name, github_username, dry_run)
+        
+        # Override templates_dir if specified in config
+        if config.templates_dir:
+            seeder.templates_dir = config.templates_dir
+        
         seeder.run()
         
         logger.info("✓ Repository seeding completed successfully!")
-        if args.dry_run:
+        if dry_run:
             logger.info("This was a dry run - no actual changes were made.")
             logger.info("Run without --dry-run to apply changes.")
             
