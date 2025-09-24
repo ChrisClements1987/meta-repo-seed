@@ -1,0 +1,14 @@
+# Global code owners - require review for all changes
+* @ChrisClements1987
+
+# Core files require explicit approval
+/seeding.py @ChrisClements1987
+/README.md @ChrisClements1987
+/LICENSE @ChrisClements1987
+
+# Template system requires review
+/templates/ @ChrisClements1987
+
+# Documentation changes
+/TEMPLATES.md @ChrisClements1987
+/.github/ @ChrisClements1987

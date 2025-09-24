@@ -61,3 +61,4 @@ logs/
 !/templates/
 !/docs/
 !/examples/
+!/.github/
