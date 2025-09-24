@@ -141,6 +141,18 @@ Templates are stored in `templates/` directory - modify them directly to customi
 ### Project Structure
 ```
 meta-repo-seed/
+├── scripts/               # Management and utility scripts
+│   ├── roadmap_manager.py     # Roadmap and changelog management
+│   ├── create_roadmap_issues.py # GitHub issue creation
+│   ├── map_issues_to_roadmap.py # Issue-roadmap linking
+│   └── README.md              # Scripts documentation
+├── templates/             # Template files for project generation
+│   ├── governance/        # Governance templates
+│   ├── github/workflows/  # GitHub Actions templates  
+│   ├── cloud-storage/     # Cloud integration templates
+│   └── documentation/     # Documentation templates
+├── TEMPLATES.md           # Template documentation
+└── seeding.py            # Main seeding script
 ├── seeding.py              # Main seeding script
 ├── templates/              # All template files
 │   ├── github/             # GitHub workflow templates
@@ -190,21 +202,21 @@ We welcome contributions! Here's how you can help:
 1. **Read [`WORKFLOW.md`](WORKFLOW.md)** for detailed contribution guidelines
 2. **Fork and create feature branches** for your changes
 3. **Follow our branch protection rules** - PRs required for main branch
-4. **Use our roadmap manager**: `python roadmap_manager.py --help`
+4. **Use our roadmap manager**: `python scripts/roadmap_manager.py --help`
 
 ### 📋 Feature Management Tools
 ```bash
 # List current roadmap features
-python roadmap_manager.py list
+python scripts/roadmap_manager.py list
 
 # Add new feature to roadmap  
-python roadmap_manager.py add "Feature Name" "Description"
+python scripts/roadmap_manager.py add "Feature Name" "Description"
 
 # Mark feature as completed
-python roadmap_manager.py complete "Feature Name" "1.1.0" "Changelog description"
+python scripts/roadmap_manager.py complete "Feature Name" "1.1.0" "Changelog description"
 
 # Generate roadmap report
-python roadmap_manager.py report
+python scripts/roadmap_manager.py report
 ```
 
 ## 🆘 Support
