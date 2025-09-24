@@ -132,6 +132,7 @@ Templates are stored in `templates/` directory - modify them directly to customi
 - [`TEMPLATES.md`](TEMPLATES.md) - Complete template structure and status
 - [`CHANGELOG.md`](CHANGELOG.md) - Track all released features and improvements  
 - [`ROADMAP.md`](ROADMAP.md) - Planned features and development priorities
+- [`WORKFLOW.md`](WORKFLOW.md) - Feature development and contribution process
 - Generated documentation in your project's `meta-repo/documentation/`
 - Governance policies in `meta-repo/governance/policies/`
 
@@ -171,11 +172,47 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 Current Version: **1.0.0**
 
+## 🤝 Contributing
+
+We welcome contributions! Here's how you can help:
+
+### 💡 Suggesting Features
+1. **Check existing issues** and roadmap first
+2. **Create a feature request** using our GitHub issue template
+3. **Join the discussion** - we value community input on feature design
+
+### 🐛 Reporting Bugs  
+1. **Use our bug report template** for consistent information
+2. **Include reproduction steps** and environment details
+3. **Check for existing reports** to avoid duplicates
+
+### 🔧 Development Process
+1. **Read [`WORKFLOW.md`](WORKFLOW.md)** for detailed contribution guidelines
+2. **Fork and create feature branches** for your changes
+3. **Follow our branch protection rules** - PRs required for main branch
+4. **Use our roadmap manager**: `python roadmap_manager.py --help`
+
+### 📋 Feature Management Tools
+```bash
+# List current roadmap features
+python roadmap_manager.py list
+
+# Add new feature to roadmap  
+python roadmap_manager.py add "Feature Name" "Description"
+
+# Mark feature as completed
+python roadmap_manager.py complete "Feature Name" "1.1.0" "Changelog description"
+
+# Generate roadmap report
+python roadmap_manager.py report
+```
+
 ## 🆘 Support
 
 - **Issues**: Use GitHub Issues for bug reports and feature requests
 - **Discussions**: Use GitHub Discussions for questions and ideas
 - **Documentation**: Check the generated documentation in your project
+- **Workflow**: See [`WORKFLOW.md`](WORKFLOW.md) for development process
 
 ## ⭐ Features Roadmap
 
