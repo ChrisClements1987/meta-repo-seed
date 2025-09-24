@@ -31,16 +31,21 @@ def read_changelog():
         return changelog_path.read_text(encoding='utf-8')
     return ""
 
-def move_to_changelog(feature_name, version, feature_description):
+def move_to_changelog(feature_name, version, feature_description, issue_number=None):
     """Move a completed feature from roadmap to changelog"""
     print(f"Moving '{feature_name}' to CHANGELOG.md under version {version}")
     
     # Read current changelog
     changelog_content = read_changelog()
     
+    # Create entry with optional issue reference
+    if issue_number:
+        new_entry = f"- **{feature_name}** ([#{issue_number}](https://github.com/ChrisClements1987/meta-repo-seed/issues/{issue_number})) - {feature_description}\n"
+    else:
+        new_entry = f"- **{feature_name}** - {feature_description}\n"
+    
     # Find the unreleased section
     unreleased_pattern = r'## \[Unreleased\]\s*\n\s*\n### Added\s*\n'
-    new_entry = f"- **{feature_name}** - {feature_description}\n"
     
     # Add the feature to the unreleased section
     if '## [Unreleased]' in changelog_content:
@@ -75,8 +80,8 @@ def remove_from_roadmap(feature_name):
     
     roadmap_content = read_roadmap()
     
-    # Pattern to match feature items (lines starting with - [ ])
-    pattern = rf'- \[ \] \*\*{re.escape(feature_name)}\*\*.*?\n(?:  .*?\n)*'
+    # Pattern to match feature items (lines starting with - [ ]) with optional issue references
+    pattern = rf'- \[ \] \*\*{re.escape(feature_name)}\*\*(?:\s*\(\[#\d+\].*?\))? - .*?\n(?:  .*?\n)*'
     updated_content = re.sub(pattern, '', roadmap_content, flags=re.MULTILINE)
     
     Path("ROADMAP.md").write_text(updated_content, encoding='utf-8')
@@ -112,15 +117,16 @@ def list_roadmap_features():
     """List all features currently in the roadmap"""
     roadmap_content = read_roadmap()
     
-    # Extract all feature items
-    pattern = r'- \[ \] \*\*(.*?)\*\* - (.*?)(?:\n|$)'
+    # Extract all feature items with optional issue references
+    pattern = r'- \[ \] \*\*(.*?)\*\*(?:\s*\(\[#(\d+)\].*?\))? - (.*?)(?:\n|$)'
     features = re.findall(pattern, roadmap_content)
     
     if features:
         print("\n📋 Current Roadmap Features:")
         print("-" * 50)
-        for i, (name, description) in enumerate(features, 1):
-            print(f"{i:2d}. {name}")
+        for i, (name, issue_num, description) in enumerate(features, 1):
+            issue_ref = f" (#{issue_num})" if issue_num else ""
+            print(f"{i:2d}. {name}{issue_ref}")
             print(f"    {description}")
             print()
     else:
@@ -174,6 +180,7 @@ def main():
     move_parser.add_argument('name', help='Feature name')
     move_parser.add_argument('version', help='Version number (e.g., 1.1.0)')
     move_parser.add_argument('description', help='Feature description for changelog')
+    move_parser.add_argument('--issue', type=int, help='GitHub issue number')
     
     # List features
     subparsers.add_parser('list', help='List all roadmap features')
@@ -186,7 +193,7 @@ def main():
     if args.command == 'add':
         add_to_roadmap(args.name, args.description, args.section)
     elif args.command == 'complete':
-        move_to_changelog(args.name, args.version, args.description)
+        move_to_changelog(args.name, args.version, args.description, args.issue)
         remove_from_roadmap(args.name)
     elif args.command == 'list':
         list_roadmap_features()
