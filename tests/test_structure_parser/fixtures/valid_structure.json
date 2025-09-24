@@ -1,0 +1,74 @@
+{
+  "metadata": {
+    "project_name": "test-project",
+    "github_username": "testuser",
+    "created_date": "2025-09-24",
+    "version": "1.0.0",
+    "schema_version": "2.0.0",
+    "description": "Test project for structure parser",
+    "tags": ["test", "example"]
+  },
+  "structure": {
+    "cloud-storage": {
+      "strategy": [
+        "vision.md",
+        "mission.md",
+        "strategic-roadmap.md"
+      ],
+      "architecture": {
+        "principles": [
+          "principles.md"
+        ]
+      }
+    },
+    "meta-repo": {
+      "governance": {
+        "structure": [
+          "structure.json",
+          "meta-repo-schema.json"
+        ],
+        "policies": [
+          "contributing.md",
+          "code-of-conduct.md",
+          "privacy-policy.md"
+        ],
+        "processes": [
+          "onboarding.md",
+          "code-review.md",
+          "issue-management.md"
+        ]
+      },
+      "automation": {
+        "scripts": [
+          "initialize-repo.py",
+          "enforce-structure.py",
+          "generate-readmes.py"
+        ]
+      },
+      "documentation": {
+        "guides": [
+          "getting-started.md"
+        ],
+        "shared-resources": [
+          "templates.md",
+          "glossary.md"
+        ]
+      }
+    },
+    "core-services": {
+      "example-service": {
+        "src": [
+          "main.py",
+          "config.py"
+        ],
+        "tests": [
+          "test-main.py"
+        ],
+        "docs": [
+          "README.md",
+          "api.md"
+        ]
+      }
+    }
+  }
+}
