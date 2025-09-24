@@ -46,9 +46,44 @@ def get_project_name() -> str:
 
 
 def get_github_username() -> str:
-    """Get GitHub username from git config or prompt user."""
+    """
+    Get GitHub username from multiple sources in priority order.
+    
+    Priority order:
+    1. GITHUB_USERNAME environment variable
+    2. git config github.user (GitHub-specific)  
+    3. git config user.name (fallback)
+    4. Interactive prompt (only if TTY is available)
+    
+    Returns:
+        GitHub username string
+        
+    Raises:
+        ValueError: If no username found and not running in interactive environment
+    """
+    # 1. Check environment variable first (best for CI/CD)
+    env_username = os.environ.get("GITHUB_USERNAME")
+    if env_username and env_username.strip():
+        logger.info(f"Using GitHub username from environment: {env_username.strip()}")
+        return env_username.strip()
+    
+    # 2. Try GitHub-specific git config first
     try:
-        # Try to get from git config
+        result = subprocess.run(
+            ['git', 'config', '--global', 'github.user'],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        username = result.stdout.strip()
+        if username:
+            logger.info(f"Detected GitHub username from git config (github.user): {username}")
+            return username
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        logger.debug("GitHub username not found in git config github.user")
+    
+    # 3. Fallback to general git user.name
+    try:
         result = subprocess.run(
             ['git', 'config', '--global', 'user.name'],
             capture_output=True,
@@ -57,17 +92,26 @@ def get_github_username() -> str:
         )
         username = result.stdout.strip()
         if username:
-            logger.info(f"Detected GitHub username from git config: {username}")
+            logger.info(f"Using git user.name as GitHub username: {username}")
             return username
     except (subprocess.CalledProcessError, FileNotFoundError):
-        logger.warning("Could not detect GitHub username from git config")
+        logger.debug("Could not detect username from git config user.name")
     
-    # Fallback to user input
-    username = input("Please enter your GitHub username: ").strip()
-    if not username:
-        raise ValueError("GitHub username is required")
+    # 4. Interactive prompt only if TTY is available
+    if sys.stdin.isatty():
+        try:
+            username = input("Please enter your GitHub username: ").strip()
+            if username:
+                logger.info(f"GitHub username provided interactively: {username}")
+                return username
+        except (EOFError, KeyboardInterrupt):
+            logger.info("Interactive input cancelled by user")
     
-    return username
+    # If we reach here, no username was found and we're in non-interactive environment
+    raise ValueError(
+        "GitHub username not provided and no non-interactive source available. "
+        "Use --username argument or set GITHUB_USERNAME environment variable for CI/CD environments."
+    )
 
 
 def ensure_directory_exists(path: Path, description: str = "") -> bool:
