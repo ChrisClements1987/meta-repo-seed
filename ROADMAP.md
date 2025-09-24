@@ -5,6 +5,9 @@ This document outlines the planned features and improvements for the Meta-Repo S
 ## 🎯 Next Release (v1.1.0) - Q4 2025
 
 ### High Priority
+- [ ] **Update Command** - Add ability to update existing projects with new templates and features
+- [ ] **Configuration File Support** - Save and load project configurations in YAML/JSON format for reusable project templates
+- [ ] **Interactive Setup Wizard** - Step-by-step guided project creation with template selection and variable input validation
 - [ ] **Configuration File Support** - Allow users to save and reuse seeding configurations
   - YAML/JSON configuration files for project templates
   - Pre-defined configuration presets (e.g., "python-web-app", "data-science-project")
@@ -23,6 +26,8 @@ This document outlines the planned features and improvements for the Meta-Repo S
   - Conditional template blocks
 
 ### Medium Priority
+- [ ] **Backup Before Creation** - Automatically backup existing files before overwriting during project creation
+- [ ] **Template Validation System** - Automated validation of template syntax, variables, and dependencies to ensure quality
 - [ ] **Template Validation System** - Ensure template quality and consistency
   - Template syntax validation
   - Variable usage checking
@@ -38,6 +43,7 @@ This document outlines the planned features and improvements for the Meta-Repo S
 ## 🚀 Future Releases (v1.2.0+) - 2026
 
 ### Advanced Features
+- [ ] **VS Code Extension** - Integrate seeding system directly into VS Code with command palette and project creation UI
 - [ ] **Multi-Language Support** - Templates in multiple programming languages
   - Language-specific template collections
   - Framework-specific templates (React, Django, FastAPI, etc.)
