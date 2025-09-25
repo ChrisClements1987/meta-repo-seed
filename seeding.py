@@ -211,6 +211,27 @@ def copy_template_file(source: Path, destination: Path, description: str = "") -
         raise
 
 
+def process_template_content(content: str, replacements: Dict[str, str]) -> str:
+    """
+    Process template content by replacing placeholder variables.
+    
+    Args:
+        content: Template content with {{VARIABLE}} placeholders
+        replacements: Dictionary mapping variable names to replacement values
+    
+    Returns:
+        Processed content with variables replaced
+    """
+    if not content or not replacements:
+        return content
+    
+    # Replace each placeholder with its corresponding value
+    for placeholder, value in replacements.items():
+        content = content.replace(f"{{{{{placeholder}}}}}", str(value))
+    
+    return content
+
+
 def create_file_from_template(template_path: Path, destination: Path, replacements: Dict[str, str], description: str = "") -> bool:
     """
     Create a file from a template with placeholder replacements.
@@ -229,9 +250,8 @@ def create_file_from_template(template_path: Path, destination: Path, replacemen
         with open(template_path, 'r', encoding='utf-8') as f:
             content = f.read()
         
-        # Replace placeholders
-        for placeholder, value in replacements.items():
-            content = content.replace(f"{{{{{placeholder}}}}}", value)
+        # Process template content with variable replacements
+        content = process_template_content(content, replacements)
         
         # Ensure destination directory exists
         destination.parent.mkdir(parents=True, exist_ok=True)
