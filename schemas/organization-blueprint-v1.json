@@ -1,0 +1,627 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Organization Blueprint Schema v1",
+  "description": "Schema for defining complete organizational infrastructure deployment",
+  "type": "object",
+  "required": ["apiVersion", "kind", "metadata", "spec"],
+  "properties": {
+    "apiVersion": {
+      "type": "string",
+      "enum": ["blueprint.meta-repo-seed.io/v1"],
+      "description": "API version for the blueprint schema"
+    },
+    "kind": {
+      "type": "string",
+      "enum": ["OrganizationBlueprint"],
+      "description": "The type of blueprint resource"
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$",
+          "description": "Organization name (DNS-safe, lowercase)"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Human-readable organization name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Organization description and mission"
+        },
+        "businessProfile": {
+          "type": "string",
+          "enum": ["startup-basic", "charity-nonprofit", "smb-standard", "consulting-firm"],
+          "description": "Business deployment profile"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Organization tags for categorization"
+        }
+      }
+    },
+    "spec": {
+      "type": "object",
+      "required": ["organization", "portfolios"],
+      "properties": {
+        "organization": {
+          "$ref": "#/definitions/OrganizationSpec"
+        },
+        "portfolios": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PortfolioSpec"
+          },
+          "description": "Portfolio definitions within the organization"
+        },
+        "governance": {
+          "$ref": "#/definitions/GovernanceSpec"
+        },
+        "providers": {
+          "$ref": "#/definitions/ProvidersSpec"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "OrganizationSpec": {
+      "type": "object",
+      "required": ["structure"],
+      "properties": {
+        "structure": {
+          "$ref": "#/definitions/OrganizationStructure"
+        },
+        "teams": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TeamSpec"
+          },
+          "description": "Team definitions and permissions"
+        },
+        "settings": {
+          "$ref": "#/definitions/OrganizationSettings"
+        }
+      }
+    },
+    "OrganizationStructure": {
+      "type": "object",
+      "description": "Multi-tier business model structure",
+      "properties": {
+        "metaRepo": {
+          "$ref": "#/definitions/RepositorySpec",
+          "description": "Central governance and automation repository"
+        },
+        "platformServices": {
+          "$ref": "#/definitions/RepositorySpec",
+          "description": "Shared services and infrastructure repository"
+        },
+        "cloudStorage": {
+          "$ref": "#/definitions/CloudStorageSpec",
+          "description": "Strategy, architecture, and documentation storage"
+        }
+      }
+    },
+    "PortfolioSpec": {
+      "type": "object",
+      "required": ["name", "type"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Portfolio name"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["products", "consulting", "partnerships", "charity"],
+          "description": "Portfolio business model type"
+        },
+        "description": {
+          "type": "string",
+          "description": "Portfolio description and purpose"
+        },
+        "repositories": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RepositorySpec"
+          },
+          "description": "Repositories within this portfolio"
+        },
+        "environments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EnvironmentSpec"
+          },
+          "description": "Deployment environments for this portfolio"
+        }
+      }
+    },
+    "RepositorySpec": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$",
+          "description": "Repository name (DNS-safe, lowercase)"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Human-readable repository name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Repository description"
+        },
+        "template": {
+          "type": "string",
+          "description": "Repository template to use"
+        },
+        "visibility": {
+          "type": "string",
+          "enum": ["public", "private", "internal"],
+          "default": "private",
+          "description": "Repository visibility"
+        },
+        "features": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["issues", "projects", "wiki", "pages", "actions", "discussions"]
+          },
+          "description": "GitHub features to enable"
+        },
+        "protection": {
+          "$ref": "#/definitions/BranchProtectionSpec"
+        }
+      }
+    },
+    "EnvironmentSpec": {
+      "type": "object",
+      "required": ["name", "type"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "enum": ["development", "staging", "production", "preview"],
+          "description": "Environment name"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["development", "staging", "production"],
+          "description": "Environment type for lifecycle management"
+        },
+        "deploymentTarget": {
+          "$ref": "#/definitions/DeploymentTargetSpec"
+        },
+        "secrets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SecretSpec"
+          },
+          "description": "Environment-specific secrets"
+        },
+        "protection": {
+          "$ref": "#/definitions/EnvironmentProtectionSpec"
+        }
+      }
+    },
+    "TeamSpec": {
+      "type": "object",
+      "required": ["name", "role"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Team name"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["admin", "maintain", "push", "triage", "pull"],
+          "description": "Team permission level"
+        },
+        "members": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Team member GitHub usernames"
+        },
+        "repositories": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Repository access for this team"
+        }
+      }
+    },
+    "GovernanceSpec": {
+      "type": "object",
+      "description": "Governance and compliance configuration",
+      "properties": {
+        "policies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PolicySpec"
+          },
+          "description": "Governance policies to enforce"
+        },
+        "compliance": {
+          "$ref": "#/definitions/ComplianceSpec"
+        },
+        "templates": {
+          "$ref": "#/definitions/TemplateSpec"
+        }
+      }
+    },
+    "ProvidersSpec": {
+      "type": "object",
+      "description": "External service provider configurations",
+      "properties": {
+        "vcs": {
+          "$ref": "#/definitions/VCSProviderSpec"
+        },
+        "cicd": {
+          "$ref": "#/definitions/CICDProviderSpec"
+        },
+        "paas": {
+          "$ref": "#/definitions/PaaSProviderSpec"
+        },
+        "secrets": {
+          "$ref": "#/definitions/SecretsProviderSpec"
+        },
+        "observability": {
+          "$ref": "#/definitions/ObservabilityProviderSpec"
+        }
+      }
+    },
+    "CloudStorageSpec": {
+      "type": "object",
+      "description": "Cloud storage configuration for strategy and documentation",
+      "properties": {
+        "strategy": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "provider": {
+              "type": "string",
+              "enum": ["local", "dropbox", "google-drive", "onedrive"],
+              "default": "local"
+            }
+          }
+        },
+        "documentation": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "publishSite": {
+              "type": "boolean",
+              "default": true,
+              "description": "Publish documentation as GitHub Pages site"
+            }
+          }
+        }
+      }
+    },
+    "BranchProtectionSpec": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "requiredReviews": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 6,
+          "default": 1
+        },
+        "requireCodeOwnerReviews": {
+          "type": "boolean",
+          "default": false
+        },
+        "dismissStaleReviews": {
+          "type": "boolean",
+          "default": true
+        },
+        "requireStatusChecks": {
+          "type": "boolean",
+          "default": true
+        },
+        "requiredStatusChecks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": ["ci"]
+        },
+        "enforceAdmins": {
+          "type": "boolean",
+          "default": false
+        },
+        "restrictPushes": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "DeploymentTargetSpec": {
+      "type": "object",
+      "required": ["provider"],
+      "properties": {
+        "provider": {
+          "type": "string",
+          "enum": ["vercel", "netlify", "cloudflare-pages", "fly.io", "railway", "render"],
+          "description": "PaaS deployment provider"
+        },
+        "config": {
+          "type": "object",
+          "description": "Provider-specific configuration"
+        }
+      }
+    },
+    "SecretSpec": {
+      "type": "object",
+      "required": ["name", "source"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Secret name"
+        },
+        "source": {
+          "type": "string",
+          "description": "Secret source reference"
+        },
+        "required": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether this secret is required for deployment"
+        }
+      }
+    },
+    "EnvironmentProtectionSpec": {
+      "type": "object",
+      "properties": {
+        "requiredReviewers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Required reviewers for environment deployment"
+        },
+        "deploymentBranchPolicy": {
+          "type": "object",
+          "properties": {
+            "protectedBranches": {
+              "type": "boolean",
+              "default": false
+            },
+            "customBranches": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "PolicySpec": {
+      "type": "object",
+      "required": ["name", "type"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Policy name"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["security", "compliance", "quality", "documentation"],
+          "description": "Policy category"
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "description": "Policy rules and constraints"
+        },
+        "enforcement": {
+          "type": "string",
+          "enum": ["strict", "advisory", "disabled"],
+          "default": "advisory",
+          "description": "Policy enforcement level"
+        }
+      }
+    },
+    "ComplianceSpec": {
+      "type": "object",
+      "properties": {
+        "frameworks": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["sox", "gdpr", "hipaa", "pci-dss", "iso27001"]
+          },
+          "description": "Compliance frameworks to follow"
+        },
+        "auditing": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "retentionDays": {
+              "type": "integer",
+              "minimum": 30,
+              "maximum": 2555,
+              "default": 365
+            }
+          }
+        }
+      }
+    },
+    "TemplateSpec": {
+      "type": "object",
+      "properties": {
+        "issues": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Issue template names to create"
+        },
+        "pullRequests": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "PR template names to create"
+        },
+        "codeOfConduct": {
+          "type": "boolean",
+          "default": true,
+          "description": "Generate code of conduct"
+        },
+        "contributing": {
+          "type": "boolean",
+          "default": true,
+          "description": "Generate contributing guidelines"
+        }
+      }
+    },
+    "VCSProviderSpec": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["github"],
+          "description": "Version control system provider"
+        },
+        "organization": {
+          "type": "string",
+          "description": "GitHub organization name"
+        },
+        "app": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "GitHub App ID"
+            },
+            "privateKey": {
+              "type": "string",
+              "description": "GitHub App private key reference"
+            }
+          }
+        }
+      }
+    },
+    "CICDProviderSpec": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["github-actions"],
+          "description": "CI/CD provider type"
+        },
+        "workflows": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Workflow templates to deploy"
+        }
+      }
+    },
+    "PaaSProviderSpec": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["vercel", "netlify", "cloudflare-pages", "fly.io"],
+          "description": "PaaS provider type"
+        },
+        "config": {
+          "type": "object",
+          "description": "Provider-specific configuration"
+        }
+      }
+    },
+    "SecretsProviderSpec": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["github-secrets", "vault", "doppler", "1password"],
+          "description": "Secrets management provider"
+        },
+        "config": {
+          "type": "object",
+          "description": "Provider-specific configuration"
+        }
+      }
+    },
+    "ObservabilityProviderSpec": {
+      "type": "object",
+      "properties": {
+        "monitoring": {
+          "type": "string",
+          "enum": ["grafana-cloud", "new-relic", "datadog"]
+        },
+        "logging": {
+          "type": "string",
+          "enum": ["grafana-loki", "new-relic", "datadog"]
+        },
+        "alerting": {
+          "type": "string",
+          "enum": ["grafana-cloud", "pagerduty", "opsgenie"]
+        }
+      }
+    },
+    "OrganizationSettings": {
+      "type": "object",
+      "properties": {
+        "defaultBranch": {
+          "type": "string",
+          "default": "main"
+        },
+        "allowMergeCommit": {
+          "type": "boolean",
+          "default": true
+        },
+        "allowSquashMerge": {
+          "type": "boolean",
+          "default": true
+        },
+        "allowRebaseMerge": {
+          "type": "boolean",
+          "default": false
+        },
+        "deleteHeadBranches": {
+          "type": "boolean",
+          "default": true
+        },
+        "defaultRepositoryVisibility": {
+          "type": "string",
+          "enum": ["public", "private"],
+          "default": "private"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,277 @@
+apiVersion: blueprint.meta-repo-seed.io/v1
+kind: OrganizationBlueprint
+metadata:
+  name: acme-startup
+  displayName: "Acme Startup Inc."
+  description: "Revolutionary SaaS platform for productivity enhancement"
+  businessProfile: startup-basic
+  tags:
+    - startup
+    - saas
+    - productivity
+    - b2b
+
+spec:
+  organization:
+    structure:
+      metaRepo:
+        name: meta-repo
+        displayName: "Organization Governance"
+        description: "Central governance, automation, and documentation"
+        visibility: private
+        features:
+          - issues
+          - projects
+          - wiki
+          - actions
+        protection:
+          enabled: true
+          requiredReviews: 1
+          requireStatusChecks: true
+          requiredStatusChecks:
+            - ci
+            - security-scan
+
+      platformServices:
+        name: platform-services
+        displayName: "Platform Services"
+        description: "Shared services and infrastructure components"
+        visibility: private
+        features:
+          - issues
+          - actions
+        protection:
+          enabled: true
+          requiredReviews: 2
+          requireCodeOwnerReviews: true
+
+      cloudStorage:
+        strategy:
+          enabled: true
+          provider: google-drive
+        documentation:
+          enabled: true
+          publishSite: true
+
+    teams:
+      - name: founders
+        role: admin
+        members:
+          - founder-username
+        repositories:
+          - meta-repo
+          - platform-services
+          - core-product
+          - landing-page
+
+      - name: engineering
+        role: maintain
+        members:
+          - lead-engineer
+        repositories:
+          - core-product
+          - platform-services
+
+      - name: marketing
+        role: push
+        repositories:
+          - landing-page
+          - marketing-site
+
+    settings:
+      defaultBranch: main
+      allowMergeCommit: true
+      allowSquashMerge: true
+      allowRebaseMerge: false
+      deleteHeadBranches: true
+      defaultRepositoryVisibility: private
+
+  portfolios:
+    - name: core-products
+      type: products
+      description: "Core SaaS product offerings"
+      repositories:
+        - name: core-product
+          displayName: "Core SaaS Platform"
+          description: "Main SaaS application with user management and billing"
+          template: saas-platform
+          visibility: private
+          features:
+            - issues
+            - projects
+            - actions
+            - discussions
+          protection:
+            enabled: true
+            requiredReviews: 1
+            requireStatusChecks: true
+            requiredStatusChecks:
+              - ci
+              - security-scan
+              - test-coverage
+
+      environments:
+        - name: development
+          type: development
+          deploymentTarget:
+            provider: vercel
+            config:
+              framework: nextjs
+              buildCommand: "npm run build"
+              outputDirectory: ".next"
+          secrets:
+            - name: DATABASE_URL
+              source: github-secrets
+              required: true
+            - name: STRIPE_SECRET_KEY
+              source: github-secrets
+              required: true
+
+        - name: staging
+          type: staging
+          deploymentTarget:
+            provider: vercel
+            config:
+              framework: nextjs
+              buildCommand: "npm run build"
+              outputDirectory: ".next"
+          secrets:
+            - name: DATABASE_URL
+              source: github-secrets
+              required: true
+            - name: STRIPE_SECRET_KEY
+              source: github-secrets
+              required: true
+          protection:
+            requiredReviewers:
+              - lead-engineer
+
+        - name: production
+          type: production
+          deploymentTarget:
+            provider: vercel
+            config:
+              framework: nextjs
+              buildCommand: "npm run build"
+              outputDirectory: ".next"
+              customDomain: app.acmestartup.com
+          secrets:
+            - name: DATABASE_URL
+              source: github-secrets
+              required: true
+            - name: STRIPE_SECRET_KEY
+              source: github-secrets
+              required: true
+          protection:
+            requiredReviewers:
+              - founder-username
+              - lead-engineer
+            deploymentBranchPolicy:
+              protectedBranches: true
+
+    - name: marketing
+      type: products
+      description: "Marketing and customer acquisition"
+      repositories:
+        - name: landing-page
+          displayName: "Landing Page"
+          description: "Product landing page and marketing site"
+          template: nextjs-marketing
+          visibility: public
+          features:
+            - issues
+            - actions
+            - pages
+
+      environments:
+        - name: development
+          type: development
+          deploymentTarget:
+            provider: vercel
+
+        - name: production
+          type: production
+          deploymentTarget:
+            provider: vercel
+            config:
+              customDomain: acmestartup.com
+          protection:
+            requiredReviewers:
+              - founder-username
+
+  governance:
+    policies:
+      - name: security-requirements
+        type: security
+        enforcement: strict
+        rules:
+          - rule: no-hardcoded-secrets
+            enabled: true
+          - rule: require-https
+            enabled: true
+          - rule: dependency-vulnerability-scanning
+            enabled: true
+
+      - name: code-quality
+        type: quality
+        enforcement: advisory
+        rules:
+          - rule: test-coverage-minimum
+            value: 80
+          - rule: linting-required
+            enabled: true
+          - rule: type-checking-required
+            enabled: true
+
+    compliance:
+      frameworks:
+        - gdpr
+        - sox
+      auditing:
+        enabled: true
+        retentionDays: 365
+
+    templates:
+      issues:
+        - bug-report
+        - feature-request
+        - security-issue
+      pullRequests:
+        - feature-pr
+        - bugfix-pr
+      codeOfConduct: true
+      contributing: true
+
+  providers:
+    vcs:
+      type: github
+      organization: acme-startup-inc
+      app:
+        id: "${GITHUB_APP_ID}"
+        privateKey: "${GITHUB_APP_PRIVATE_KEY}"
+
+    cicd:
+      type: github-actions
+      workflows:
+        - ci-test-build
+        - security-scan
+        - deploy-staging
+        - deploy-production
+
+    paas:
+      type: vercel
+      config:
+        team: acme-startup-team
+
+    secrets:
+      type: github-secrets
+      config:
+        environments:
+          - development
+          - staging
+          - production
+
+    observability:
+      monitoring: grafana-cloud
+      logging: grafana-loki
+      alerting: grafana-cloud
