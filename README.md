@@ -2,6 +2,8 @@
 
 An idempotent, cross-platform script for creating standardized project structures with comprehensive governance, automation, and documentation frameworks.
 
+> **📍 [Project North Star](./PROJECT_NORTH_STAR.md)** - Our vision and guiding principles for this tool
+
 > **Note**: This repository uses branch protection rules to ensure code quality and proper review processes.
 
 ## 🎯 Overview
