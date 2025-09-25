@@ -191,6 +191,81 @@ def ensure_directory_exists(path: Path, description: str = "") -> bool:
         raise
 
 
+def safe_open_for_write(path: Path, encoding: str = 'utf-8'):
+    """
+    Safely open a file for writing, refusing to follow symlinks.
+    
+    Args:
+        path: Path to the file to open
+        encoding: File encoding (default: utf-8)
+        
+    Returns:
+        File object opened for writing
+        
+    Raises:
+        RuntimeError: If the path is a symlink
+        OSError: If file operations fail
+    """
+    # Check if the path is a symlink before attempting to write
+    if path.is_symlink():
+        raise RuntimeError(f"Refusing to write to symlink: {path}")
+    
+    # Use O_NOFOLLOW on systems that support it for additional protection
+    if hasattr(os, 'O_NOFOLLOW') and os.name != 'nt':  # Not available on Windows
+        try:
+            # Open with O_NOFOLLOW to prevent following symlinks at the OS level
+            fd = os.open(str(path), os.O_WRONLY | os.O_CREAT | os.O_TRUNC | os.O_NOFOLLOW)
+            return os.fdopen(fd, 'w', encoding=encoding)
+        except OSError as e:
+            # If O_NOFOLLOW fails due to symlink, provide clear error
+            if e.errno == 40:  # ELOOP - too many symbolic links encountered
+                raise RuntimeError(f"Symlink detected and blocked: {path}")
+            raise
+    
+    # Fallback for Windows or systems without O_NOFOLLOW
+    # The path.is_symlink() check above provides protection
+    return open(path, 'w', encoding=encoding)
+
+
+def safe_copy_file(source: Path, destination: Path) -> None:
+    """
+    Safely copy a file, refusing to follow symlinks in the destination.
+    
+    Args:
+        source: Source file path
+        destination: Destination file path
+        
+    Raises:
+        RuntimeError: If destination is a symlink
+        OSError: If file operations fail
+    """
+    # Check if destination is a symlink
+    if destination.is_symlink():
+        raise RuntimeError(f"Refusing to overwrite symlink: {destination}")
+    
+    # Open destination safely for binary writing
+    if hasattr(os, 'O_NOFOLLOW') and os.name != 'nt':
+        # Use O_NOFOLLOW on Unix systems
+        fd = os.open(str(destination), os.O_WRONLY | os.O_CREAT | os.O_TRUNC | os.O_NOFOLLOW)
+        with open(source, 'rb') as src, os.fdopen(fd, 'wb') as dst:
+            shutil.copyfileobj(src, dst)
+    else:
+        # Fallback for Windows (we already checked for symlinks above)
+        with open(source, 'rb') as src, open(destination, 'wb') as dst:
+            shutil.copyfileobj(src, dst)
+    
+    # Copy metadata (permissions, timestamps) safely
+    # Note: shutil.copystat follows symlinks, so we avoid it
+    try:
+        stat = source.stat()
+        os.utime(destination, (stat.st_atime, stat.st_mtime))
+        if os.name != 'nt':  # Unix-like systems
+            os.chmod(destination, stat.st_mode)
+    except (OSError, AttributeError):
+        # If metadata copying fails, file copy still succeeded
+        logger.debug(f"Could not copy metadata for {destination}")
+
+
 def copy_template_file(source: Path, destination: Path, description: str = "") -> bool:
     """
     Copy a template file to destination if it doesn't exist.
@@ -203,9 +278,16 @@ def copy_template_file(source: Path, destination: Path, description: str = "") -
     try:
         # Ensure destination directory exists
         destination.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(source, destination)
+        
+        # Use safe file copying to prevent symlink attacks
+        safe_copy_file(source, destination)
+        
         logger.info(f"Copied template file: {destination} {description}")
         return True
+    except RuntimeError as e:
+        # Handle symlink protection errors specifically
+        logger.error(f"Security violation: {e}")
+        raise
     except Exception as e:
         logger.error(f"Failed to copy {source} to {destination}: {e}")
         raise
@@ -236,12 +318,16 @@ def create_file_from_template(template_path: Path, destination: Path, replacemen
         # Ensure destination directory exists
         destination.parent.mkdir(parents=True, exist_ok=True)
         
-        # Write processed content to destination
-        with open(destination, 'w', encoding='utf-8') as f:
+        # Write processed content to destination safely
+        with safe_open_for_write(destination, encoding='utf-8') as f:
             f.write(content)
         
         logger.info(f"Created file from template: {destination} {description}")
         return True
+    except RuntimeError as e:
+        # Handle symlink protection errors specifically  
+        logger.error(f"Security violation: {e}")
+        raise
     except Exception as e:
         logger.error(f"Failed to create {destination} from template {template_path}: {e}")
         raise
