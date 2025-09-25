@@ -2,15 +2,16 @@
 Tests for the validators module.
 """
 
-import pytest
-from pathlib import Path
-from unittest.mock import patch, mock_open
 import json
+from pathlib import Path
+from unittest.mock import mock_open, patch
+
+import pytest
 
 # Import only if jsonschema is available
 try:
-    from src.structure_parser.validators import SchemaValidator
     from src.structure_parser.exceptions import SchemaError
+    from src.structure_parser.validators import SchemaValidator
     HAS_JSONSCHEMA = True
 except ImportError:
     HAS_JSONSCHEMA = False

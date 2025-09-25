@@ -8,19 +8,20 @@ configuration, and governance policy deployment.
 
 import asyncio
 import logging
-from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
-from dataclasses import dataclass
-from enum import Enum
-import time
-
 # Add the root directory to path for imports
 import sys
+import time
+from dataclasses import dataclass
+from enum import Enum
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 # Import blueprint parser from the same package
 sys.path.insert(0, str(Path(__file__).parent))
-from parser import OrganizationBlueprint, RepositoryConfig, EnvironmentConfig
+from parser import EnvironmentConfig, OrganizationBlueprint, RepositoryConfig
+
 from seeding import setup_logging
 
 

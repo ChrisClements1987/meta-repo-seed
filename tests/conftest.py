@@ -4,12 +4,13 @@ Pytest configuration and fixtures for Meta-Repo Seed tests.
 This module provides shared fixtures and configuration for all tests.
 """
 
-import pytest
-import tempfile
+import os
 import shutil
+import tempfile
 from pathlib import Path
 from unittest.mock import Mock, patch
-import os
+
+import pytest
 
 
 @pytest.fixture

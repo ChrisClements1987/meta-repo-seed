@@ -14,11 +14,12 @@ Usage:
 """
 
 import argparse
+import json
 import re
 import subprocess
-import json
 from pathlib import Path
-from typing import List, Dict, Tuple
+from typing import Dict, List, Tuple
+
 
 def check_gh_cli():
     """Check if GitHub CLI is installed and authenticated"""
