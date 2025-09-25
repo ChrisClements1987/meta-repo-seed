@@ -66,3 +66,6 @@ logs/
 !/src/
 !/tests/
 !/scripts/
+
+# Private strategy files
+strategy/
