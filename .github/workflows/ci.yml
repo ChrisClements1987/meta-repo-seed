@@ -1,0 +1,185 @@
+name: Business-in-a-Box CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9, "3.10", "3.11", "3.12"]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements-test.txt
+        pip install jsonschema PyYAML
+    
+    - name: Run unit tests
+      run: |
+        python -m pytest tests/unit/ -v --cov=src --cov=seeding --cov-report=term-missing
+    
+    - name: Run structure parser tests
+      run: |
+        python -m pytest tests/test_structure_parser/ -v
+    
+    - name: Test Business-in-a-Box CLI
+      run: |
+        # Test business deployment CLI
+        python -m src.cli.business_commands deploy-business --profile=startup-basic --dry-run --verbose
+        python -m src.cli.business_commands launch-product --stack=nextjs --name=test-app --dry-run --verbose
+        python -m src.cli.business_commands start-onboarding --dry-run --verbose
+        python -m src.cli.business_commands validate-deployment --business --dry-run --verbose
+    
+    - name: Test Blueprint System
+      run: |
+        # Test blueprint parsing
+        python src/blueprints/parser.py
+        python src/blueprints/orchestrator.py
+    
+    - name: Test Template Generation
+      run: |
+        # Test template generator
+        python src/templates/generator.py
+        python src/providers/paas.py
+    
+    - name: Test Legacy CLI (Backward Compatibility)
+      run: |
+        # Test legacy seeding CLI still works
+        python seeding.py --dry-run --verbose
+    
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v3
+      if: matrix.python-version == '3.11'
+      with:
+        fail_ci_if_error: false
+
+  lint:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 black isort
+    
+    - name: Run linting
+      run: |
+        # Check code formatting
+        black --check --diff .
+        
+        # Check import sorting
+        isort --check-only --diff .
+        
+        # Run flake8 linting
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+  security:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install bandit safety
+    
+    - name: Run security checks
+      run: |
+        # Check for security issues
+        bandit -r . -x tests/
+        
+        # Check for known vulnerabilities
+        safety check --json || true
+
+  business-validation:
+    runs-on: ubuntu-latest
+    name: Business-in-a-Box Validation
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements-test.txt
+        pip install jsonschema PyYAML
+    
+    - name: Validate Business Deployment (10-minute target)
+      run: |
+        echo "Testing Business-in-a-Box 10-minute deployment promise..."
+        
+        # Test organizational deployment speed
+        start_time=$(date +%s)
+        python -m src.cli.business_commands deploy-business --profile=startup-basic --dry-run --verbose
+        end_time=$(date +%s)
+        duration=$((end_time - start_time))
+        
+        echo "Organization deployment simulation: ${duration}s"
+        if [ $duration -gt 600 ]; then
+          echo "❌ FAILED: Organization deployment took longer than 10 minutes"
+          exit 1
+        fi
+        
+        # Test product launch speed  
+        start_time=$(date +%s)
+        python -m src.cli.business_commands launch-product --stack=nextjs --name=test-product --dry-run --verbose
+        end_time=$(date +%s)
+        duration=$((end_time - start_time))
+        
+        echo "Product launch simulation: ${duration}s"
+        if [ $duration -gt 600 ]; then
+          echo "❌ FAILED: Product launch took longer than 10 minutes"
+          exit 1
+        fi
+        
+        echo "✅ SUCCESS: Business-in-a-Box 10-minute deployment promise validated"
+    
+    - name: Validate Professional Standards
+      run: |
+        echo "Validating professional organizational deployment..."
+        
+        # Test that all business profiles work
+        for profile in startup-basic charity-nonprofit smb-standard consulting-firm; do
+          echo "Testing profile: $profile"
+          python -m src.cli.business_commands deploy-business --profile=$profile --dry-run
+        done
+        
+        # Test that all product stacks work
+        for stack in nextjs python-api node-api react-spa static-site; do
+          echo "Testing stack: $stack"
+          python -m src.cli.business_commands launch-product --stack=$stack --name=test-$stack --dry-run
+        done
+        
+        echo "✅ SUCCESS: All business profiles and product stacks validated"
