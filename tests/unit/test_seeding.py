@@ -211,16 +211,18 @@ class TestUtilityFunctions:
         result = get_github_username()
         
         assert result == "github-user"
-        mock_run.assert_called_once_with(
-            ['git', 'config', '--global', 'user.name'],
+        # Should try github.user first (new priority behavior)
+        mock_run.assert_called_with(
+            ['git', 'config', '--global', 'github.user'],
             capture_output=True,
             text=True,
             check=True
         )
     
+    @patch('sys.stdin.isatty', return_value=True)  # Mock TTY availability
     @patch('subprocess.run')
     @patch('builtins.input', return_value='manual-user')
-    def test_get_github_username_fallback_to_input(self, mock_input, mock_run):
+    def test_get_github_username_fallback_to_input(self, mock_input, mock_run, mock_isatty):
         """Test get_github_username falls back to user input when git config fails."""
         mock_run.side_effect = subprocess.CalledProcessError(1, 'git')
         
@@ -228,6 +230,7 @@ class TestUtilityFunctions:
         
         assert result == "manual-user"
         mock_input.assert_called_once()
+        mock_isatty.assert_called()
     
     @patch('subprocess.run')
     @patch('builtins.input', return_value='')
@@ -235,7 +238,7 @@ class TestUtilityFunctions:
         """Test get_github_username raises error when user provides empty input."""
         mock_run.side_effect = subprocess.CalledProcessError(1, 'git')
         
-        with pytest.raises(ValueError, match="GitHub username is required"):
+        with pytest.raises(ValueError, match="GitHub username not provided and no non-interactive source available"):
             get_github_username()
 
 
