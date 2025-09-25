@@ -1,0 +1,146 @@
+{
+  "name": "python_project",
+  "path": "python_project",
+  "subdirs": [
+    {
+      "name": "src",
+      "path": "src",
+      "subdirs": [
+        {
+          "name": "project_package",
+          "path": "src/{project_name}",
+          "subdirs": [],
+          "files": [
+            {
+              "path": "__init__.py",
+              "content": "\"\"\"\\n{description}\\n\\nAuthor: {author_name}\\nEmail: {author_email}\\n\"\"\"\n\\n__version__ = \"{version}\"\\n__author__ = \"{author_name}\"\\n",
+              "template_vars": {
+                "description": "",
+                "author_name": "",
+                "author_email": "",
+                "version": "1.0.0"
+              },
+              "checksum": null,
+              "last_updated": null
+            }
+          ],
+          "metadata": {}
+        }
+      ],
+      "files": [],
+      "metadata": {}
+    },
+    {
+      "name": "tests",
+      "path": "tests",
+      "subdirs": [],
+      "files": [
+        {
+          "path": "__init__.py",
+          "content": "# Tests for {project_name}",
+          "template_vars": {
+            "project_name": ""
+          },
+          "checksum": null,
+          "last_updated": null
+        },
+        {
+          "path": "test_main.py",
+          "content": "\"\"\"\\nTests for {project_name} main module.\\n\"\"\"\\nimport unittest\\nimport sys\\nimport os\\n\\n# Add src to path\\nsys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))\\n\\nfrom {project_name} import __version__\\n\\n\\nclass TestMain(unittest.TestCase):\\n    \\\"\\\"\\\"Test cases for main functionality.\\\"\\\"\\\"\\n    \\n    def test_version(self):\\n        \\\"\\\"\\\"Test that version is defined.\\\"\\\"\\\"\\n        self.assertIsNotNone(__version__)\\n        self.assertIsInstance(__version__, str)\\n\\n\\nif __name__ == '__main__':\\n    unittest.main()\\n",
+          "template_vars": {
+            "project_name": ""
+          },
+          "checksum": null,
+          "last_updated": null
+        }
+      ],
+      "metadata": {}
+    },
+    {
+      "name": "docs",
+      "path": "docs",
+      "subdirs": [],
+      "files": [
+        {
+          "path": "README.md",
+          "content": "# {project_name} Documentation\\n\\n{description}\\n\\n## Installation\\n\\n```bash\\npip install {project_name}\\n```\\n\\n## Usage\\n\\n```python\\nimport {project_name}\\n\\n# Your code here\\n```\\n\\n## API Reference\\n\\nComing soon...\\n",
+          "template_vars": {
+            "project_name": "",
+            "description": ""
+          },
+          "checksum": null,
+          "last_updated": null
+        }
+      ],
+      "metadata": {}
+    }
+  ],
+  "files": [
+    {
+      "path": "README.md",
+      "content": "# {project_name}\\n\\n{description}\\n\\n## Installation\\n\\n```bash\\npip install -e .\\n```\\n\\n## Development\\n\\n```bash\\n# Install development dependencies\\npip install -r requirements-dev.txt\\n\\n# Run tests\\npython -m pytest\\n\\n# Run linting\\nflake8 src/\\n```\\n\\n## Usage\\n\\n```python\\nimport {project_name}\\n\\n# Your code here\\n```\\n\\n## Contributing\\n\\n1. Fork the repository\\n2. Create a feature branch\\n3. Make your changes\\n4. Add tests\\n5. Submit a pull request\\n\\n## License\\n\\nMIT License - see LICENSE file for details.\\n\\n## Author\\n\\n{author_name} ({author_email})\\n",
+      "template_vars": {
+        "project_name": "",
+        "description": "",
+        "author_name": "",
+        "author_email": ""
+      },
+      "checksum": null,
+      "last_updated": null
+    },
+    {
+      "path": "setup.py",
+      "content": "\"\"\"\\nSetup script for {project_name}.\\n\"\"\"\\nfrom setuptools import setup, find_packages\\nimport os\\n\\n# Read the contents of README file\\nthis_directory = os.path.abspath(os.path.dirname(__file__))\\nwith open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:\\n    long_description = f.read()\\n\\nsetup(\\n    name='{project_name}',\\n    version='{version}',\\n    author='{author_name}',\\n    author_email='{author_email}',\\n    description='{description}',\\n    long_description=long_description,\\n    long_description_content_type='text/markdown',\\n    url='https://github.com/{author_name}/{project_name}',\\n    packages=find_packages(where='src'),\\n    package_dir={'': 'src'},\\n    classifiers=[\\n        'Development Status :: 3 - Alpha',\\n        'Intended Audience :: Developers',\\n        'License :: OSI Approved :: MIT License',\\n        'Programming Language :: Python :: 3',\\n        'Programming Language :: Python :: 3.8',\\n        'Programming Language :: Python :: 3.9',\\n        'Programming Language :: Python :: 3.10',\\n        'Programming Language :: Python :: 3.11',\\n    ],\\n    python_requires='>=3.8',\\n    install_requires=[\\n        # Add your project dependencies here\\n    ],\\n    extras_require={\\n        'dev': [\\n            'pytest',\\n            'pytest-cov',\\n            'flake8',\\n            'black',\\n            'mypy',\\n        ]\\n    },\\n    entry_points={\\n        'console_scripts': [\\n            '{project_name}={project_name}.main:main',\\n        ],\\n    },\\n)\\n",
+      "template_vars": {
+        "project_name": "",
+        "version": "1.0.0",
+        "author_name": "",
+        "author_email": "",
+        "description": ""
+      },
+      "checksum": null,
+      "last_updated": null
+    },
+    {
+      "path": "requirements.txt",
+      "content": "# Core dependencies\\n# Add your project dependencies here\\n",
+      "template_vars": {},
+      "checksum": null,
+      "last_updated": null
+    },
+    {
+      "path": "requirements-dev.txt",
+      "content": "# Development dependencies\\n-r requirements.txt\\n\\n# Testing\\npytest>=7.0.0\\npytest-cov>=4.0.0\\npytest-mock>=3.10.0\\n\\n# Code quality\\nflake8>=5.0.0\\nblack>=22.0.0\\nmypy>=1.0.0\\nisort>=5.11.0\\n\\n# Documentation\\nsphinx>=5.0.0\\nsphinx-rtd-theme>=1.2.0\\n\\n# Build tools\\nbuild>=0.10.0\\ntwine>=4.0.0\\n",
+      "template_vars": {},
+      "checksum": null,
+      "last_updated": null
+    },
+    {
+      "path": ".gitignore",
+      "content": "# Byte-compiled / optimized / DLL files\\n__pycache__/\\n*.py[cod]\\n*$py.class\\n\\n# C extensions\\n*.so\\n\\n# Distribution / packaging\\n.Python\\nbuild/\\ndevelop-eggs/\\ndist/\\ndownloads/\\neggs/\\n.eggs/\\nlib/\\nlib64/\\nparts/\\nsdist/\\nvar/\\nwheels/\\nshare/python-wheels/\\n*.egg-info/\\n.installed.cfg\\n*.egg\\nMANIFEST\\n\\n# PyInstaller\\n*.manifest\\n*.spec\\n\\n# Installer logs\\npip-log.txt\\npip-delete-this-directory.txt\\n\\n# Unit test / coverage reports\\nhtmlcov/\\n.tox/\\n.nox/\\n.coverage\\n.coverage.*\\n.cache\\nnosetests.xml\\ncoverage.xml\\n*.cover\\n*.py,cover\\n.hypothesis/\\n.pytest_cache/\\ncover/\\n\\n# Virtual environments\\n.env\\n.venv\\nenv/\\nvenv/\\nENV/\\nenv.bak/\\nvenv.bak/\\n\\n# IDEs\\n.vscode/\\n.idea/\\n*.swp\\n*.swo\\n*~\\n\\n# OS\\n.DS_Store\\n.DS_Store?\\n._*\\n.Spotlight-V100\\n.Trashes\\nehthumbs.db\\nThumbs.db\\n\\n# Logs\\n*.log\\n\\n# Local configuration\\n.env.local\\n.env.development.local\\n.env.test.local\\n.env.production.local\\n",
+      "template_vars": {},
+      "checksum": null,
+      "last_updated": null
+    },
+    {
+      "path": "pyproject.toml",
+      "content": "[build-system]\\nrequires = [\\\"setuptools>=65.0\\\", \\\"wheel\\\"]\\nbuild-backend = \\\"setuptools.build_meta\\\"\\n\\n[project]\\nname = \\\"{project_name}\\\"\\nversion = \\\"{version}\\\"\\nauthors = [\\n    {name = \\\"{author_name}\\\", email = \\\"{author_email}\\\"}\\n]\\ndescription = \\\"{description}\\\"\\nreadme = \\\"README.md\\\"\\nrequires-python = \\\">=3.8\\\"\\nclassifiers = [\\n    \\\"Development Status :: 3 - Alpha\\\",\\n    \\\"Intended Audience :: Developers\\\",\\n    \\\"License :: OSI Approved :: MIT License\\\",\\n    \\\"Programming Language :: Python :: 3\\\",\\n    \\\"Programming Language :: Python :: 3.8\\\",\\n    \\\"Programming Language :: Python :: 3.9\\\",\\n    \\\"Programming Language :: Python :: 3.10\\\",\\n    \\\"Programming Language :: Python :: 3.11\\\",\\n]\\ndependencies = [\\n    # Add your project dependencies here\\n]\\n\\n[project.optional-dependencies]\\ndev = [\\n    \\\"pytest>=7.0.0\\\",\\n    \\\"pytest-cov>=4.0.0\\\",\\n    \\\"flake8>=5.0.0\\\",\\n    \\\"black>=22.0.0\\\",\\n    \\\"mypy>=1.0.0\\\",\\n]\\n\\n[project.urls]\\n\\\"Homepage\\\" = \\\"https://github.com/{author_name}/{project_name}\\\"\\n\\\"Bug Tracker\\\" = \\\"https://github.com/{author_name}/{project_name}/issues\\\"\\n\\n[tool.black]\\nline-length = 88\\ntarget-version = ['py38']\\ninclude = '\\.pyi?$'\\nextend-exclude = '''\\n/(\\n  # directories\\n  \\.eggs\\n  | \\.git\\n  | \\.hg\\n  | \\.mypy_cache\\n  | \\.tox\\n  | \\.venv\\n  | build\\n  | dist\\n)/\\n'''\\n\\n[tool.isort]\\nprofile = \\\"black\\\"\\nline_length = 88\\n\\n[tool.mypy]\\npython_version = \\\"3.8\\\"\\nwarn_return_any = true\\nwarn_unused_configs = true\\ndisallow_untyped_defs = true\\n\\n[tool.pytest.ini_options]\\nminversion = \\\"7.0\\\"\\naddopts = \\\"-ra -q --cov=src --cov-report=html --cov-report=term\\\"\\ntestpaths = [\\n    \\\"tests\\\",\\n]\\n",
+      "template_vars": {
+        "project_name": "",
+        "version": "1.0.0",
+        "author_name": "",
+        "author_email": "",
+        "description": ""
+      },
+      "checksum": null,
+      "last_updated": null
+    }
+  ],
+  "metadata": {
+    "template_version": "1.0.0",
+    "description": "Standard Python project structure with src layout",
+    "created_at": "2025-09-25T00:00:00Z",
+    "total_files": 8,
+    "total_subdirs": 3
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "name": "test_source",
+  "path": "C:\\Users\\chris\\AppData\\Local\\Temp\\tmpzs2w5s0r\\test_source",
+  "subdirs": [
+    {
+      "name": "subdir",
+      "path": "C:\\Users\\chris\\AppData\\Local\\Temp\\tmpzs2w5s0r\\test_source\\subdir",
+      "subdirs": [],
+      "files": [
+        {
+          "path": "subdir\\file2.txt",
+          "content": "Test content 2",
+          "template_vars": {},
+          "checksum": "e9c5459e90ee0966b7f8f162cb861908",
+          "last_updated": "2025-09-25T01:05:09.483121"
+        }
+      ],
+      "metadata": {
+        "scanned_at": "2025-09-25T01:05:09.483121",
+        "total_files": 1,
+        "total_subdirs": 0
+      }
+    }
+  ],
+  "files": [
+    {
+      "path": "test_source\\file1.txt",
+      "content": "Test content 1",
+      "template_vars": {},
+      "checksum": "9c192053ffbc363705b13508c36566f6",
+      "last_updated": "2025-09-25T01:05:09.483121"
+    }
+  ],
+  "metadata": {
+    "scanned_at": "2025-09-25T01:05:09.483121",
+    "total_files": 1,
+    "total_subdirs": 1
+  }
+}

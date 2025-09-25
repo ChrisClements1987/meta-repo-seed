@@ -1,0 +1,96 @@
+{
+  "name": "example_project",
+  "path": "C:\\Users\\chris\\AppData\\Local\\Temp\\tmp5js7v36v\\example_project",
+  "subdirs": [
+    {
+      "name": "docs",
+      "path": "C:\\Users\\chris\\AppData\\Local\\Temp\\tmp5js7v36v\\example_project\\docs",
+      "subdirs": [],
+      "files": [
+        {
+          "path": "docs\\api.md",
+          "content": "# API Documentation\n\n## example_project.hello()\n\nReturns a greeting message.\n\n**Returns:** str - A greeting message\n",
+          "template_vars": {},
+          "checksum": "32469c347d52fd2019f1ca5a0d84f788",
+          "last_updated": "2025-09-25T01:02:17.377069"
+        }
+      ],
+      "metadata": {
+        "scanned_at": "2025-09-25T01:02:17.377069",
+        "total_files": 1,
+        "total_subdirs": 0
+      }
+    },
+    {
+      "name": "src",
+      "path": "C:\\Users\\chris\\AppData\\Local\\Temp\\tmp5js7v36v\\example_project\\src",
+      "subdirs": [
+        {
+          "name": "example_project",
+          "path": "C:\\Users\\chris\\AppData\\Local\\Temp\\tmp5js7v36v\\example_project\\src\\example_project",
+          "subdirs": [],
+          "files": [
+            {
+              "path": "example_project\\__init__.py",
+              "content": "\"\"\"Example project package.\"\"\"\n\n__version__ = \"1.0.0\"\n\ndef hello():\n    \"\"\"Say hello.\"\"\"\n    return \"Hello from example_project!\"\n",
+              "template_vars": {},
+              "checksum": "527b6496779d13902235113df23da9f3",
+              "last_updated": "2025-09-25T01:02:17.377069"
+            }
+          ],
+          "metadata": {
+            "scanned_at": "2025-09-25T01:02:17.377069",
+            "total_files": 1,
+            "total_subdirs": 0
+          }
+        }
+      ],
+      "files": [],
+      "metadata": {
+        "scanned_at": "2025-09-25T01:02:17.377069",
+        "total_files": 0,
+        "total_subdirs": 1
+      }
+    },
+    {
+      "name": "tests",
+      "path": "C:\\Users\\chris\\AppData\\Local\\Temp\\tmp5js7v36v\\example_project\\tests",
+      "subdirs": [],
+      "files": [
+        {
+          "path": "tests\\test_example.py",
+          "content": "import unittest\nimport sys\nimport os\n\nsys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))\n\nimport example_project\n\nclass TestExample(unittest.TestCase):\n    def test_hello(self):\n        result = example_project.hello()\n        self.assertEqual(result, \"Hello from example_project!\")\n\nif __name__ == '__main__':\n    unittest.main()\n",
+          "template_vars": {},
+          "checksum": "1bbbd11812962b455c322def97ac480c",
+          "last_updated": "2025-09-25T01:02:17.377069"
+        }
+      ],
+      "metadata": {
+        "scanned_at": "2025-09-25T01:02:17.377069",
+        "total_files": 1,
+        "total_subdirs": 0
+      }
+    }
+  ],
+  "files": [
+    {
+      "path": "example_project\\README.md",
+      "content": "# Example Project\n\nThis is an example project for demonstrating structure synchronization.\n\n## Installation\n\n```bash\npip install -e .\n```\n\n## Usage\n\n```python\nimport example_project\nprint(\"Hello World!\")\n```\n",
+      "template_vars": {},
+      "checksum": "bbdb047a8d8a6a6bec337695bd0c0158",
+      "last_updated": "2025-09-25T01:02:17.377069"
+    },
+    {
+      "path": "example_project\\setup.py",
+      "content": "from setuptools import setup, find_packages\n\nsetup(\n    name=\"example_project\",\n    version=\"1.0.0\",\n    packages=find_packages(where=\"src\"),\n    package_dir={\"\": \"src\"},\n)\n",
+      "template_vars": {},
+      "checksum": "8e8ebb0e5c509d8e66378ef22207837f",
+      "last_updated": "2025-09-25T01:02:17.377069"
+    }
+  ],
+  "metadata": {
+    "scanned_at": "2025-09-25T01:02:17.377069",
+    "total_files": 2,
+    "total_subdirs": 3
+  }
+}

@@ -1,0 +1,10 @@
+output_dir: output
+structure_definitions: {}
+sync_rules:
+  backup_before_sync: true
+  exclude_patterns:
+  - .git
+  - __pycache__
+  - '*.pyc'
+  preserve_existing: true
+templates_dir: templates
