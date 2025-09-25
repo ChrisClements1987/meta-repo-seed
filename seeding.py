@@ -328,9 +328,20 @@ def create_file_from_template(template_path: Path, destination: Path, replacemen
         return False
     
     try:
-        # Read template content
-        with open(template_path, 'r', encoding='utf-8') as f:
-            content = f.read()
+        # Read template content with encoding error handling
+        try:
+            with open(template_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+        except UnicodeDecodeError:
+            # Handle binary files gracefully by copying as-is
+            logger.warning(f"Template file contains binary content, copying as-is: {template_path}")
+            safe_copy_file(template_path, destination)
+            logger.info(f"Copied binary template file: {destination} {description}")
+            return True
+        except PermissionError as e:
+            # Handle permission errors when reading template
+            logger.error(f"Permission denied reading template {template_path}: {e}")
+            return False
         
         # Process template content with variable replacements
         content = process_template_content(content, replacements)
