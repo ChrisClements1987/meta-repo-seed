@@ -32,6 +32,56 @@ def setup_logging(verbose: bool = False) -> logging.Logger:
     return logging.getLogger(__name__)
 
 
+def sanitize_project_name(name: str) -> str:
+    """
+    Sanitize and validate project name to prevent path traversal attacks.
+    
+    Args:
+        name: The project name to sanitize
+        
+    Returns:
+        Sanitized project name
+        
+    Raises:
+        ValueError: If the project name is invalid or potentially dangerous
+    """
+    import re
+    
+    if not name or not name.strip():
+        raise ValueError("Project name cannot be empty")
+    
+    name = name.strip()
+    
+    # Check for reserved names
+    if name in ("", ".", ".."):
+        raise ValueError("Invalid project name: cannot be '.', '..', or empty")
+    
+    # Check for absolute paths
+    if Path(name).is_absolute():
+        raise ValueError("Project name must not be an absolute path")
+    
+    # Check for path separators
+    seps = {os.sep}
+    if os.altsep:  # Windows also has forward slash
+        seps.add(os.altsep)
+    if any(sep in name for sep in seps):
+        raise ValueError("Project name must not contain path separators")
+    
+    # Check for parent directory traversal
+    if ".." in name:
+        raise ValueError("Project name must not contain '..' sequences")
+    
+    # Validate against safe character set (allow Unicode letters/numbers plus common safe chars)
+    if not re.match(r"^[\w\-_\.]+$", name, re.UNICODE):
+        raise ValueError("Project name may only contain letters, numbers, hyphens, underscores, and periods")
+    
+    # Additional length check for sanity
+    if len(name) > 255:
+        raise ValueError("Project name too long (maximum 255 characters)")
+    
+    return name
+
+
 def get_project_name() -> str:
     """Get the project name from the current directory name."""
     current_dir = Path.cwd()
@@ -42,13 +92,54 @@ def get_project_name() -> str:
         project_name = current_dir.name
     
     logger.info(f"Detected project name: {project_name}")
-    return project_name
+    
+    # Sanitize the detected project name
+    try:
+        return sanitize_project_name(project_name)
+    except ValueError as e:
+        logger.error(f"Detected project name is invalid: {e}")
+        raise ValueError(f"Invalid project name '{project_name}': {e}")
 
 
 def get_github_username() -> str:
-    """Get GitHub username from git config or prompt user."""
+    """
+    Get GitHub username from multiple sources in priority order.
+    
+    Priority order:
+    1. GITHUB_USERNAME environment variable
+    2. git config github.user (GitHub-specific)  
+    3. git config user.name (fallback)
+    4. Interactive prompt (only if TTY is available)
+    
+    Returns:
+        GitHub username string
+        
+    Raises:
+        ValueError: If no username found and not running in interactive environment
+    """
+    # 1. Check environment variable first (best for CI/CD)
+    env_username = os.environ.get("GITHUB_USERNAME")
+    if env_username and env_username.strip():
+        logger.info(f"Using GitHub username from environment: {env_username.strip()}")
+        return env_username.strip()
+    
+    # 2. Try GitHub-specific git config first
     try:
-        # Try to get from git config
+        result = subprocess.run(
+            ['git', 'config', '--global', 'github.user'],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        username = result.stdout.strip()
+        if username:
+            logger.info(f"Detected GitHub username from git config (github.user): {username}")
+            return username
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        logger.debug("GitHub username not found in git config github.user")
+    
+    # 3. Fallback to general git user.name
+    try:
         result = subprocess.run(
             ['git', 'config', '--global', 'user.name'],
             capture_output=True,
@@ -57,17 +148,26 @@ def get_github_username() -> str:
         )
         username = result.stdout.strip()
         if username:
-            logger.info(f"Detected GitHub username from git config: {username}")
+            logger.info(f"Using git user.name as GitHub username: {username}")
             return username
     except (subprocess.CalledProcessError, FileNotFoundError):
-        logger.warning("Could not detect GitHub username from git config")
+        logger.debug("Could not detect username from git config user.name")
     
-    # Fallback to user input
-    username = input("Please enter your GitHub username: ").strip()
-    if not username:
-        raise ValueError("GitHub username is required")
+    # 4. Interactive prompt only if TTY is available
+    if sys.stdin.isatty():
+        try:
+            username = input("Please enter your GitHub username: ").strip()
+            if username:
+                logger.info(f"GitHub username provided interactively: {username}")
+                return username
+        except (EOFError, KeyboardInterrupt):
+            logger.info("Interactive input cancelled by user")
     
-    return username
+    # If we reach here, no username was found and we're in non-interactive environment
+    raise ValueError(
+        "GitHub username not provided and no non-interactive source available. "
+        "Use --username argument or set GITHUB_USERNAME environment variable for CI/CD environments."
+    )
 
 
 def ensure_directory_exists(path: Path, description: str = "") -> bool:
@@ -91,6 +191,81 @@ def ensure_directory_exists(path: Path, description: str = "") -> bool:
         raise
 
 
+def safe_open_for_write(path: Path, encoding: str = 'utf-8'):
+    """
+    Safely open a file for writing, refusing to follow symlinks.
+    
+    Args:
+        path: Path to the file to open
+        encoding: File encoding (default: utf-8)
+        
+    Returns:
+        File object opened for writing
+        
+    Raises:
+        RuntimeError: If the path is a symlink
+        OSError: If file operations fail
+    """
+    # Check if the path is a symlink before attempting to write
+    if path.is_symlink():
+        raise RuntimeError(f"Refusing to write to symlink: {path}")
+    
+    # Use O_NOFOLLOW on systems that support it for additional protection
+    if hasattr(os, 'O_NOFOLLOW') and os.name != 'nt':  # Not available on Windows
+        try:
+            # Open with O_NOFOLLOW to prevent following symlinks at the OS level
+            fd = os.open(str(path), os.O_WRONLY | os.O_CREAT | os.O_TRUNC | os.O_NOFOLLOW)
+            return os.fdopen(fd, 'w', encoding=encoding)
+        except OSError as e:
+            # If O_NOFOLLOW fails due to symlink, provide clear error
+            if e.errno == 40:  # ELOOP - too many symbolic links encountered
+                raise RuntimeError(f"Symlink detected and blocked: {path}")
+            raise
+    
+    # Fallback for Windows or systems without O_NOFOLLOW
+    # The path.is_symlink() check above provides protection
+    return open(path, 'w', encoding=encoding)
+
+
+def safe_copy_file(source: Path, destination: Path) -> None:
+    """
+    Safely copy a file, refusing to follow symlinks in the destination.
+    
+    Args:
+        source: Source file path
+        destination: Destination file path
+        
+    Raises:
+        RuntimeError: If destination is a symlink
+        OSError: If file operations fail
+    """
+    # Check if destination is a symlink
+    if destination.is_symlink():
+        raise RuntimeError(f"Refusing to overwrite symlink: {destination}")
+    
+    # Open destination safely for binary writing
+    if hasattr(os, 'O_NOFOLLOW') and os.name != 'nt':
+        # Use O_NOFOLLOW on Unix systems
+        fd = os.open(str(destination), os.O_WRONLY | os.O_CREAT | os.O_TRUNC | os.O_NOFOLLOW)
+        with open(source, 'rb') as src, os.fdopen(fd, 'wb') as dst:
+            shutil.copyfileobj(src, dst)
+    else:
+        # Fallback for Windows (we already checked for symlinks above)
+        with open(source, 'rb') as src, open(destination, 'wb') as dst:
+            shutil.copyfileobj(src, dst)
+    
+    # Copy metadata (permissions, timestamps) safely
+    # Note: shutil.copystat follows symlinks, so we avoid it
+    try:
+        stat = source.stat()
+        os.utime(destination, (stat.st_atime, stat.st_mtime))
+        if os.name != 'nt':  # Unix-like systems
+            os.chmod(destination, stat.st_mode)
+    except (OSError, AttributeError):
+        # If metadata copying fails, file copy still succeeded
+        logger.debug(f"Could not copy metadata for {destination}")
+
+
 def copy_template_file(source: Path, destination: Path, description: str = "") -> bool:
     """
     Copy a template file to destination if it doesn't exist.
@@ -103,12 +278,40 @@ def copy_template_file(source: Path, destination: Path, description: str = "") -
     try:
         # Ensure destination directory exists
         destination.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(source, destination)
+        
+        # Use safe file copying to prevent symlink attacks
+        safe_copy_file(source, destination)
+        
         logger.info(f"Copied template file: {destination} {description}")
         return True
+    except RuntimeError as e:
+        # Handle symlink protection errors specifically
+        logger.error(f"Security violation: {e}")
+        raise
     except Exception as e:
         logger.error(f"Failed to copy {source} to {destination}: {e}")
         raise
+
+
+def process_template_content(content: str, replacements: Dict[str, str]) -> str:
+    """
+    Process template content by replacing placeholder variables.
+    
+    Args:
+        content: Template content with {{VARIABLE}} placeholders
+        replacements: Dictionary mapping variable names to replacement values
+    
+    Returns:
+        Processed content with variables replaced
+    """
+    if not content or not replacements:
+        return content
+    
+    # Replace each placeholder with its corresponding value
+    for placeholder, value in replacements.items():
+        content = content.replace(f"{{{{{placeholder}}}}}", str(value))
+    
+    return content
 
 
 def create_file_from_template(template_path: Path, destination: Path, replacements: Dict[str, str], description: str = "") -> bool:
@@ -129,30 +332,153 @@ def create_file_from_template(template_path: Path, destination: Path, replacemen
         with open(template_path, 'r', encoding='utf-8') as f:
             content = f.read()
         
-        # Replace placeholders
-        for placeholder, value in replacements.items():
-            content = content.replace(f"{{{{{placeholder}}}}}", value)
+        # Process template content with variable replacements
+        content = process_template_content(content, replacements)
         
         # Ensure destination directory exists
         destination.parent.mkdir(parents=True, exist_ok=True)
         
-        # Write processed content to destination
-        with open(destination, 'w', encoding='utf-8') as f:
+        # Write processed content to destination safely
+        with safe_open_for_write(destination, encoding='utf-8') as f:
             f.write(content)
         
         logger.info(f"Created file from template: {destination} {description}")
         return True
+    except RuntimeError as e:
+        # Handle symlink protection errors specifically  
+        logger.error(f"Security violation: {e}")
+        raise
     except Exception as e:
         logger.error(f"Failed to create {destination} from template {template_path}: {e}")
         raise
 
 
 class Configuration:
-    """Handle configuration file operations for seeding parameters."""
+    """
+    Handle configuration file operations for seeding parameters.
     
-    def __init__(self):
+    Supports both data container interface (for tests) and configuration manager interface (for main script).
+    """
+    
+    def __init__(
+        self, 
+        project_name: Optional[str] = None,
+        github_username: Optional[str] = None,
+        dry_run: bool = False,
+        templates_dir: Optional[Union[str, Path]] = None,
+        base_path: Optional[Union[str, Path]] = None
+    ):
+        """Initialize configuration with optional parameters."""
+        self.project_name = project_name
+        self.github_username = github_username
+        self.dry_run = dry_run
+        self.templates_dir = Path(templates_dir) if templates_dir else None
+        self.base_path = Path(base_path) if base_path else None
+        
+        # Legacy interface support
         self.config_data = {}
         self.supported_formats = ['.yaml', '.yml', '.json']
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'Configuration':
+        """Create Configuration instance from dictionary."""
+        return cls(
+            project_name=data.get('project_name'),
+            github_username=data.get('github_username'),
+            dry_run=data.get('dry_run', False),
+            templates_dir=data.get('templates_dir'),
+            base_path=data.get('base_path')
+        )
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert Configuration to dictionary."""
+        return {
+            'project_name': self.project_name,
+            'github_username': self.github_username,
+            'dry_run': self.dry_run,
+            'templates_dir': str(self.templates_dir) if self.templates_dir else None,
+            'base_path': str(self.base_path) if self.base_path else None
+        }
+    
+    @classmethod
+    def load(cls, config_file: Path) -> Optional['Configuration']:
+        """
+        Load configuration from file.
+        
+        Args:
+            config_file: Path to configuration file
+            
+        Returns:
+            Configuration instance or None if failed
+        """
+        if not config_file.exists():
+            return None
+            
+        try:
+            suffix = config_file.suffix.lower()
+            
+            if suffix == '.yaml' or suffix == '.yml':
+                with open(config_file, 'r', encoding='utf-8') as f:
+                    data = yaml.safe_load(f)
+            elif suffix == '.json':
+                with open(config_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+            else:
+                module_logger = logger if logger else logging.getLogger(__name__)
+                module_logger.warning(f"Unsupported config format: {suffix}")
+                return None
+            
+            if data is None:
+                return None
+                
+            return cls.from_dict(data)
+            
+        except Exception as e:
+            module_logger = logger if logger else logging.getLogger(__name__)
+            module_logger.error(f"Failed to load configuration from {config_file}: {e}")
+            return None
+    
+    def save(self, config_file: Path) -> bool:
+        """
+        Save configuration to file.
+        
+        Args:
+            config_file: Path to save configuration file
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            # Ensure parent directory exists
+            config_file.parent.mkdir(parents=True, exist_ok=True)
+            
+            # Determine format from file extension
+            suffix = config_file.suffix.lower()
+            
+            data = self.to_dict()
+            
+            if suffix == '.yaml' or suffix == '.yml':
+                with open(config_file, 'w', encoding='utf-8') as f:
+                    yaml.safe_dump(data, f, default_flow_style=False, indent=2)
+            elif suffix == '.json':
+                with open(config_file, 'w', encoding='utf-8') as f:
+                    json.dump(data, f, indent=2)
+            else:
+                raise ValueError(f"Unsupported config format: {suffix}")
+            
+            # Use module logger or create one if needed
+            module_logger = logger if logger else logging.getLogger(__name__)
+            module_logger.info(f"Saved configuration to: {config_file}")
+            return True
+            
+        except Exception as e:
+            # Use module logger or create one if needed
+            module_logger = logger if logger else logging.getLogger(__name__)
+            module_logger.error(f"Failed to save configuration to {config_file}: {e}")
+            # Re-raise ValueError for unsupported formats
+            if isinstance(e, ValueError) and "Unsupported config format" in str(e):
+                raise
+            return False
     
     def save_config(self, config_path: Path, project_name: str, github_username: str, 
                    template_path: Optional[str] = None, **kwargs) -> None:
@@ -617,23 +943,79 @@ class RepoSeeder:
         script_templates = {
             'initialise_repo': '''#!/usr/bin/env python3
 """
-Initial commit script to create the initial structure of the repo 
-based on governance/structure/structure.json
+Repository Initialization Script
+
+This script initializes repository structure based on governance/structure/structure.json.
+Uses the Repository Automation Module (Issue #32 implementation).
+
+Usage:
+    python initialise_repo.py [--dry-run] [--verbose] [--structure PATH] [--target PATH]
+
+Note: This script requires the Structure Parser Module and Repository Automation Module.
+      Run from the repository root directory.
 """
 
-import json
-import logging
+import sys
+import argparse
 from pathlib import Path
+
+# Add the src directory to Python path for imports
+src_path = Path(__file__).parent.parent.parent / 'src'
+if src_path.exists():
+    sys.path.insert(0, str(src_path))
+
+try:
+    from automation.repository_initializer import RepositoryInitializer
+except ImportError as e:
+    print(f"❌ Import error: {e}")
+    print("💡 Make sure you're running from the repository root with the src/ directory available")
+    print("💡 This script requires the Repository Automation Module (Issue #32)")
+    sys.exit(1)
 
 
 def main():
     """Initialize repository structure based on structure.json."""
-    print(f"Initializing repository structure...")
-    # TODO: Implementation needed
+    parser = argparse.ArgumentParser(
+        description="Initialize repository structure from structure.json"
+    )
     
+    parser.add_argument('--structure', type=Path, 
+                       default=Path('governance/structure/structure.json'),
+                       help='Path to structure.json file')
+    parser.add_argument('--target', type=Path,
+                       help='Target directory for initialization')
+    parser.add_argument('--dry-run', action='store_true',
+                       help='Preview changes without making them')
+    parser.add_argument('--verbose', action='store_true', 
+                       help='Enable verbose logging')
+    
+    args = parser.parse_args()
+    
+    print("🚀 Repository Structure Initializer")
+    print("=" * 40)
+    
+    if not args.structure.exists():
+        print(f"❌ Structure file not found: {args.structure}")
+        return 1
+    
+    try:
+        initializer = RepositoryInitializer(dry_run=args.dry_run, verbose=args.verbose)
+        success = initializer.initialize_repository(args.structure, args.target)
+        
+        if success:
+            print("✅ Repository initialization completed!")
+            return 0
+        else:
+            print("❌ Repository initialization failed.")
+            return 1
+            
+    except KeyboardInterrupt:
+        print("\\n⏹️  Initialization cancelled")
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
 ''',
             'enforce_structure': '''#!/usr/bin/env python3
 """
@@ -889,7 +1271,14 @@ def main():
             config_data = config.load_config(args.config)
         
         # Get project configuration (CLI args override config file)
-        project_name = args.project or (config.get_project_name() if config_data else None) or get_project_name()
+        raw_project_name = args.project or (config.get_project_name() if config_data else None) or get_project_name()
+        
+        # Sanitize project name for security
+        try:
+            project_name = sanitize_project_name(raw_project_name)
+        except ValueError as e:
+            logger.error(f"Invalid project name: {e}")
+            sys.exit(1)
         github_username = args.username or (config.get_github_username() if config_data else None) or get_github_username()
         
         # Handle save-config option (save and exit)

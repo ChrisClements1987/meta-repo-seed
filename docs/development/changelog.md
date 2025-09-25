@@ -8,6 +8,58 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Symlink write protection for template processing (PR #46 - In Review)
+
+## [2.1.0] - 2025-09-24
+
+### Added
+- **Configuration File Support** (#5) - YAML/JSON configuration files for project templates
+  - Save and load project configurations with `--config` and `--save-config` flags
+  - Example configurations for web apps and data science projects
+  - Comprehensive documentation with CI/CD integration examples
+- **Structure Parser Module** (#31) - Complete parsing foundation for automation scripts
+  - Schema validation using structure-v2.json
+  - Type-safe dataclasses and models
+  - Comprehensive test suite with 95%+ coverage
+  - Ready for automation script integration
+- **Repository Initialization Automation** (#32) - Automated project setup scripts
+  - CLI interface for structure-based repository creation
+  - Integration with StructureParser module
+  - Cross-platform compatibility
+- **Enhanced Documentation System** (#15, #26) - Structured documentation with guides
+  - Comprehensive docs/ directory structure
+  - Development workflow standards
+  - Issue management templates
+  - Architecture decision records
+
+### Security
+- **Path Traversal Protection** (#35) - Comprehensive input sanitization
+  - Project name validation against directory traversal attacks
+  - Path separator and absolute path blocking
+  - Safe character set restrictions
+  - Clear security error messages
+- **Non-Interactive Environment Support** (#36) - CI/CD compatibility improvements
+  - `GITHUB_USERNAME` environment variable support
+  - TTY detection to prevent hanging in automated environments
+  - Priority-based username resolution chain
+  - GitHub-specific git config preference
+
+### Infrastructure
+- **Test Suite Foundation** (#18) - Comprehensive testing framework
+  - Unit tests with fixtures and mocking
+  - Integration test coverage
+  - Cross-platform test compatibility
+  - Test configuration with pytest.ini
+
+### Documentation
+- **API Reference Documentation** - Complete API and CLI documentation
+- **Configuration Schema** - Detailed configuration format specification
+- **Template System Guide** - Working with templates and customization
+- **CI/CD Integration Examples** - GitHub Actions, GitLab CI, Jenkins examples
+
+## [1.1.0] - 2025-09-24
+
+### Added
 - Feature tracking system with CHANGELOG.md and ROADMAP.md
 
 ## [1.0.0] - 2025-09-24

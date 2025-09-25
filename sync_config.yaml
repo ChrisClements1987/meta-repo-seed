@@ -1,0 +1,67 @@
+templates_dir: templates
+output_dir: output
+sync_rules:
+  preserve_existing: true
+  backup_before_sync: true
+  exclude_patterns:
+    - .git
+    - __pycache__
+    - "*.pyc"
+    - "*.pyo"
+    - .pytest_cache
+    - .coverage
+    - "*.log"
+    - .DS_Store
+    - Thumbs.db
+
+structure_definitions:
+  python_project:
+    description: "Standard Python project structure"
+    includes:
+      - src/
+      - tests/
+      - docs/
+      - requirements.txt
+      - setup.py
+      - README.md
+      - .gitignore
+  
+  web_project:
+    description: "Web application project structure"
+    includes:
+      - static/
+      - templates/
+      - src/
+      - tests/
+      - requirements.txt
+      - app.py
+      - config.py
+
+template_variables:
+  common:
+    project_name: "{project_name}"
+    author_name: "{author_name}"
+    author_email: "{author_email}"
+    description: "{description}"
+    version: "1.0.0"
+    python_version: "3.9+"
+    
+  github:
+    repo_url: "https://github.com/{author_name}/{project_name}"
+    issues_url: "https://github.com/{author_name}/{project_name}/issues"
+    
+synchronization:
+  default_branch: main
+  auto_commit: false
+  commit_message: "Structure synchronization update"
+  
+  hooks:
+    pre_sync:
+      - "echo 'Starting synchronization...'"
+    post_sync:
+      - "echo 'Synchronization completed'"
+      
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: sync.log

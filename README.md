@@ -95,10 +95,27 @@ python seeding.py --list-configs
 | Option | Description |
 |--------|-------------|
 | `--project PROJECT` | Specify project name (default: auto-detect from directory) |
-| `--username USERNAME` | Specify GitHub username (default: from git config) |
+| `--username USERNAME` | Specify GitHub username (default: from GITHUB_USERNAME env var or git config) |
 | `--dry-run` | Preview changes without making them |
 | `--verbose, -v` | Enable detailed logging |
 | `--help, -h` | Show help message and examples |
+
+### Environment Variables
+
+| Variable | Description | Usage |
+|----------|-------------|-------|
+| `GITHUB_USERNAME` | GitHub username for authentication | CI/CD pipelines, non-interactive environments |
+
+**CI/CD Example:**
+```bash
+# GitHub Actions
+env:
+  GITHUB_USERNAME: ${{ github.actor }}
+
+# Shell
+export GITHUB_USERNAME=your-username
+python seeding.py --dry-run
+```
 
 ## ✨ Key Features
 
@@ -124,6 +141,14 @@ python seeding.py --list-configs
 - **Repository management scripts** - initialization, enforcement
 - **Documentation generation** - automatic README creation
 - **Structure validation** - ensures compliance
+
+### 🔒 Security Features
+- **Path traversal protection** - Project names are sanitized to prevent directory traversal attacks
+- **Input validation** - All user inputs are validated against safe character sets
+- **Safe file operations** - File creation operations include security checks
+- **No privilege escalation** - Script runs with user permissions only
+
+> **Security Note**: Project names are restricted to letters, numbers, hyphens, underscores, and periods. Path separators, parent directory references (`..`), and absolute paths are rejected to prevent security vulnerabilities.
 
 ## 📋 Template Variables
 
