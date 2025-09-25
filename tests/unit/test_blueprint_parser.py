@@ -4,23 +4,18 @@ Unit tests for Organization Blueprint Parser.
 Tests blueprint parsing, validation, and data model functionality.
 """
 
-import unittest
-import tempfile
-import yaml
 import json
-from pathlib import Path
 import sys
+import tempfile
+import unittest
+from pathlib import Path
+
+import yaml
 
 # Add src modules to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src" / "blueprints"))
-from parser import (
-    BlueprintParser,
-    OrganizationBlueprint,
-    RepositoryConfig,
-    EnvironmentConfig,
-    PortfolioConfig,
-    TeamConfig
-)
+from parser import (BlueprintParser, EnvironmentConfig, OrganizationBlueprint,
+                    PortfolioConfig, RepositoryConfig, TeamConfig)
 
 
 class TestBlueprintParser(unittest.TestCase):

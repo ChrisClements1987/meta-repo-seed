@@ -7,9 +7,9 @@ to create and manage project templates.
 """
 
 import os
+import shutil
 import sys
 import tempfile
-import shutil
 from pathlib import Path
 
 # Add src to path for imports

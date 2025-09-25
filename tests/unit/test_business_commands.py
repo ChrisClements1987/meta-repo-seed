@@ -4,18 +4,16 @@ Unit tests for Business-in-a-Box CLI commands.
 Tests the business deployment commands, profiles, and stack templates.
 """
 
-import unittest
-from unittest.mock import patch, MagicMock
 import sys
+import unittest
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 # Add src modules to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src" / "cli"))
-from business_commands import (
-    BusinessDeploymentProfiles,
-    ProductStackTemplates,
-    create_business_cli_parser
-)
+from business_commands import (BusinessDeploymentProfiles,
+                               ProductStackTemplates,
+                               create_business_cli_parser)
 
 
 class TestBusinessDeploymentProfiles(unittest.TestCase):

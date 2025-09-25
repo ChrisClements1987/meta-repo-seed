@@ -18,11 +18,8 @@ __author__ = "ChrisClements1987"
 
 # Import main components for easy access
 try:
-    from .structure_sync import (
-        StructureSynchronizer,
-        DirectoryStructure, 
-        FileTemplate
-    )
+    from .structure_sync import (DirectoryStructure, FileTemplate,
+                                 StructureSynchronizer)
     __all__ = [
         'StructureSynchronizer',
         'DirectoryStructure',

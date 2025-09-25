@@ -10,17 +10,17 @@ Generates production-ready applications from templates with:
 """
 
 import json
-import shutil
-from pathlib import Path
-from typing import Dict, List, Optional, Any
 import logging
+import shutil
 import subprocess
+# Add the root directory to path for imports
+import sys
 import tempfile
 from dataclasses import dataclass
 from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
-# Add the root directory to path for imports
-import sys
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from seeding import setup_logging
 

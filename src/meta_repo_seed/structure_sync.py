@@ -7,16 +7,17 @@ across repositories, ensuring consistency and automated maintenance of project l
 Issue #33: Structure Synchronization Scripts
 """
 
+import hashlib
+import json
+import logging
 import os
 import shutil
-import json
-import yaml
-from pathlib import Path
-from typing import Dict, List, Optional, Union, Any
-from dataclasses import dataclass, asdict
-import logging
-import hashlib
+from dataclasses import asdict, dataclass
 from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Union
+
+import yaml
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

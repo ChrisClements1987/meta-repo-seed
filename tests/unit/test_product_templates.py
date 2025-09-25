@@ -4,15 +4,16 @@ Unit tests for Product Template Generator.
 Tests template generation, PaaS integration, and 10-minute product launch.
 """
 
-import unittest
-from unittest.mock import patch, MagicMock
-import tempfile
 import sys
+import tempfile
+import unittest
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 # Add src modules to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src" / "templates"))
-from generator import ProductTemplateRegistry, ProductTemplateGenerator, TemplateConfig
+from generator import (ProductTemplateGenerator, ProductTemplateRegistry,
+                       TemplateConfig)
 
 
 class TestProductTemplateRegistry(unittest.TestCase):
