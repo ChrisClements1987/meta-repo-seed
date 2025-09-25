@@ -199,20 +199,74 @@ def deploy_business_command(args) -> int:
     logger.info(f"Deploying business infrastructure: {profile['name']}")
     logger.info(f"Target market: {profile['target_market']}")
     
-    if args.dry_run:
-        logger.info("DRY RUN - Would deploy:")
-        logger.info("  ✓ Organization blueprint with multi-tier architecture")
-        logger.info("  ✓ Professional governance frameworks")
-        logger.info("  ✓ Automated CI/CD pipeline templates")
-        logger.info("  ✓ Enterprise documentation standards")
-        logger.info("  ✓ Team structure and permissions")
-        logger.info(f"  ✓ Provider integrations: {', '.join(profile['providers'].values())}")
-        return 0
+    # Get organization name (use current directory name by default)
+    import os
+    org_name = getattr(args, 'org_name', None) or os.path.basename(os.getcwd())
+    logger.info(f"Organization name: {org_name}")
     
-    # TODO: Implement actual business deployment
-    logger.info("🚀 Business deployment starting...")
-    logger.info("This feature is under development - Phase 0 Sprint 2")
-    return 0
+    # Import orchestrator
+    import asyncio
+    sys.path.insert(0, str(Path(__file__).parent.parent / "blueprints"))
+    from orchestrator import deploy_business_from_profile
+    
+    async def run_deployment():
+        logger.info("🚀 Starting business infrastructure deployment...")
+        
+        success, report = await deploy_business_from_profile(
+            profile_name=args.profile,
+            org_name=org_name,
+            dry_run=args.dry_run
+        )
+        
+        if success:
+            duration = report.get('duration_minutes', 0)
+            if duration < 10:
+                logger.info("✅ Business infrastructure deployment completed successfully!")
+            else:
+                logger.info(f"✅ Business infrastructure deployment completed in {duration:.1f} minutes!")
+            
+            logger.info(f"   Repositories created: {report.get('repositories_created', 0)}")
+            logger.info(f"   Teams created: {report.get('teams_created', 0)}")
+            logger.info(f"   Environments configured: {report.get('environments_configured', 0)}")
+            
+            if args.dry_run:
+                logger.info("")
+                logger.info("This was a DRY RUN - no actual changes were made.")
+                logger.info("Run without --dry-run to deploy the infrastructure.")
+            else:
+                logger.info("")
+                logger.info("🎉 Your business infrastructure is ready!")
+                logger.info("Next steps:")
+                logger.info("1. Run: meta-repo-seed start-onboarding")
+                logger.info("2. Configure your domains and secrets")
+                logger.info("3. Launch your first product!")
+            
+            return 0
+        else:
+            logger.error("❌ Business infrastructure deployment failed!")
+            if 'error' in report:
+                logger.error(f"   Error: {report['error']}")
+            
+            failed_tasks = report.get('failed_tasks', [])
+            if failed_tasks:
+                logger.error("   Failed tasks:")
+                for task in failed_tasks:
+                    logger.error(f"     - {task['name']}: {task['error']}")
+            
+            return 1
+    
+    # Run the deployment
+    try:
+        return asyncio.run(run_deployment())
+    except KeyboardInterrupt:
+        logger.info("Deployment cancelled by user")
+        return 1
+    except Exception as e:
+        logger.error(f"Deployment failed with error: {e}")
+        if args.verbose:
+            import traceback
+            traceback.print_exc()
+        return 1
 
 
 def launch_product_command(args) -> int:
