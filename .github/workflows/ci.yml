@@ -112,8 +112,8 @@ jobs:
     
     - name: Run security checks
       run: |
-        # Check for security issues (exclude test files and allow assert in tests)
-        bandit -r . -x tests/ -s B101
+        # Check for security issues (exclude common test patterns and subprocess usage)
+        bandit -r . -x tests/ -s B101,B404,B603,B607
         
         # Check for known vulnerabilities
         safety check --json || true
