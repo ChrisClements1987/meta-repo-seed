@@ -41,7 +41,7 @@ class FileTemplate:
 
     def _calculate_checksum(self) -> str:
         """Calculate MD5 checksum of the content."""
-        return hashlib.md5(self.content.encode()).hexdigest()
+        return hashlib.md5(self.content.encode(), usedforsecurity=False).hexdigest()
 
 
 @dataclass

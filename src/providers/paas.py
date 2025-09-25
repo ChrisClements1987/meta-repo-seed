@@ -408,7 +408,7 @@ if __name__ == '__main__':
                     continue
                 
                 # Test deployment
-                result = await provider.deploy(Path('/tmp'), config)
+                result = await provider.deploy(Path(tempfile.gettempdir()), config)
                 print(f"Deployment: {'Success' if result.success else 'Failed'}")
                 if result.success:
                     print(f"URL: {result.deployment_url}")

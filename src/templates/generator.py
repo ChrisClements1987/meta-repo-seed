@@ -762,7 +762,7 @@ if __name__ == '__main__':
     result = generator.generate_product(
         template_name='nextjs',
         product_name='test-webapp',
-        output_dir=Path('/tmp'),
+        output_dir=Path(tempfile.gettempdir()),
         dry_run=True
     )
     
