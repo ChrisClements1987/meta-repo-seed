@@ -218,7 +218,8 @@ def safe_open_for_write(path: Path, encoding: str = 'utf-8'):
             return os.fdopen(fd, 'w', encoding=encoding)
         except OSError as e:
             # If O_NOFOLLOW fails due to symlink, provide clear error
-            if e.errno == 40:  # ELOOP - too many symbolic links encountered
+            import errno
+            if e.errno == errno.ELOOP:  # Too many symbolic links encountered
                 raise RuntimeError(f"Symlink detected and blocked: {path}")
             raise
     
@@ -683,8 +684,8 @@ class RepoSeeder:
             return
         
         try:
-            os.chdir(repo_path)
-            subprocess.run(['git', 'init'], check=True, capture_output=True)
+            # Use cwd parameter instead of changing process directory
+            subprocess.run(['git', 'init'], check=True, capture_output=True, text=True, cwd=str(repo_path))
             logger.info(f"Initialized Git repository: {repo_path}")
         except subprocess.CalledProcessError as e:
             logger.error(f"Failed to initialize Git repository: {e}")
@@ -779,8 +780,8 @@ class RepoSeeder:
         structure_data = {
             "project_name": self.project_name,
             "github_username": self.github_username,
-            "created_date": "2025-09-24",
-            "version": "1.0.0",
+            "created_date": datetime.now().date().isoformat(),
+            "version": "2.1.0",
             "structure": {
                 "cloud-storage": {
                     "strategy": ["vision.md", "mission.md", "strategic-roadmap.md"],
@@ -888,7 +889,7 @@ class RepoSeeder:
             return
         
         schema_data = {
-            "$schema": "http://json-schema.org/draft-07/schema#",
+            "$schema": "https://json-schema.org/draft-07/schema#",
             "title": "Meta Repository Structure Schema",
             "description": "Schema for validating meta-repository structure",
             "type": "object",
