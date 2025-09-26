@@ -230,6 +230,51 @@ meta-repo-seed/
 - `ensure_directory_exists()` - Idempotent directory creation
 - `copy_template_file()` - Template file copying
 
+## 📋 Pull Request Requirements
+
+**ALL PULL REQUESTS MUST:**
+
+### 🧪 **Test-Driven Development (TDD)**
+- ✅ **Tests written FIRST** - Before any implementation code
+- ✅ **Evidence provided** - Show test-fail-pass-refactor cycle
+- ✅ **Coverage maintained** - No reduction in test coverage
+- ✅ **TDD compliance confirmed** - Explicit confirmation in PR
+
+### 📚 **Documentation Updates**
+- ✅ **User documentation** - README, guides, examples updated
+- ✅ **Developer documentation** - Architecture, APIs, comments added
+- ✅ **Project documentation** - Roadmap, changelog, migration guides updated
+- ✅ **AI context files** - AGENTS.md and patterns maintained
+
+### 🤖 **AI Context Maintenance**  
+- ✅ **AGENTS.md updated** - New patterns, workflows, decisions documented
+- ✅ **Context preserved** - Ensure AI can understand changes
+- ✅ **Integration guidance** - How changes fit with existing context
+
+### 🎯 **Business-in-a-Box Alignment**
+- ✅ **Target market served** - Startups, charities, non-profits, SMBs
+- ✅ **Professional standards** - Enterprise-grade quality maintained
+- ✅ **Self-governing systems** - Automated compliance preserved
+
+### 📝 **Use PR Templates**
+Choose appropriate template:
+- **Feature PRs**: `.github/PULL_REQUEST_TEMPLATE/feature.md`
+- **Bug Fix PRs**: `.github/PULL_REQUEST_TEMPLATE/bugfix.md`  
+- **Documentation PRs**: `.github/PULL_REQUEST_TEMPLATE/documentation.md`
+- **General PRs**: `.github/pull_request_template.md` (default)
+
+**📖 [Complete PR Template Guide](.github/PULL_REQUEST_TEMPLATE/README.md)**
+
+### 🚫 **Merge Blockers**
+PRs **CANNOT** be merged without:
+1. ✅ TDD evidence (test-first development proof)
+2. ✅ Complete documentation updates
+3. ✅ AI context maintenance  
+4. ✅ Template compliance verification
+5. ✅ Automated quality checks passing
+
+*These requirements ensure code quality, maintainability, and team collaboration standards.*
+
 ## 🤝 Contributing
 
 1. Fork the repository
