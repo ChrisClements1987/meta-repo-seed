@@ -2,13 +2,15 @@
 
 An idempotent, cross-platform script for creating standardized project structures with comprehensive governance, automation, and documentation frameworks.
 
-> **📍 [Project North Star](./PROJECT_NORTH_STAR.md)** - Our vision and guiding principles for this tool
+> **📍 [Project North Star](docs/PROJECT_NORTH_STAR.md)** - Our vision and guiding principles for this tool
 
 > **Note**: This repository uses branch protection rules to ensure code quality and proper review processes.
 
 ## 🎯 Overview
 
 This seeding system creates a complete organizational structure for managing multiple repositories, projects, and teams. It establishes governance frameworks, automation pipelines, and documentation standards that scale across your entire organization.
+
+> **🎯 [Project North Star](docs/PROJECT_NORTH_STAR.md)** - Our vision and guiding principles for this tool
 
 ## 🏗️ What It Creates
 
@@ -42,6 +44,8 @@ your-project/
 - **Documentation**: Getting started guides, FAQs, glossaries
 
 ## 🚀 Quick Start
+
+> **👨‍💻 New Developer?** Check out [Developer Onboarding Guide](docs/development/onboarding.md) for a 5-minute setup guide!
 
 ### Prerequisites
 - **Git** (latest version)
@@ -177,25 +181,16 @@ Templates are stored in `templates/` directory - modify them directly to customi
 
 ## 📚 Documentation
 
-The project includes comprehensive documentation organized for easy navigation:
+The project includes comprehensive documentation organized in the `docs/` directory for easy navigation:
 
-### 🚀 Getting Started
-- **[Main Documentation](docs/README.md)** - Complete documentation index
+> **📖 [Complete Documentation Index](docs/README.md)** - All documentation with organized structure
+
+### Quick Links
+- **[Developer Onboarding](docs/development/onboarding.md)** - 5-minute setup for new developers
 - **[Configuration Guide](docs/guides/configuration.md)** - Setup and configuration options
-- **[Template System Guide](docs/guides/templates.md)** - Working with templates
-- **[Quick Start Examples](docs/examples/configurations.md)** - Ready-to-use configurations
-
-### 📋 Reference
 - **[CLI Reference](docs/reference/cli.md)** - Command-line interface documentation
-- **[API Reference](docs/reference/api.md)** - Python API documentation
-- **[Template Reference](docs/reference/templates.md)** - Available templates
-- **[Configuration Schema](docs/reference/config-schema.md)** - Configuration format specification
-
-### 🔧 Development
 - **[Contributing Guide](docs/development/contributing.md)** - How to contribute
-- **[Workflow Guide](docs/guides/workflow.md)** - Development workflows and processes
-- **[Changelog](docs/development/changelog.md)** - Version history
-- **[Roadmap](docs/development/roadmap.md)** - Planned features and priorities
+- **[Project Vision](docs/PROJECT_NORTH_STAR.md)** - Business-in-a-Box vision and strategy
 
 ## 🔧 Development
 

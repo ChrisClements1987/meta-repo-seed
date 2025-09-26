@@ -1,13 +1,23 @@
 # Agent Instructions for Meta-Repo Seeding System
 
 ## Commands
-- **Test**: `python -m pytest` (all tests), `python -m pytest tests/unit/test_filename.py::TestClass::test_method` (single test)
-- **Coverage**: `python -m pytest --cov=seeding --cov=src --cov-report=term-missing`
-- **Diff Coverage**: `pytest --cov=seeding --cov=src --cov-report=xml && diff-cover coverage.xml` (for PR validation)
+
+### Essential Commands
 - **Main Script**: `python seeding.py --dry-run --verbose` (preview), `python seeding.py` (execute)
-- **Linting**: `flake8` (current) or `ruff check` (planned future), `python -m pytest --flake8` (if plugin available)
-- **Type Checking**: `mypy` (planned, not currently enforced)
-- **Formatting**: `black` (planned, not currently enforced)
+- **All Tests**: `python -m pytest` (run entire test suite)
+- **Coverage**: `python -m pytest --cov=seeding --cov=src --cov-report=term-missing`
+- **Specific Test**: `python -m pytest tests/unit/test_filename.py::TestClass::test_method`
+
+### Quality Checks  
+- **Linting**: `flake8` (current standard), `python -m pytest --flake8` (if plugin available)
+- **Diff Coverage**: `pytest --cov=seeding --cov=src --cov-report=xml && diff-cover coverage.xml` (for PR validation)
+- **Type Checking**: `mypy` (planned, not enforced yet)
+- **Formatting**: `black` (planned, not enforced yet)
+
+### Git Workflow
+- **New Feature**: `git checkout develop && git pull origin develop && git checkout -b feature/issue-X-desc`
+- **Create PR**: `gh pr create --base develop` (always target develop, never main)  
+- **Branch Cleanup**: Automated via GitHub settings, manual via `./scripts/cleanup-branches.sh`
 
 ## Architecture
 - **Main Entry**: `seeding.py` - Core seeding script with `RepoSeeder` class for idempotent project structure creation
