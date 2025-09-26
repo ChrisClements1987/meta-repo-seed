@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- CI/CD status badges and test coverage badges to README for better project visibility
+- Project status section with build and coverage information  
 - Symlink write protection for template processing (PR #46 - In Review)
 
 ## [2.1.0] - 2025-09-24

@@ -1,5 +1,10 @@
 # Meta-Repo Seeding System
 
+## 🚀 Status
+
+![CI Status](https://github.com/ChrisClements1987/meta-repo-seed/actions/workflows/ci.yml/badge.svg)
+![Coverage](https://codecov.io/gh/ChrisClements1987/meta-repo-seed/branch/main/graph/badge.svg)
+
 An idempotent, cross-platform script for creating standardized project structures with comprehensive governance, automation, and documentation frameworks.
 
 > **📍 [Project North Star](./PROJECT_NORTH_STAR.md)** - Our vision and guiding principles for this tool
