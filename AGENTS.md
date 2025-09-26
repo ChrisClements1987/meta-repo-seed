@@ -3,8 +3,11 @@
 ## Commands
 - **Test**: `python -m pytest` (all tests), `python -m pytest tests/unit/test_filename.py::TestClass::test_method` (single test)
 - **Coverage**: `python -m pytest --cov=seeding --cov=src --cov-report=term-missing`
+- **Diff Coverage**: `pytest --cov=seeding --cov=src --cov-report=xml && diff-cover coverage.xml` (for PR validation)
 - **Main Script**: `python seeding.py --dry-run --verbose` (preview), `python seeding.py` (execute)
-- **Linting**: `python -m pytest --flake8` (if flake8 plugin available), check Python code style manually
+- **Linting**: `flake8` (current) or `ruff check` (planned future), `python -m pytest --flake8` (if plugin available)
+- **Type Checking**: `mypy` (planned, not currently enforced)
+- **Formatting**: `black` (planned, not currently enforced)
 
 ## Architecture
 - **Main Entry**: `seeding.py` - Core seeding script with `RepoSeeder` class for idempotent project structure creation
@@ -24,3 +27,6 @@
 ## Development Notes  
 - Project uses branch protection (develop→main workflow), idempotent design allows safe re-runs
 - Test markers: `@pytest.mark.unit`, `@pytest.mark.integration`, `@pytest.mark.github`, `@pytest.mark.slow`, `@pytest.mark.network`
+- **PR Standards**: Use diff coverage (>=80% on changed lines), conditional documentation updates, legacy debt tracking
+- **Quality Gates**: Tests must pass OR be marked xfail/skip with linked issues during stabilization phase
+- **CLI Contract**: Defined in `docs/architecture/cli.md` - use `--project`, `--username`, `--dry-run`, `--verbose`

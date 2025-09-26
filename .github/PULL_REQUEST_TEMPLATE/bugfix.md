@@ -10,15 +10,15 @@
 
 ---
 
-## 🧪 Test-Driven Bug Fix - MANDATORY
+## 🧪 Test-Driven Bug Fix
 
-### ✅ **TDD for Bug Fixes**
-- [ ] **Reproduction test written FIRST** - Test demonstrates the bug
+### ✅ **Bug Reproduction Testing** *(Required)*
+- [ ] **Reproduction test written** - Test demonstrates the bug
 - [ ] **Test initially fails** - Confirms bug reproduction
 - [ ] **Fix implemented** - Minimal change to make test pass
 - [ ] **Test now passes** - Bug is actually fixed
 
-#### 🔄 Bug Fix TDD Evidence
+#### 🔄 Bug Fix Evidence
 ```bash
 # Step 1: Show failing test that reproduces the bug
 # Paste output showing test fails before fix
@@ -27,12 +27,12 @@
 # Paste output showing test passes after fix
 
 # Step 3: Show no regressions introduced
-# Paste full test suite results showing no new failures
+# Paste test suite results showing no new failures
 ```
 
 ### 🔍 **Bug Fix Validation**
 - [ ] **Original issue resolved** - Bug no longer occurs
-- [ ] **No regressions introduced** - All existing tests still pass
+- [ ] **All existing tests pass** OR **failing tests marked xfail/skip with linked issues**
 - [ ] **Edge cases covered** - Related scenarios tested
 - [ ] **Error handling improved** - Better handling of error conditions
 
@@ -40,14 +40,15 @@
 
 ## 📚 Documentation Updates
 
-### ✅ **Required Documentation**
+### ✅ **Required Documentation** *(If applicable)*
 - [ ] **Changelog updated** - Bug fix described for users
 - [ ] **Known issues updated** - Remove from known issues if listed
 - [ ] **User guides updated** - If bug affected documented workflows
 - [ ] **Troubleshooting guide** - Add prevention/detection guidance
+- [ ] **N/A** - Internal bug with no user-facing impact because: _______________
 
 ### 🔧 **Developer Documentation**
-- [ ] **Root cause documented** - Why bug occurred
+- [ ] **Root cause documented** - Why bug occurred (inline comments or ADR)
 - [ ] **Prevention strategy** - How to prevent similar bugs
 - [ ] **Code comments** - Complex fixes explained inline
 
@@ -55,10 +56,11 @@
 
 ## 🤖 AI Context Updates
 
-### ✅ **AI Learning from Bug**
+### ✅ **AI Learning from Bug** *(If applicable)*
 - [ ] **AGENTS.md updated** - New patterns to watch for similar issues
 - [ ] **Bug patterns documented** - Help AI recognize similar issues
 - [ ] **Fix patterns documented** - Standard approaches for similar bugs
+- [ ] **N/A** - No new patterns or learning applicable because: _______________
 
 ---
 
@@ -91,22 +93,6 @@
 
 ---
 
-## 📊 Bug Fix Validation
-
-### ✅ **Verification Steps**
-1. **Reproduction confirmed** - Bug reproduced in clean environment
-2. **Fix validated** - Bug no longer occurs with fix applied
-3. **Regression testing** - All existing functionality still works
-4. **User acceptance** - Fix resolves user-reported issue
-
-### 📈 **Quality Metrics**
-- [ ] **Test coverage increased** - New tests prevent regression
-- [ ] **Code quality maintained** - Fix follows project standards
-- [ ] **Documentation clarity improved** - Better guidance prevents similar issues
-- [ ] **User satisfaction** - Issue reporter confirms resolution
-
----
-
 ## 🔄 Prevention Strategy
 
 ### 🛡️ **Future Prevention**
@@ -117,20 +103,32 @@
 
 ---
 
+## 🔄 Legacy Debt Impact
+*Complete if standard requirements cannot be met*
+
+**Legacy Debt Items:**
+- [ ] **N/A** - All requirements met
+- [ ] **Linked tech debt issue(s)**: #[issue-number]
+- [ ] **Risk assessment**: [describe any testing gaps or compromises]
+- [ ] **Follow-up timeline**: [milestone for improving test coverage]
+
+---
+
 **🚫 BUG FIX MERGE BLOCKER:** Cannot merge until:
 1. ✅ Reproduction test written and initially failing
 2. ✅ Fix applied and test now passes
-3. ✅ No regressions introduced (all tests pass)
-4. ✅ Documentation updated appropriately
-5. ✅ AI context updated with learning
+3. ✅ No regressions introduced (all tests pass or xfail/skip documented)
+4. ✅ Documentation updated appropriately (if user-facing)
+5. ✅ AI context updated with learning (if applicable)
 6. ✅ Prevention strategy implemented
+7. ✅ Any legacy debt properly documented
 
 ---
 
 ## 📝 Post-Fix Actions
 
 ### 🔄 **Follow-up Required**
-- [ ] **User notification** - Report resolution to affected users
+- [ ] **User notification** - Report resolution to affected users (if applicable)
 - [ ] **Monitoring added** - Watch for recurrence of similar issues
 - [ ] **Process improvement** - Update development process if needed
 - [ ] **Knowledge sharing** - Share learnings with team
