@@ -49,6 +49,21 @@ jobs:
       - name: Test {{PROJECT_NAME}}
         run: echo "Testing {{PROJECT_NAME}}"
 """)
+    (workflows_dir / "readme-docs.yml.template").write_text("""
+name: README Documentation for {{PROJECT_NAME}}
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Generate README for {{PROJECT_NAME}}
+        run: echo "Generating README for {{PROJECT_NAME}} by {{GITHUB_USERNAME}}"
+""")
     
     # Governance templates
     governance_dir = templates_dir / "governance" / "policies"

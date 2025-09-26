@@ -52,11 +52,12 @@
 
 ## 🤖 AI Context Maintenance
 
-### ✅ **AI Documentation Updates**
+### ✅ **AI Documentation Updates** *(Required if applicable)*
 - [ ] **AGENTS.md updated** - New patterns or workflows documented
 - [ ] **Context patterns** - How AI should understand new concepts
 - [ ] **Decision rationale** - Why approaches were chosen
 - [ ] **Integration guidance** - How this fits with existing AI context
+- [ ] **N/A** - No AI context changes needed because: _______________
 
 ---
 
@@ -86,7 +87,7 @@
 
 ---
 
-## 📋 Documentation Checklist
+## 📋 Documentation Completeness
 
 ### ✅ **Completeness**
 - [ ] **All new features documented** - Nothing left undocumented
@@ -105,12 +106,24 @@
 
 ---
 
+## 🔄 Legacy Debt Impact
+*Complete if standard requirements cannot be met*
+
+**Legacy Debt Items:**
+- [ ] **N/A** - All requirements met
+- [ ] **Linked tech debt issue(s)**: #[issue-number]
+- [ ] **Risk assessment**: [describe any gaps in documentation coverage]
+- [ ] **Follow-up timeline**: [milestone for completing documentation]
+
+---
+
 **🚫 DOCUMENTATION MERGE BLOCKER:** Cannot merge until:
 1. ✅ All examples tested and working
 2. ✅ Links verified and functional  
-3. ✅ AI context files updated appropriately
+3. ✅ AI context files updated appropriately (if applicable)
 4. ✅ Professional quality standards met
 5. ✅ Accessibility and usability validated
+6. ✅ Any documentation gaps properly documented
 
 ---
 
@@ -121,6 +134,7 @@
 - [ ] **Search indexes updated** - New content findable
 - [ ] **Training materials updated** - If documentation affects training
 - [ ] **FAQ updated** - Common questions addressed based on new docs
+- [ ] **N/A** - No post-merge actions needed
 
 ---
 

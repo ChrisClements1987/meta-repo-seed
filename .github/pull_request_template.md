@@ -19,39 +19,44 @@
 
 ## 🧪 Test-Driven Development Compliance
 
-### ✅ **REQUIRED: Tests Written FIRST**
-- [ ] **I wrote tests BEFORE implementing the feature/fix** (TDD approach)
-- [ ] **All new functionality is covered by tests** (unit and/or integration)
-- [ ] **All existing tests continue to pass** (no regressions introduced)
-- [ ] **Test coverage maintained or improved** (check with `pytest --cov`)
+### ✅ **Test Coverage Requirements**
+- [ ] **Tests written first (TDD)** OR **comprehensive diff coverage provided** 
+- [ ] **All new/changed functionality is covered by tests** (unit and/or integration)
+- [ ] **All existing tests pass** OR **failing tests are marked xfail/skip with linked issues**
+- [ ] **Diff coverage on changed lines >= 80%** (paste coverage report below)
+- [ ] **Global coverage not reduced by more than 0.5%**
 
-### 📊 **Test Evidence Required**
+### 📊 **Test Evidence**
 ```bash
 # Paste test run results here showing:
-# 1. New tests written and passing
-# 2. Overall test success rate
-# 3. Coverage percentage
+# 1. Tests covering new/changed functionality
+# 2. Diff coverage percentage on changed lines
+# 3. Overall test success rate
 ```
 
 **Test Files Modified/Added:**
 - [ ] `tests/unit/test_*.py` - Unit tests added/modified
 - [ ] `tests/integration/test_*.py` - Integration tests added/modified
 - [ ] `tests/conftest.py` - Test configuration updated if needed
+- [ ] N/A - No test files needed for this change
 
-### 🚫 **TDD Violation Check**
-- [ ] **I confirm I did NOT write implementation code before writing tests**
-- [ ] **I can demonstrate the test-fail-pass-refactor cycle was followed**
+### 🔄 **Legacy Debt Exception**
+If TDD or full test coverage isn't feasible:
+- [ ] **Linked tech debt issue**: #[issue-number]
+- [ ] **Risk assessment**: [describe impact of reduced test coverage]
+- [ ] **Follow-up timeline**: [milestone or target date]
 
 ---
 
-## 📚 Documentation Updates - MANDATORY
+## 📚 Documentation Updates
 
-### ✅ **Core Documentation Updates**
+### ✅ **Core Documentation Updates** *(Required if applicable)*
 - [ ] **README.md** - Updated if user-facing changes or new features
 - [ ] **CHANGELOG.md** - Entry added describing changes for users
 - [ ] **docs/development/roadmap.md** - Updated if this affects planned features
+- [ ] **N/A** - No core documentation updates needed because: _______________
 
-### 📖 **Guides and Architecture Documentation**
+### 📖 **Guides and Architecture Documentation** *(Required if applicable)*
 - [ ] **User Guides** - Created/updated if new user functionality
   - [ ] `docs/guides/` - New guide created for complex features
   - [ ] Existing guides updated for changed functionality
@@ -59,6 +64,7 @@
   - [ ] `docs/architecture/` - Architecture decision records (ADRs) added
   - [ ] System diagrams updated if architectural changes made
   - [ ] API documentation updated if interfaces changed
+- [ ] **N/A** - No guides/architecture updates needed because: _______________
 
 ### 🔧 **Developer Documentation**
 - [ ] **Code Comments** - Complex logic explained inline
@@ -67,12 +73,13 @@
 
 ---
 
-## 🤖 AI Context Maintenance - MANDATORY
+## 🤖 AI Context Maintenance
 
-### ✅ **AI Context Files Updated**
+### ✅ **AI Context Files Updated** *(Required if applicable)*
 - [ ] **AGENTS.md** - Updated if new AI workflows or context needed
 - [ ] **Project Context Files** - Updated with new patterns, decisions, or architectural changes
 - [ ] **Code Examples** - Updated in documentation if implementation patterns changed
+- [ ] **N/A** - No AI context updates needed because: _______________
 
 ### 🧠 **Context Quality Check**
 - [ ] **New patterns documented** - Any new coding patterns explained for AI assistance
@@ -84,8 +91,9 @@
 ## 🔍 Code Quality Checklist
 
 ### 🧹 **Code Standards**
-- [ ] **Linting passes** - `ruff check` and `mypy` clean
-- [ ] **Formatting applied** - Code formatted with `black` or equivalent
+- [ ] **Linting passes** - `flake8` (current) OR `ruff check` if configured
+- [ ] **Type checking** - `mypy` clean if configured in CI
+- [ ] **Formatting applied** - `black` or current formatter applied (mark N/A if none configured)
 - [ ] **No debugging code** - Print statements, debugger calls, etc. removed
 - [ ] **Security review** - No hardcoded secrets, proper input validation
 
@@ -181,12 +189,24 @@
 
 ---
 
+## 🔄 Legacy Debt Impact
+*Complete this section if you cannot meet standard requirements due to legacy constraints*
+
+**Legacy Debt Items:**
+- [ ] **N/A** - All standard requirements met
+- [ ] **Linked tech debt issue(s)**: #[issue-number] 
+- [ ] **Risk assessment**: [describe impact of any unmet requirements]
+- [ ] **Follow-up timeline**: [milestone/target date for addressing debt]
+
+---
+
 **🚫 MERGE BLOCKER:** This PR cannot be merged until:
-1. ✅ All tests pass with TDD evidence provided
-2. ✅ Documentation updates are complete and accurate
-3. ✅ AI context files are updated
-4. ✅ Code review is approved
-5. ✅ All checklist items are completed
+1. ✅ All tests pass OR failing tests marked xfail/skip with linked issues during stabilization
+2. ✅ Diff coverage >= 80% on changed lines and global coverage not reduced >0.5%
+3. ✅ Documentation updates complete for applicable changes
+4. ✅ AI context updated for applicable changes
+5. ✅ Code review approved
+6. ✅ Any legacy debt items properly documented with follow-up
 
 ---
 

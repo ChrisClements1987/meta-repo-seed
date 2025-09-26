@@ -9,38 +9,40 @@
 
 ---
 
-## 🧪 Test-Driven Development - MANDATORY
+## 🧪 Test-Driven Development
 
-### ✅ **TDD Evidence Required**
+### ✅ **TDD Evidence** *(Preferred for new features)*
 - [ ] **Tests written FIRST** - I wrote failing tests before any implementation
 - [ ] **Test-fail-pass-refactor cycle documented** below
+- [ ] **Alternative: Comprehensive diff coverage** - >= 90% on new code with justification for non-TDD approach
 
 #### 🔄 TDD Cycle Documentation
 ```bash
-# Step 1: Show failing tests
+# Step 1: Show failing tests (if TDD approach used)
 # Paste output of initial failing test run
 
 # Step 2: Show passing tests after implementation  
 # Paste output showing tests now pass
 
 # Step 3: Coverage report
-# Paste coverage report showing new code is tested
+# Paste diff coverage report showing >= 90% coverage on new code
 ```
 
 ### 📊 **Test Coverage Requirements**
 - [ ] **Unit tests** - All new functions/classes tested
 - [ ] **Integration tests** - Feature works end-to-end
 - [ ] **Edge cases** - Error conditions and boundary cases tested
-- [ ] **Coverage target met** - Maintains project coverage standards
+- [ ] **Diff coverage >= 90%** for new features
 
 ---
 
-## 📚 Documentation - MANDATORY for Features
+## 📚 Documentation - Required for Features
 
 ### ✅ **User Documentation**
 - [ ] **Feature guide created** - `docs/guides/[feature-name].md`
 - [ ] **README updated** - New feature listed and described
 - [ ] **Examples provided** - Real usage examples included
+- [ ] **N/A** - Internal/developer-only feature because: _______________
 
 ### ✅ **Developer Documentation**  
 - [ ] **Architecture documented** - How feature fits into system
@@ -56,10 +58,11 @@
 
 ## 🤖 AI Context Updates
 
-### ✅ **AI Files Updated**
+### ✅ **AI Files Updated** *(Required if applicable)*
 - [ ] **AGENTS.md** - New patterns or workflows documented
 - [ ] **Feature patterns** - How AI should understand this feature
 - [ ] **Integration points** - How this connects to other systems
+- [ ] **N/A** - No new AI patterns introduced because: _______________
 
 ---
 
@@ -92,9 +95,21 @@
 
 ---
 
+## 🔄 Legacy Debt Impact
+*Complete if standard requirements cannot be met*
+
+**Legacy Debt Items:**
+- [ ] **N/A** - All requirements met
+- [ ] **Linked tech debt issue(s)**: #[issue-number]
+- [ ] **Risk assessment**: [describe any compromises made]
+- [ ] **Follow-up timeline**: [milestone for addressing debt]
+
+---
+
 **🚫 FEATURE MERGE BLOCKER:** Cannot merge until:
-1. ✅ TDD cycle completed with evidence
-2. ✅ Complete documentation suite provided
-3. ✅ AI context files updated
+1. ✅ Diff coverage >= 90% on new code (or >= 80% with justification)
+2. ✅ User documentation complete (if user-facing)
+3. ✅ AI context updated (if new patterns introduced)
 4. ✅ Business alignment demonstrated
 5. ✅ All quality checks passed
+6. ✅ Any legacy debt properly documented
