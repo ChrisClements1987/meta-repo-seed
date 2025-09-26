@@ -147,7 +147,7 @@ class TestMainFunctionIntegration:
             
             mock_run.assert_called_once()
     
-    @patch('sys.argv', ['seeding.py', '--project-name', 'override-project', '--github-username', 'override-user'])
+    @patch('sys.argv', ['seeding.py', '--project', 'override-project', '--username', 'override-user'])
     def test_main_function_with_cli_overrides(self, temp_dir):
         """Test main function with CLI parameter overrides."""
         with patch('seeding.Path.cwd', return_value=temp_dir), \

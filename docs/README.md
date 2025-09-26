@@ -4,10 +4,17 @@ Welcome to the comprehensive documentation for Meta-Repo Seed! This documentatio
 
 ## 📚 Documentation Structure
 
+> **📋 Documentation Strategy**: All documentation lives in the `docs/` directory with organized subdirectories. Only `README.md` files remain at the root level for quick project overview. This keeps the repository clean and documentation well-structured.
+
 ### 🚀 [Getting Started](../README.md)
 - Quick setup and basic usage
 - Initial repository creation
 - Core concepts overview
+
+### 🎯 [Project Vision](./PROJECT_NORTH_STAR.md)
+- Business-in-a-Box vision and strategy
+- Target market and success metrics
+- Decision framework and principles
 
 ### 📖 [User Guides](./guides/)
 - **[Configuration Guide](./guides/configuration.md)** - Complete configuration system documentation
@@ -27,9 +34,13 @@ Welcome to the comprehensive documentation for Meta-Repo Seed! This documentatio
 - **[Use Cases](./examples/use-cases.md)** - Common scenarios and solutions
 
 ### 🔧 [Development](./development/)
+- **[Developer Onboarding](./development/onboarding.md)** - 5-minute quick start for new developers
+- **[Development Workflow](./development/DEVELOPMENT_WORKFLOW.md)** - Git branching strategy and process
 - **[Contributing Guide](./development/contributing.md)** - How to contribute to the project
 - **[Issue Management Guide](./development/issue-management.md)** - Issue types, labels, and workflow
 - **[Workflow Standards](./development/workflow-standards.md)** - Development process and standards
+- **[Backlog Grooming](./development/BACKLOG_GROOMING_SUMMARY.md)** - Sprint planning and backlog management
+- **[Implementation Summaries](./development/ISSUE_33_IMPLEMENTATION_SUMMARY.md)** - Feature implementation details
 - **[Development Setup](./development/setup.md)** - Setting up development environment
 - **[Architecture](./development/architecture.md)** - System design and architecture
 - **[Release Process](./development/releases.md)** - Release workflow and versioning
@@ -45,6 +56,7 @@ Welcome to the comprehensive documentation for Meta-Repo Seed! This documentatio
 | Task | Documentation |
 |------|---------------|
 | First time setup | [Getting Started](../README.md) |
+| **New developer setup** | **[Developer Onboarding](./development/onboarding.md)** |
 | Configure a project | [Configuration Guide](./guides/configuration.md) |
 | Understand templates | [Template System Guide](./guides/templates.md) |
 | Set up GitHub features | [GitHub Integration Guide](./guides/github-integration.md) |

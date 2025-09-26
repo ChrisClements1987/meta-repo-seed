@@ -2,13 +2,15 @@
 
 An idempotent, cross-platform script for creating standardized project structures with comprehensive governance, automation, and documentation frameworks.
 
-> **📍 [Project North Star](./PROJECT_NORTH_STAR.md)** - Our vision and guiding principles for this tool
+> **📍 [Project North Star](docs/PROJECT_NORTH_STAR.md)** - Our vision and guiding principles for this tool
 
 > **Note**: This repository uses branch protection rules to ensure code quality and proper review processes.
 
 ## 🎯 Overview
 
 This seeding system creates a complete organizational structure for managing multiple repositories, projects, and teams. It establishes governance frameworks, automation pipelines, and documentation standards that scale across your entire organization.
+
+> **🎯 [Project North Star](docs/PROJECT_NORTH_STAR.md)** - Our vision and guiding principles for this tool
 
 ## 🏗️ What It Creates
 
@@ -42,6 +44,8 @@ your-project/
 - **Documentation**: Getting started guides, FAQs, glossaries
 
 ## 🚀 Quick Start
+
+> **👨‍💻 New Developer?** Check out [Developer Onboarding Guide](docs/development/onboarding.md) for a 5-minute setup guide!
 
 ### Prerequisites
 - **Git** (latest version)
@@ -177,25 +181,16 @@ Templates are stored in `templates/` directory - modify them directly to customi
 
 ## 📚 Documentation
 
-The project includes comprehensive documentation organized for easy navigation:
+The project includes comprehensive documentation organized in the `docs/` directory for easy navigation:
 
-### 🚀 Getting Started
-- **[Main Documentation](docs/README.md)** - Complete documentation index
+> **📖 [Complete Documentation Index](docs/README.md)** - All documentation with organized structure
+
+### Quick Links
+- **[Developer Onboarding](docs/development/onboarding.md)** - 5-minute setup for new developers
 - **[Configuration Guide](docs/guides/configuration.md)** - Setup and configuration options
-- **[Template System Guide](docs/guides/templates.md)** - Working with templates
-- **[Quick Start Examples](docs/examples/configurations.md)** - Ready-to-use configurations
-
-### 📋 Reference
 - **[CLI Reference](docs/reference/cli.md)** - Command-line interface documentation
-- **[API Reference](docs/reference/api.md)** - Python API documentation
-- **[Template Reference](docs/reference/templates.md)** - Available templates
-- **[Configuration Schema](docs/reference/config-schema.md)** - Configuration format specification
-
-### 🔧 Development
 - **[Contributing Guide](docs/development/contributing.md)** - How to contribute
-- **[Workflow Guide](docs/guides/workflow.md)** - Development workflows and processes
-- **[Changelog](docs/development/changelog.md)** - Version history
-- **[Roadmap](docs/development/roadmap.md)** - Planned features and priorities
+- **[Project Vision](docs/PROJECT_NORTH_STAR.md)** - Business-in-a-Box vision and strategy
 
 ## 🔧 Development
 
@@ -229,6 +224,51 @@ meta-repo-seed/
 - `create_file_from_template()` - Template processing with variable replacement
 - `ensure_directory_exists()` - Idempotent directory creation
 - `copy_template_file()` - Template file copying
+
+## 📋 Pull Request Requirements
+
+**ALL PULL REQUESTS MUST:**
+
+### 🧪 **Test-Driven Development (TDD)**
+- ✅ **Tests written FIRST** - Before any implementation code
+- ✅ **Evidence provided** - Show test-fail-pass-refactor cycle
+- ✅ **Coverage maintained** - No reduction in test coverage
+- ✅ **TDD compliance confirmed** - Explicit confirmation in PR
+
+### 📚 **Documentation Updates**
+- ✅ **User documentation** - README, guides, examples updated
+- ✅ **Developer documentation** - Architecture, APIs, comments added
+- ✅ **Project documentation** - Roadmap, changelog, migration guides updated
+- ✅ **AI context files** - AGENTS.md and patterns maintained
+
+### 🤖 **AI Context Maintenance**  
+- ✅ **AGENTS.md updated** - New patterns, workflows, decisions documented
+- ✅ **Context preserved** - Ensure AI can understand changes
+- ✅ **Integration guidance** - How changes fit with existing context
+
+### 🎯 **Business-in-a-Box Alignment**
+- ✅ **Target market served** - Startups, charities, non-profits, SMBs
+- ✅ **Professional standards** - Enterprise-grade quality maintained
+- ✅ **Self-governing systems** - Automated compliance preserved
+
+### 📝 **Use PR Templates**
+Choose appropriate template:
+- **Feature PRs**: `.github/PULL_REQUEST_TEMPLATE/feature.md`
+- **Bug Fix PRs**: `.github/PULL_REQUEST_TEMPLATE/bugfix.md`  
+- **Documentation PRs**: `.github/PULL_REQUEST_TEMPLATE/documentation.md`
+- **General PRs**: `.github/pull_request_template.md` (default)
+
+**📖 [Complete PR Template Guide](.github/PULL_REQUEST_TEMPLATE/README.md)**
+
+### 🚫 **Merge Blockers**
+PRs **CANNOT** be merged without:
+1. ✅ TDD evidence (test-first development proof)
+2. ✅ Complete documentation updates
+3. ✅ AI context maintenance  
+4. ✅ Template compliance verification
+5. ✅ Automated quality checks passing
+
+*These requirements ensure code quality, maintainability, and team collaboration standards.*
 
 ## 🤝 Contributing
 
