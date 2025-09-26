@@ -5,14 +5,15 @@ Tests GitHub operations including repository creation, issue management,
 and CLI interactions.
 """
 
-import pytest
-from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock, call
-import subprocess
 import json
-
+import subprocess
 # Import the modules we're testing
 import sys
+from pathlib import Path
+from unittest.mock import MagicMock, Mock, call, patch
+
+import pytest
+
 sys.path.append(str(Path(__file__).parent.parent))
 from seeding import RepoSeeder
 

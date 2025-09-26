@@ -296,20 +296,99 @@ def launch_product_command(args) -> int:
     logger.info(f"Technologies: {', '.join(stack['technologies'])}")
     logger.info(f"Deployment target: {stack['deployment_target']}")
     
-    if args.dry_run:
-        logger.info("DRY RUN - Would launch:")
-        logger.info(f"  ✓ Repository: {args.name}")
-        logger.info(f"  ✓ Stack template: {stack['name']}")
-        logger.info(f"  ✓ CI/CD pipeline with testing and deployment")
-        logger.info(f"  ✓ PaaS deployment to {stack['deployment_target']}")
-        logger.info(f"  ✓ Secrets management setup")
-        logger.info(f"  ✓ Features: {', '.join(stack['features'])}")
-        return 0
+    # Import template generator and PaaS providers
+    import asyncio
+    import os
+    import tempfile
+    sys.path.insert(0, str(Path(__file__).parent.parent / "templates"))
+    sys.path.insert(0, str(Path(__file__).parent.parent / "providers"))
+    from generator import ProductTemplateGenerator, ProductTemplateRegistry
+    from paas import deploy_product_to_paas
     
-    # TODO: Implement actual product launch
-    logger.info("🚀 Product launch starting...")
-    logger.info("This feature is under development - Phase 0 Sprint 3")
-    return 0
+    # Use the new template registry
+    template_config = ProductTemplateRegistry.get_template(args.stack)
+    logger.info(f"Launching product: {args.name}")
+    logger.info(f"Stack: {template_config.display_name}")
+    logger.info(f"Technologies: {', '.join(template_config.technologies)}")
+    logger.info(f"Deployment target: {template_config.deployment_target}")
+    
+    async def run_product_launch():
+        logger.info("🚀 Starting 10-minute product launch...")
+        
+        # Step 1: Generate product from template
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            
+            logger.info("📋 Step 1: Generating product from template")
+            generator = ProductTemplateGenerator()
+            
+            generation_result = generator.generate_product(
+                template_name=args.stack,
+                product_name=args.name,
+                output_dir=temp_path,
+                dry_run=args.dry_run
+            )
+            
+            if not generation_result['success']:
+                logger.error(f"❌ Template generation failed: {generation_result.get('error')}")
+                return 1
+            
+            logger.info("✅ Product template generated successfully")
+            
+            if args.dry_run:
+                logger.info("DRY RUN - Would complete 10-minute launch:")
+                logger.info(f"  ✓ Template: {template_config.display_name}")
+                logger.info(f"  ✓ Technologies: {', '.join(template_config.technologies)}")
+                logger.info(f"  ✓ CI/CD pipeline generated")
+                logger.info(f"  ✓ Deployment to {template_config.deployment_target}")
+                logger.info(f"  ✓ Professional documentation")
+                logger.info(f"  ✓ Environment variables configured")
+                logger.info(f"  ✓ Features: {len(template_config.features)} features")
+                return 0
+            
+            # Step 2: Deploy to PaaS
+            logger.info("🚀 Step 2: Deploying to PaaS provider")
+            product_dir = temp_path / args.name
+            
+            deployment_result = await deploy_product_to_paas(
+                source_dir=product_dir,
+                template_name=args.stack,
+                product_name=args.name,
+                dry_run=args.dry_run
+            )
+            
+            if deployment_result.is_success:
+                logger.info("✅ 10-minute product launch completed successfully!")
+                logger.info(f"   Product: {args.name}")
+                logger.info(f"   Stack: {template_config.display_name}")  
+                logger.info(f"   URL: {deployment_result.deployment_url}")
+                logger.info(f"   Provider: {deployment_result.provider}")
+                logger.info(f"   Deployment time: {deployment_result.deployment_time_seconds:.1f}s")
+                
+                logger.info("")
+                logger.info("🎉 Your product is live!")
+                logger.info("Next steps:")
+                for step in generation_result.get('next_steps', []):
+                    logger.info(f"  - {step}")
+                
+                return 0
+            else:
+                logger.error("❌ Product deployment failed!")
+                logger.error(f"   Error: {deployment_result.error_message}")
+                return 1
+    
+    # Run the product launch
+    try:
+        return asyncio.run(run_product_launch())
+    except KeyboardInterrupt:
+        logger.info("Product launch cancelled by user")
+        return 1
+    except Exception as e:
+        logger.error(f"Product launch failed with error: {e}")
+        if args.verbose:
+            import traceback
+            traceback.print_exc()
+        return 1
 
 
 def start_onboarding_command(args) -> int:

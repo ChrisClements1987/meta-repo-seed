@@ -5,18 +5,19 @@ Tests end-to-end functionality including RepoSeeder, Configuration,
 and template processing working together.
 """
 
-import pytest
-from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock
-import tempfile
-import subprocess
-import yaml
 import json
-
+import subprocess
 # Import the modules we're testing
 import sys
+import tempfile
+from pathlib import Path
+from unittest.mock import MagicMock, Mock, patch
+
+import pytest
+import yaml
+
 sys.path.append(str(Path(__file__).parent.parent))
-from seeding import RepoSeeder, Configuration, main
+from seeding import Configuration, RepoSeeder, main
 
 
 class TestCompleteWorkflow:

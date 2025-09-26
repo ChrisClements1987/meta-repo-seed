@@ -4,12 +4,13 @@ Schema validation functionality for structure.json files.
 
 import json
 from pathlib import Path
-from typing import Dict, Any, Optional, List
+from typing import Any, Dict, List, Optional
+
 import jsonschema
 from jsonschema import ValidationError as JsonSchemaValidationError
 
-from .models import ValidationResult, ValidationError
 from .exceptions import SchemaError
+from .models import ValidationError, ValidationResult
 
 
 class SchemaValidator:
@@ -145,6 +146,7 @@ class SchemaValidator:
     def _is_valid_github_username(self, username: str) -> bool:
         """Check if GitHub username format is valid."""
         import re
+
         # GitHub username rules: may contain alphanumeric chars and hyphens
         # Cannot start/end with hyphen, cannot contain consecutive hyphens
         return bool(re.match(r'^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?$', username))

@@ -6,16 +6,17 @@ Provides structured data models for multi-tier organizational architecture.
 """
 
 import json
-import yaml
-from pathlib import Path
-from typing import Dict, List, Optional, Any, Union
-from dataclasses import dataclass, field
 import logging
-import jsonschema
-from jsonschema import ValidationError
-
 # Add the root directory to path for imports
 import sys
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Union
+
+import jsonschema
+import yaml
+from jsonschema import ValidationError
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 

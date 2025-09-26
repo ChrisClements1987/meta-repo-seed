@@ -11,14 +11,15 @@ During Phase 0, both interfaces will be available:
 In Phase 1, the legacy interface will be deprecated in favor of the business CLI.
 """
 
+import argparse
 import sys
 from pathlib import Path
-import argparse
 from typing import Optional
 
 # Import existing seeding functionality
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from seeding import parse_arguments as legacy_parse_arguments, main as legacy_main
+from seeding import main as legacy_main
+from seeding import parse_arguments as legacy_parse_arguments
 
 from .business_commands import create_business_cli_parser, main_business_cli
 

@@ -10,11 +10,12 @@ Usage:
 """
 
 import argparse
+import json
 import re
 import subprocess
-import json
 from pathlib import Path
-from typing import List, Dict, Optional
+from typing import Dict, List, Optional
+
 
 def get_github_issues() -> List[Dict]:
     """Get all GitHub issues using gh CLI"""

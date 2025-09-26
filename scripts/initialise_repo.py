@@ -11,8 +11,8 @@ Usage:
 This script is typically placed in meta-repo/automation/scripts/ and run from the repository root.
 """
 
-import sys
 import argparse
+import sys
 from pathlib import Path
 
 # Add the src directory to Python path for imports

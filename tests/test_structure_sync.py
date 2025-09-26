@@ -5,22 +5,19 @@ This module contains unit tests for the structure synchronization system
 implemented for Issue #33.
 """
 
-import unittest
-import tempfile
-import shutil
 import json
 import os
-from pathlib import Path
+import shutil
 import sys
+import tempfile
+import unittest
+from pathlib import Path
 
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-from meta_repo_seed.structure_sync import (
-    StructureSynchronizer,
-    DirectoryStructure,
-    FileTemplate
-)
+from meta_repo_seed.structure_sync import (DirectoryStructure, FileTemplate,
+                                           StructureSynchronizer)
 
 
 class TestStructureSynchronizer(unittest.TestCase):
