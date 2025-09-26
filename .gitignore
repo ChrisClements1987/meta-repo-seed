@@ -49,6 +49,12 @@ ehthumbs.db
 *.log
 logs/
 
+# Coverage files
+.coverage
+coverage.xml
+htmlcov/
+.coverage.*
+
 # Temporary files
 *.tmp
 *.temp
