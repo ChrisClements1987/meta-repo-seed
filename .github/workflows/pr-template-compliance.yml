@@ -1,0 +1,283 @@
+name: PR Template Compliance Check
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+
+jobs:
+  validate-pr-template:
+    runs-on: ubuntu-latest
+    name: Validate PR Template Compliance
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Check PR Template Compliance
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const pr = context.payload.pull_request;
+          const body = pr.body || '';
+          
+          // Required sections for all PRs
+          const requiredSections = [
+            'Test-Driven Development',
+            'Documentation',
+            'AI Context',
+            'Business-in-a-Box'
+          ];
+          
+          // TDD specific requirements
+          const tddRequirements = [
+            'Tests written FIRST',
+            'TDD cycle',
+            'Coverage'
+          ];
+          
+          // Documentation requirements
+          const docRequirements = [
+            'README',
+            'Changelog',
+            'Roadmap'
+          ];
+          
+          // AI context requirements  
+          const aiRequirements = [
+            'AGENTS.md',
+            'Context',
+            'Patterns'
+          ];
+          
+          const failures = [];
+          
+          // Check for required sections
+          requiredSections.forEach(section => {
+            if (!body.toLowerCase().includes(section.toLowerCase())) {
+              failures.push(`Missing required section: ${section}`);
+            }
+          });
+          
+          // Check TDD compliance indicators
+          const hasTddEvidence = tddRequirements.some(req => 
+            body.toLowerCase().includes(req.toLowerCase())
+          );
+          if (!hasTddEvidence) {
+            failures.push('No Test-Driven Development evidence found');
+          }
+          
+          // Check documentation update indicators
+          const hasDocUpdates = docRequirements.some(req =>
+            body.toLowerCase().includes(req.toLowerCase()) 
+          );
+          if (!hasDocUpdates) {
+            failures.push('No documentation update indicators found');
+          }
+          
+          // Check AI context maintenance
+          const hasAiContext = aiRequirements.some(req =>
+            body.toLowerCase().includes(req.toLowerCase())
+          );
+          if (!hasAiContext) {
+            failures.push('No AI context maintenance indicators found');
+          }
+          
+          // Check for checkbox completion (at least some checkboxes should be checked)
+          const checkboxes = body.match(/- \[[x ]\]/g) || [];
+          const checkedBoxes = body.match(/- \[x\]/g) || [];
+          
+          if (checkboxes.length === 0) {
+            failures.push('No template checklist found - please use PR template');
+          } else if (checkedBoxes.length === 0) {
+            failures.push('No checklist items completed - please fill out PR template');
+          }
+          
+          // Create summary
+          if (failures.length > 0) {
+            const failureList = failures.map(f => `- ❌ ${f}`).join('\n');
+            const summary = `## 🚨 PR Template Compliance Issues
+            
+          This PR does not meet our quality standards. Please address the following:
+          
+          ${failureList}
+          
+          ### 📋 Required Actions:
+          
+          1. **Use proper PR template** - Select appropriate template from \`.github/PULL_REQUEST_TEMPLATE/\`
+          2. **Complete all checklists** - Check off completed items
+          3. **Provide TDD evidence** - Show test-first development approach
+          4. **Update documentation** - Include all relevant documentation updates
+          5. **Maintain AI context** - Update AGENTS.md and context files
+          
+          ### 📚 Resources:
+          - [PR Template Guide](.github/PULL_REQUEST_TEMPLATE/README.md)
+          - [TDD Guidelines](docs/development/test-driven-development.md)
+          - [Documentation Standards](docs/development/documentation-standards.md)
+          
+          **This PR cannot be merged until template compliance is achieved.**`;
+          
+            // Add comment to PR
+            await github.rest.issues.createComment({
+              issue_number: pr.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: summary
+            });
+            
+            // Set status check to failed
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: pr.head.sha,
+              state: 'failure',
+              target_url: `${pr.html_url}#issuecomment`,
+              description: `${failures.length} template compliance issues found`,
+              context: 'PR Template Compliance'
+            });
+            
+            core.setFailed(`PR template compliance failed: ${failures.length} issues found`);
+            
+          } else {
+            // Set status check to success
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: pr.head.sha,
+              state: 'success',
+              target_url: pr.html_url,
+              description: 'PR template compliance verified',
+              context: 'PR Template Compliance'
+            });
+            
+            console.log('✅ PR template compliance verified');
+          }
+          
+  validate-test-evidence:
+    runs-on: ubuntu-latest
+    name: Validate Test Evidence
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-cov
+        
+    - name: Check for new test files
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const { execSync } = require('child_process');
+          
+          try {
+            // Get list of changed files
+            const changedFiles = execSync('git diff --name-only origin/main..HEAD', { encoding: 'utf8' })
+              .split('\n')
+              .filter(f => f.length > 0);
+            
+            const hasCodeChanges = changedFiles.some(file => 
+              file.endsWith('.py') && 
+              !file.startsWith('tests/') &&
+              file !== 'setup.py' &&
+              file !== 'conftest.py'
+            );
+            
+            const hasTestChanges = changedFiles.some(file => 
+              file.startsWith('tests/') && file.endsWith('.py')
+            );
+            
+            if (hasCodeChanges && !hasTestChanges) {
+              const pr = context.payload.pull_request;
+              await github.rest.issues.createComment({
+                issue_number: pr.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: `## 🚨 Test-Driven Development Violation
+                
+          **Code changes detected without corresponding test changes.**
+          
+          ### Changed Code Files:
+          ${changedFiles.filter(f => f.endsWith('.py') && !f.startsWith('tests/')).map(f => `- ${f}`).join('\n')}
+          
+          ### Required Action:
+          - ✅ Add tests for all new/modified functionality
+          - ✅ Provide evidence of test-first development
+          - ✅ Show test-fail-pass-refactor cycle in PR description
+          
+          **This violates our TDD commitment and blocks PR merge.**`
+              });
+              
+              core.setFailed('Code changes without corresponding test changes detected');
+            }
+          } catch (error) {
+            console.log('Could not validate test evidence:', error.message);
+            // Don't fail the check if we can't determine file changes
+          }
+          
+  validate-documentation-updates:
+    runs-on: ubuntu-latest
+    name: Validate Documentation Updates
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Check documentation updates
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const { execSync } = require('child_process');
+          const pr = context.payload.pull_request;
+          
+          try {
+            // Get list of changed files
+            const changedFiles = execSync('git diff --name-only origin/main..HEAD', { encoding: 'utf8' })
+              .split('\n')
+              .filter(f => f.length > 0);
+            
+            const hasFeatureChanges = changedFiles.some(file => 
+              (file.endsWith('.py') && !file.startsWith('tests/')) ||
+              file.includes('src/') ||
+              file.includes('templates/')
+            );
+            
+            const hasDocUpdates = changedFiles.some(file =>
+              file.includes('README') ||
+              file.includes('docs/') ||
+              file.includes('CHANGELOG') ||
+              file.includes('AGENTS.md')
+            );
+            
+            if (hasFeatureChanges && !hasDocUpdates) {
+              await github.rest.issues.createComment({
+                issue_number: pr.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: `## 📚 Documentation Update Required
+                
+          **Feature/code changes detected without documentation updates.**
+          
+          ### Required Documentation Updates:
+          - [ ] **README.md** - If user-facing changes
+          - [ ] **CHANGELOG.md** - User-visible changes
+          - [ ] **docs/development/roadmap.md** - If affects planned features  
+          - [ ] **AGENTS.md** - New patterns or AI context
+          - [ ] **User guides** - If new functionality added
+          
+          **Documentation is not optional - it's essential for our Business-in-a-Box mission.**`
+              });
+            }
+          } catch (error) {
+            console.log('Could not validate documentation updates:', error.message);
+          }

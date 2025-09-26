@@ -1,6 +1,6 @@
-# Business-in-a-Box: Rapid Infrastructure Deployment System
+# Meta-Repo Seeding System
 
-An idempotent, cross-platform system for deploying complete business infrastructure in under 10 minutes. Supports startups, charities, nonprofits, and SMBs with professional-grade templates and automation.
+An idempotent, cross-platform script for creating standardized project structures with comprehensive governance, automation, and documentation frameworks.
 
 > **📍 [Project North Star](docs/PROJECT_NORTH_STAR.md)** - Our vision and guiding principles for this tool
 
@@ -9,6 +9,8 @@ An idempotent, cross-platform system for deploying complete business infrastruct
 ## 🎯 Overview
 
 This seeding system creates a complete organizational structure for managing multiple repositories, projects, and teams. It establishes governance frameworks, automation pipelines, and documentation standards that scale across your entire organization.
+
+> **🎯 [Project North Star](docs/PROJECT_NORTH_STAR.md)** - Our vision and guiding principles for this tool
 
 ## 🏗️ What It Creates
 
@@ -34,11 +36,6 @@ your-project/
 ```
 
 ### Generated Content
-- **Business Operations Automation**: Self-governing systems with automated onboarding, compliance enforcement, self-healing, and governance integration
-- **Infrastructure as Code**: Terraform, Kubernetes, Docker configurations for 10-minute deployment
-- **Audit Management System**: AI agent coordination and audit-to-implementation tracking for continuous improvement  
-- **Repository Governance Automation**: GitHub settings, branch protection, and label management as code
-- **Code Quality Automation**: Pre-commit hooks, formatting tools, and quality checks for consistent development
 - **Governance Policies**: Contributing guidelines, code of conduct, security policies
 - **Process Documentation**: Onboarding, code review, release management
 - **Standards**: Coding, documentation, testing, security standards
@@ -48,7 +45,7 @@ your-project/
 
 ## 🚀 Quick Start
 
-> **👨‍💻 New Contributor?** **MANDATORY:** Complete [Contributor Onboarding](docs/development/contributor-onboarding.md) before making any contributions!
+> **👨‍💻 New Developer?** Check out [Developer Onboarding Guide](docs/development/onboarding.md) for a 5-minute setup guide!
 
 ### Prerequisites
 - **Git** (latest version)
@@ -98,37 +95,6 @@ python seeding.py --list-configs
    ```bash
    python seeding.py --project myproject --username myusername
    ```
-
-### 🏢 Business Operations Automation (NEW)
-
-Deploy complete self-governing business operations with minimal ongoing management:
-
-```bash
-# Deploy business automation for a startup
-python -m src.cli.business_commands start-onboarding \
-    --profile startup-basic \
-    --automation-level standard \
-    --org-name my-startup
-
-# Deploy for a charity with transparency requirements
-python -m src.cli.business_commands start-onboarding \
-    --profile charity-nonprofit \
-    --automation-level standard
-
-# Test automation deployment first (recommended)
-python -m src.cli.business_commands start-onboarding \
-    --profile smb-standard \
-    --automation-level conservative \
-    --dry-run --verbose
-```
-
-**Business Profiles Available:**
-- `startup-basic` - Growth-ready infrastructure with investor focus
-- `charity-nonprofit` - Transparency-focused with donor privacy protection  
-- `smb-standard` - Professional operations with business continuity
-- `consulting-firm` - Client confidentiality with partner approval workflows
-
-> **📖 Full Documentation:** [Business Operations Automation Guide](docs/business-operations-automation.md)
 
 ### Command Options
 
@@ -182,13 +148,6 @@ python seeding.py --dry-run
 - **Documentation generation** - automatic README creation
 - **Structure validation** - ensures compliance
 
-### 🏢 Business Operations Automation ✨ NEW
-- **Self-governing repositories** - automated onboarding, compliance, and maintenance
-- **Business profile support** - startup, charity, SMB, consulting firm configurations
-- **Automated compliance enforcement** - weekly validation with issue creation
-- **Self-healing systems** - 6-hour health cycles with auto-remediation
-- **Governance integration** - CODEOWNERS, branch protection, PR review automation
-
 ### 🔒 Security Features
 - **Path traversal protection** - Project names are sanitized to prevent directory traversal attacks
 - **Input validation** - All user inputs are validated against safe character sets
@@ -227,10 +186,10 @@ The project includes comprehensive documentation organized in the `docs/` direct
 > **📖 [Complete Documentation Index](docs/README.md)** - All documentation with organized structure
 
 ### Quick Links
-- **[Contributor Onboarding](docs/development/contributor-onboarding.md)** - **REQUIRED** for all contributors
-- **[Contributing Guide](docs/development/contributing.md)** - High-level contribution overview  
-- **[Documentation Standards](docs/development/documentation-standards.md)** - 3-category documentation system
-- **[Conventional Commits](docs/development/conventional-commits.md)** - Commit message standards
+- **[Developer Onboarding](docs/development/onboarding.md)** - 5-minute setup for new developers
+- **[Configuration Guide](docs/guides/configuration.md)** - Setup and configuration options
+- **[CLI Reference](docs/reference/cli.md)** - Command-line interface documentation
+- **[Contributing Guide](docs/development/contributing.md)** - How to contribute
 - **[Project Vision](docs/PROJECT_NORTH_STAR.md)** - Business-in-a-Box vision and strategy
 
 ## 🔧 Development
@@ -243,13 +202,20 @@ meta-repo-seed/
 │   ├── create_roadmap_issues.py # GitHub issue creation
 │   ├── map_issues_to_roadmap.py # Issue-roadmap linking
 │   └── README.md              # Scripts documentation
-├── templates/             # All template files for project generation
+├── templates/             # Template files for project generation
+│   ├── governance/        # Governance templates
 │   ├── github/workflows/  # GitHub Actions templates  
-│   ├── governance/        # Governance document templates
-│   ├── cloud-storage/     # Strategy and architecture templates
+│   ├── cloud-storage/     # Cloud integration templates
 │   └── documentation/     # Documentation templates
 ├── TEMPLATES.md           # Template documentation
-├── seeding.py            # Main seeding script
+└── seeding.py            # Main seeding script
+├── seeding.py              # Main seeding script
+├── templates/              # All template files
+│   ├── github/             # GitHub workflow templates
+│   ├── governance/         # Governance document templates
+│   ├── cloud-storage/      # Strategy and architecture templates
+│   └── documentation/      # Documentation templates
+├── TEMPLATES.md           # Template documentation
 └── README.md              # This file
 ```
 
@@ -304,6 +270,13 @@ PRs **CANNOT** be merged without:
 
 *These requirements ensure code quality, maintainability, and team collaboration standards.*
 
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature-name`
+3. Make your changes and test thoroughly
+4. Submit a pull request with clear description
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -316,24 +289,15 @@ Current Version: **1.0.0**
 
 We welcome contributions! Here's how you can help:
 
-### 🚨 **CRITICAL: All Code-Related Issues Must Include TDD Requirements**
-
-**Before creating any issue involving code changes:**
-1. **Read**: [Creating Issues Guide](docs/development/creating-issues.md) 
-2. **Use proper templates** - They enforce mandatory TDD acceptance criteria
-3. **Include test strategy** - How changes will be tested and verified
-
 ### 💡 Suggesting Features
 1. **Check existing issues** and roadmap first
-2. **Use our feature request template** - Includes mandatory TDD requirements
+2. **Create a feature request** using our GitHub issue template
 3. **Join the discussion** - we value community input on feature design
-4. **Include test strategy** - How the feature will be tested
 
 ### 🐛 Reporting Bugs  
-1. **Use our bug report template** - Includes mandatory TDD fix criteria
+1. **Use our bug report template** for consistent information
 2. **Include reproduction steps** and environment details
 3. **Check for existing reports** to avoid duplicates
-4. **Include test requirements** - How the fix will be verified
 
 ### 🔧 Development Process
 1. **Read the [Contributing Guide](docs/development/contributing.md)** for detailed contribution guidelines

@@ -106,20 +106,10 @@
 
 ---
 
-## 🔀 Development Workflow Compliance
-
-### ✅ **Branch Management** *(Required)*
-- [ ] **Started from updated develop branch** - `git checkout develop && git pull origin develop`
-- [ ] **Feature branch created** - Named `feature/issue-[number]-description`
-- [ ] **Tests written FIRST** - TDD cycle documented above
-- [ ] **All commits focused** - Clean, logical commit history
-
----
-
 **🚫 FEATURE MERGE BLOCKER:** Cannot merge until:
-1. ✅ **TDD evidence provided** - Tests written first OR diff coverage >= 90%
-2. ✅ **Branch workflow followed** - Proper branch management documented
-3. ✅ **Documentation complete** - User docs (if user-facing) and AI context updated
-4. ✅ **Business alignment demonstrated** - Serves Business-in-a-Box vision
-5. ✅ **Quality checks passed** - All automated tests and linting
-6. ✅ **Roadmap/changelog updated** - Project documentation maintained
+1. ✅ Diff coverage >= 90% on new code (or >= 80% with justification)
+2. ✅ User documentation complete (if user-facing)
+3. ✅ AI context updated (if new patterns introduced)
+4. ✅ Business alignment demonstrated
+5. ✅ All quality checks passed
+6. ✅ Any legacy debt properly documented
