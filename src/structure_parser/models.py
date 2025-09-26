@@ -5,9 +5,9 @@ These models represent the parsed structure data and validation results.
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Any, Union
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Union
 
 
 @dataclass

@@ -5,14 +5,15 @@ These tests validate the automated repository initialization functionality
 that creates directory structures and files based on structure.json files.
 """
 
-import pytest
 import json
-import tempfile
-from pathlib import Path
-from unittest.mock import patch, MagicMock
-
 # Import our modules
 import sys
+import tempfile
+from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+import pytest
+
 sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
 
 from automation.repository_initializer import RepositoryInitializer
@@ -189,7 +190,7 @@ class TestInitialiseRepoScript:
         # This test validates that our script structure works
         import sys
         from pathlib import Path
-        
+
         # Add src to path like the script does
         src_path = Path(__file__).parent.parent / 'src'
         sys.path.insert(0, str(src_path))

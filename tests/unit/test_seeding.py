@@ -4,17 +4,19 @@ Unit tests for core seeding functionality.
 Tests the main RepoSeeder class and its core methods.
 """
 
-import pytest
-from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock
-import tempfile
-import subprocess
 import os
-
+import subprocess
 # Import the module we're testing
 import sys
+import tempfile
+from pathlib import Path
+from unittest.mock import MagicMock, Mock, patch
+
+import pytest
+
 sys.path.append(str(Path(__file__).parent.parent))
-from seeding import RepoSeeder, ensure_directory_exists, get_project_name, get_github_username
+from seeding import (RepoSeeder, ensure_directory_exists, get_github_username,
+                     get_project_name)
 
 
 class TestRepoSeeder:
@@ -266,7 +268,7 @@ class TestTemplateProcessing:
     def test_template_replacements_applied_correctly(self, temp_dir, mock_templates_dir, sample_replacements):
         """Test that template variable replacements work correctly."""
         from seeding import create_file_from_template
-        
+
         # Create a test template
         template_file = mock_templates_dir / "test.template"
         template_content = "Project: {{PROJECT_NAME}}\nUser: {{GITHUB_USERNAME}}\nDate: {{CURRENT_DATE}}"

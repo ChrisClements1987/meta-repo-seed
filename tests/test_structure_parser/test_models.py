@@ -2,10 +2,12 @@
 Tests for data models.
 """
 
-import pytest
 from pathlib import Path
 
-from src.structure_parser.models import StructureData, ValidationResult, ValidationError
+import pytest
+
+from src.structure_parser.models import (StructureData, ValidationError,
+                                         ValidationResult)
 
 
 class TestStructureData:

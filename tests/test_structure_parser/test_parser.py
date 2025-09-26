@@ -2,21 +2,16 @@
 Tests for the StructureParser class.
 """
 
-import pytest
 import json
 from pathlib import Path
-from unittest.mock import patch, mock_open
+from unittest.mock import mock_open, patch
 
-from src.structure_parser import (
-    StructureParser,
-    StructureData,
-    ValidationResult,
-    StructureParserError,
-    ValidationError,
-    ParseError,
-    StructureFileNotFoundError,
-    MigrationError
-)
+import pytest
+
+from src.structure_parser import (MigrationError, ParseError, StructureData,
+                                  StructureFileNotFoundError, StructureParser,
+                                  StructureParserError, ValidationError,
+                                  ValidationResult)
 
 
 class TestStructureParser:

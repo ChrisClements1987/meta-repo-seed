@@ -6,12 +6,12 @@ This module provides automated repository initialization based on structure.json
 Uses the Structure Parser Module to read and validate repository structures.
 """
 
+import argparse
 import json
 import logging
 import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Set
-import argparse
 
 # Import our Structure Parser Module
 try:

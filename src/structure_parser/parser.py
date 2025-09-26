@@ -7,17 +7,11 @@ structure.json files used in the meta-repo seeding system.
 
 import json
 from pathlib import Path
-from typing import Dict, Any, Optional, List, Union
+from typing import Any, Dict, List, Optional, Union
 
+from .exceptions import (FileNotFoundError, MigrationError, ParseError,
+                         SchemaError, StructureParserError, ValidationError)
 from .models import StructureData, ValidationResult
-from .exceptions import (
-    StructureParserError,
-    ValidationError,
-    SchemaError,
-    FileNotFoundError,
-    ParseError,
-    MigrationError
-)
 
 # Conditional import for schema validation
 try:

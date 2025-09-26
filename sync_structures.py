@@ -11,17 +11,18 @@ Usage:
     python sync_structures.py list
 """
 
-import sys
-import os
 import argparse
 import json
+import os
+import sys
 from pathlib import Path
 
 # Add src to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
 try:
-    from meta_repo_seed.structure_sync import StructureSynchronizer, DirectoryStructure
+    from meta_repo_seed.structure_sync import (DirectoryStructure,
+                                               StructureSynchronizer)
 except ImportError:
     print("Error: Unable to import StructureSynchronizer. Make sure the module is installed.")
     sys.exit(1)

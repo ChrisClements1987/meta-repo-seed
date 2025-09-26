@@ -6,8 +6,8 @@ This script demonstrates the basic functionality of the StructureParser
 module for parsing and validating structure.json files.
 """
 
-import sys
 import json
+import sys
 from pathlib import Path
 
 # Add src to path for imports

@@ -7,16 +7,11 @@ used in the meta-repo seeding system.
 Based on the architecture analysis in docs/architecture/structure-parser-interface.md
 """
 
-from .parser import StructureParser
+from .exceptions import FileNotFoundError as StructureFileNotFoundError
+from .exceptions import (MigrationError, ParseError, SchemaError,
+                         StructureParserError, ValidationError)
 from .models import StructureData, ValidationResult
-from .exceptions import (
-    StructureParserError,
-    ValidationError,
-    SchemaError,
-    FileNotFoundError as StructureFileNotFoundError,
-    ParseError,
-    MigrationError
-)
+from .parser import StructureParser
 
 __version__ = "1.0.0"
 __all__ = [
