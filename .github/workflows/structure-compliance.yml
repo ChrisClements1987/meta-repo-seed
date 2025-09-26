@@ -1,0 +1,255 @@
+name: Project Structure Compliance
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  structure-check:
+    runs-on: ubuntu-latest
+    name: Validate Project Structure
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Check Root Directory Compliance
+      run: |
+        echo "🔍 Checking root directory for violations..."
+        violations=()
+        
+        # Define allowed root files
+        allowed_root_files=(
+          "README.md"
+          "LICENSE"
+          "LICENSE.txt"
+          "LICENSE.md"  
+          ".gitignore"
+          ".gitattributes"
+          "pyproject.toml"
+          "requirements.txt"
+          "requirements-*.txt"
+          "setup.py"
+          "setup.cfg"
+          "pytest.ini"
+          "tox.ini"
+          ".pre-commit-config.yaml"
+          ".pre-commit-config.yml"
+          "seeding.py"  # Legacy main script
+          "PROJECT_NORTH_STAR.md"  # Strategic document
+          "AGENTS.md"  # AI context
+        )
+        
+        # Check for violations
+        for file in *; do
+          if [[ -f "$file" ]]; then
+            # Skip hidden files and allowed files
+            if [[ "$file" == .* ]]; then
+              continue
+            fi
+            
+            allowed=false
+            for allowed_file in "${allowed_root_files[@]}"; do
+              if [[ "$file" == "$allowed_file" ]]; then
+                allowed=true
+                break
+              fi
+            done
+            
+            if [[ "$allowed" == false ]]; then
+              violations+=("$file")
+            fi
+          fi
+        done
+        
+        # Report violations
+        if [[ ${#violations[@]} -gt 0 ]]; then
+          echo "❌ Root directory structure violations found:"
+          echo ""
+          echo "The following files violate our project structure:"
+          for violation in "${violations[@]}"; do
+            echo "  ❌ $violation"
+            
+            # Suggest proper location
+            case "$violation" in
+              *.md)
+                if [[ "$violation" == *"SUMMARY"* ]] || [[ "$violation" == *"WORKFLOW"* ]]; then
+                  echo "     → Should be in: docs/development/"
+                elif [[ "$violation" == *"ISSUE_"* ]]; then
+                  echo "     → Should be in: docs/development/implementation-notes/"
+                else
+                  echo "     → Should be in: docs/"
+                fi
+                ;;
+              *.py)
+                if [[ "$violation" == "demo_"* ]] || [[ "$violation" == "test_"* ]]; then
+                  echo "     → Should be in: scripts/demo/ or remove if temporary"
+                elif [[ "$violation" == "sync_"* ]] || [[ "$violation" == *"_manager.py" ]]; then
+                  echo "     → Should be in: scripts/maintenance/"
+                else
+                  echo "     → Should be in: scripts/ or src/"
+                fi
+                ;;
+              *.yaml|*.yml)
+                echo "     → Should be in: configs/ or .github/"
+                ;;
+              *)
+                echo "     → Should be moved to appropriate subdirectory"
+                ;;
+            esac
+          done
+          
+          echo ""
+          echo "📁 Proper project structure:"
+          echo "  📁 docs/"
+          echo "    📁 guides/           # User documentation"
+          echo "    📁 architecture/     # Technical architecture"  
+          echo "    📁 development/      # Development process docs"
+          echo "    📁 research/         # Analysis and research"
+          echo "  📁 scripts/            # All utility scripts"
+          echo "    📁 demo/             # Demo and example scripts"
+          echo "    📁 maintenance/      # Maintenance utilities"
+          echo "  📁 src/                # All source code"
+          echo "  📁 tests/              # All test files"
+          echo "  📁 templates/          # Template files"
+          echo "  📁 examples/           # Usage examples"
+          echo ""
+          echo "❌ PR BLOCKED: Please move files to proper locations and update the PR template checklist."
+          exit 1
+        else
+          echo "✅ Root directory structure is compliant!"
+        fi
+        
+    - name: Check Directory Structure
+      run: |
+        echo "🔍 Checking directory structure..."
+        
+        # Check for required directories
+        required_dirs=("docs" "src" "tests" "scripts")
+        for dir in "${required_dirs[@]}"; do
+          if [[ ! -d "$dir" ]]; then
+            echo "❌ Missing required directory: $dir"
+            exit 1
+          fi
+        done
+        
+        # Check for proper subdirectory structure
+        if [[ -d "docs" ]]; then
+          expected_docs_subdirs=("guides" "architecture" "development")
+          for subdir in "${expected_docs_subdirs[@]}"; do
+            if [[ ! -d "docs/$subdir" ]]; then
+              echo "⚠️  Missing recommended docs subdirectory: docs/$subdir"
+            fi
+          done
+        fi
+        
+        echo "✅ Directory structure looks good!"
+        
+    - name: Check for Proper File Extensions and Naming
+      run: |
+        echo "🔍 Checking file naming conventions..."
+        
+        # Check for files with improper naming
+        find . -name "*.md" -path "./docs/*" | while read -r file; do
+          # Check for uppercase names that should be lowercase
+          basename_file=$(basename "$file")
+          if [[ "$basename_file" =~ ^[A-Z_]+\.md$ ]]; then
+            echo "⚠️  Consider using lowercase for: $file"
+            echo "    → Suggested: $(dirname "$file")/$(echo "$basename_file" | tr '[:upper:]' '[:lower:]' | tr '_' '-')"
+          fi
+        done
+        
+        # Check for Python files outside proper locations
+        find . -name "*.py" -not -path "./src/*" -not -path "./tests/*" -not -path "./scripts/*" -not -path "./.github/*" -not -name "seeding.py" | while read -r file; do
+          if [[ "$file" != "./setup.py" ]]; then
+            echo "⚠️  Python file in unexpected location: $file"
+          fi
+        done
+        
+        echo "✅ File naming check complete!"
+
+  documentation-links:
+    runs-on: ubuntu-latest
+    name: Validate Documentation Links
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Check for Broken Internal Links
+      run: |
+        echo "🔍 Checking for broken internal links..."
+        
+        # Find all markdown files
+        find . -name "*.md" | while read -r file; do
+          echo "Checking links in: $file"
+          
+          # Extract internal links (relative paths)
+          grep -oP '\]\(\./[^)]+\)|\]\([^http][^)]+\)' "$file" 2>/dev/null | while read -r link; do
+            # Extract path from link
+            path=$(echo "$link" | sed 's/](\(.*\))/\1/')
+            
+            # Resolve relative path
+            if [[ "$path" == "./"* ]]; then
+              full_path="$(dirname "$file")/${path#./}"
+            else
+              full_path="$(dirname "$file")/$path"
+            fi
+            
+            # Normalize path
+            full_path=$(realpath -m "$full_path" 2>/dev/null || echo "$full_path")
+            
+            # Check if file exists
+            if [[ ! -f "$full_path" ]] && [[ ! -d "$full_path" ]]; then
+              echo "❌ Broken link in $file: $link"
+              echo "   → Target not found: $full_path"
+            fi
+          done
+        done || true
+        
+        echo "✅ Link validation complete!"
+
+  roadmap-sync:
+    runs-on: ubuntu-latest
+    name: Validate Roadmap Synchronization
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Check Roadmap Updates
+      run: |
+        echo "🔍 Checking if roadmap needs updates..."
+        
+        # Check if this PR affects features mentioned in roadmap
+        if [[ -f "docs/development/roadmap.md" ]]; then
+          # Get PR title and description
+          pr_title="${{ github.event.pull_request.title }}"
+          pr_body="${{ github.event.pull_request.body }}"
+          
+          echo "PR Title: $pr_title"
+          
+          # Check for feature keywords
+          if echo "$pr_title $pr_body" | grep -iE "(feature|feat|add|implement|new)" > /dev/null; then
+            echo "⚠️  This PR appears to implement new functionality."
+            echo "    Please ensure docs/development/roadmap.md is updated to reflect:"
+            echo "    - Feature completion status"
+            echo "    - Timeline adjustments if needed"
+            echo "    - Dependencies or blockers resolved"
+          fi
+          
+          # Check for breaking changes
+          if echo "$pr_title $pr_body" | grep -iE "(breaking|major|remove|deprecate)" > /dev/null; then
+            echo "⚠️  This PR appears to contain breaking changes."
+            echo "    Please ensure:"
+            echo "    - Roadmap reflects migration requirements"
+            echo "    - Version impact documented"
+            echo "    - User communication planned"
+          fi
+        else
+          echo "❌ docs/development/roadmap.md not found!"
+          echo "   Roadmap is required for project planning."
+          exit 1
+        fi
+        
+        echo "✅ Roadmap check complete!"
