@@ -40,3 +40,4 @@
 - **PR Standards**: Use diff coverage (>=80% on changed lines), conditional documentation updates, legacy debt tracking
 - **Quality Gates**: Tests must pass OR be marked xfail/skip with linked issues during stabilization phase
 - **CLI Contract**: Defined in `docs/architecture/cli.md` - use `--project`, `--username`, `--dry-run`, `--verbose`
+- **Dependencies**: Pinned versions in requirements-*.txt files for reproducible builds and security compliance
