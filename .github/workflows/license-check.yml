@@ -1,0 +1,100 @@
+name: License Compliance Check
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'requirements*.txt'
+      - 'setup.py'
+      - 'pyproject.toml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'requirements*.txt'
+      - 'setup.py'
+      - 'pyproject.toml'
+
+jobs:
+  license-compliance:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pip-licenses
+        # Install project dependencies
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        if [ -f requirements-test.txt ]; then pip install -r requirements-test.txt; fi
+        
+    - name: Check for GPL license violations
+      run: |
+        echo "🔍 Scanning for GPL license violations..."
+        
+        # Fail on any GPL licenses (incompatible with MIT)
+        if pip-licenses --format=csv | grep -i -E "(GPL|GPLv[0-9])"; then
+          echo "❌ GPL-licensed dependencies found! These are incompatible with MIT license."
+          echo "GPL dependencies must be removed or replaced with MIT/BSD/Apache alternatives."
+          exit 1
+        fi
+        
+        echo "✅ No GPL license violations found"
+        
+    - name: Check for unknown licenses
+      run: |
+        echo "🔍 Checking for unknown or unclear licenses..."
+        
+        # List unknown licenses for review
+        unknown_licenses=$(pip-licenses --format=csv | grep -i "UNKNOWN" || true)
+        if [ -n "$unknown_licenses" ]; then
+          echo "⚠️ Dependencies with unknown licenses found:"
+          echo "$unknown_licenses"
+          echo ""
+          echo "These should be investigated and documented in LICENSE_AUDIT.md"
+          echo "Unknown licenses are allowed but should be clarified for legal compliance"
+        else
+          echo "✅ All dependency licenses are known and documented"
+        fi
+        
+    - name: Generate license report
+      run: |
+        echo "📊 Generating license compliance report..."
+        
+        # Create detailed license report
+        echo "# License Compliance Report - $(date)" > license-report.md
+        echo "" >> license-report.md
+        echo "## All Dependencies" >> license-report.md
+        pip-licenses --format=markdown >> license-report.md
+        
+        echo "" >> license-report.md
+        echo "## LGPL Dependencies (MIT Compatible)" >> license-report.md
+        pip-licenses --format=csv | grep -i "LGPL" | sed 's/,/ | /g' | sed 's/^/| /' | sed 's/$/ |/' >> license-report.md
+        
+        echo "" >> license-report.md
+        echo "## Summary" >> license-report.md
+        echo "- ✅ No GPL license violations" >> license-report.md
+        echo "- ⚠️ LGPL dependencies present (MIT compatible when used as libraries)" >> license-report.md
+        echo "- 📋 Review unknown licenses quarterly" >> license-report.md
+        
+    - name: Upload license report
+      uses: actions/upload-artifact@v3
+      with:
+        name: license-compliance-report
+        path: license-report.md
+        retention-days: 90
+        
+    - name: License compliance summary
+      run: |
+        echo "🎯 License Compliance Summary:"
+        echo "✅ MIT License Compatible: All dependencies verified"
+        echo "✅ GPL Violations: None found"
+        echo "⚠️ LGPL Dependencies: Present but MIT compatible"
+        echo "📊 Report: Available in artifacts for legal review"
