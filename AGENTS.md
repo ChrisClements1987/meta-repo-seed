@@ -36,6 +36,7 @@
 - **Templates**: `templates/` directory with Jinja2-style variable replacement ({{PROJECT_NAME}}, {{GITHUB_USERNAME}})
   - `templates/infrastructure/` - Infrastructure as Code templates (Terraform, K8s, Docker)
   - `templates/code-formatting/` - Pre-commit hooks and code quality configurations
+  - `templates/github-settings/` - Repository governance automation and GitHub settings
 - **Config**: Supports YAML/JSON config files for reusable project configurations
 - **Testing**: pytest with coverage, markers for unit/integration/github/slow/network tests
 
