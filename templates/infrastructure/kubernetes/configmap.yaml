@@ -1,0 +1,362 @@
+# {{PROJECT_NAME}} Kubernetes ConfigMaps
+# Configuration data for {{PROJECT_NAME}} application
+# Non-sensitive configuration values and application settings
+
+# Main Application Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{PROJECT_NAME}}-config
+  namespace: {{PROJECT_NAME}}
+  labels:
+    app: {{PROJECT_NAME}}
+    project: {{PROJECT_NAME}}
+    config-type: application
+  annotations:
+    description: "Main configuration for {{PROJECT_NAME}} application"
+    version: "1.0.0"
+data:
+  # Application Settings
+  APP_NAME: "{{PROJECT_NAME}}"
+  APP_VERSION: "1.0.0"
+  APP_ENVIRONMENT: "production"
+  APP_DEBUG: "false"
+  APP_LOG_LEVEL: "info"
+  APP_TIMEZONE: "UTC"
+  
+  # Server Configuration
+  SERVER_HOST: "0.0.0.0"
+  SERVER_PORT: "8000"
+  SERVER_WORKERS: "4"
+  SERVER_TIMEOUT: "30"
+  SERVER_KEEPALIVE: "2"
+  
+  # Database Configuration (non-sensitive)
+  DB_HOST: "{{PROJECT_NAME}}-database"
+  DB_PORT: "3306"
+  DB_NAME: "{{PROJECT_NAME}}"
+  DB_CHARSET: "utf8mb4"
+  DB_POOL_SIZE: "20"
+  DB_MAX_OVERFLOW: "10"
+  DB_POOL_TIMEOUT: "30"
+  DB_POOL_RECYCLE: "3600"
+  
+  # Cache Configuration
+  CACHE_TYPE: "redis"
+  CACHE_HOST: "{{PROJECT_NAME}}-redis"
+  CACHE_PORT: "6379"
+  CACHE_DB: "0"
+  CACHE_TTL: "3600"
+  CACHE_KEY_PREFIX: "{{PROJECT_NAME}}:"
+  
+  # API Configuration
+  API_VERSION: "v1"
+  API_PREFIX: "/api/v1"
+  API_CORS_ORIGINS: "https://{{PROJECT_NAME}}.com,https://www.{{PROJECT_NAME}}.com"
+  API_RATE_LIMIT: "1000"
+  API_RATE_LIMIT_WINDOW: "3600"
+  
+  # Security Configuration
+  SECURITY_CORS_ENABLED: "true"
+  SECURITY_CSRF_ENABLED: "true"
+  SECURITY_HSTS_ENABLED: "true"
+  SECURITY_CONTENT_TYPE_OPTIONS: "nosniff"
+  SECURITY_FRAME_OPTIONS: "DENY"
+  SECURITY_XSS_PROTECTION: "1; mode=block"
+  
+  # Monitoring Configuration
+  MONITORING_ENABLED: "true"
+  METRICS_ENABLED: "true"
+  METRICS_PORT: "8080"
+  METRICS_PATH: "/metrics"
+  HEALTH_CHECK_PATH: "/health"
+  READINESS_CHECK_PATH: "/ready"
+  
+  # Logging Configuration
+  LOG_FORMAT: "json"
+  LOG_LEVEL: "info"
+  LOG_OUTPUT: "stdout"
+  ACCESS_LOG_ENABLED: "true"
+  ERROR_LOG_ENABLED: "true"
+  
+  # Feature Flags
+  FEATURE_NEW_UI: "true"
+  FEATURE_ANALYTICS: "true"
+  FEATURE_NOTIFICATIONS: "true"
+  FEATURE_BETA_ACCESS: "false"
+---
+# Database Configuration ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{PROJECT_NAME}}-db-config
+  namespace: {{PROJECT_NAME}}
+  labels:
+    app: {{PROJECT_NAME}}
+    project: {{PROJECT_NAME}}
+    config-type: database
+  annotations:
+    description: "Database configuration for {{PROJECT_NAME}}"
+data:
+  # MySQL Configuration
+  my.cnf: |
+    [mysqld]
+    # Basic Settings
+    user = mysql
+    pid-file = /var/run/mysqld/mysqld.pid
+    socket = /var/run/mysqld/mysqld.sock
+    port = 3306
+    basedir = /usr
+    datadir = /var/lib/mysql
+    tmpdir = /tmp
+    lc-messages-dir = /usr/share/mysql
+    
+    # Security
+    bind-address = 0.0.0.0
+    skip-name-resolve
+    
+    # Character Set
+    character-set-server = utf8mb4
+    collation-server = utf8mb4_unicode_ci
+    
+    # Performance
+    max_connections = 200
+    connect_timeout = 60
+    wait_timeout = 28800
+    max_allowed_packet = 256M
+    thread_cache_size = 128
+    sort_buffer_size = 4M
+    bulk_insert_buffer_size = 16M
+    tmp_table_size = 32M
+    max_heap_table_size = 32M
+    
+    # InnoDB Settings
+    innodb_buffer_pool_size = 256M
+    innodb_log_buffer_size = 8M
+    innodb_file_per_table = 1
+    innodb_open_files = 400
+    innodb_io_capacity = 400
+    innodb_flush_method = O_DIRECT
+    
+    # Logging
+    general_log = 1
+    general_log_file = /var/log/mysql/mysql.log
+    log_error = /var/log/mysql/mysql-error.log
+    slow_query_log = 1
+    slow_query_log_file = /var/log/mysql/mysql-slow.log
+    long_query_time = 2
+    
+    [mysql]
+    default-character-set = utf8mb4
+    
+    [client]
+    default-character-set = utf8mb4
+---
+# Redis Configuration ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{PROJECT_NAME}}-redis-config
+  namespace: {{PROJECT_NAME}}
+  labels:
+    app: {{PROJECT_NAME}}
+    project: {{PROJECT_NAME}}
+    config-type: cache
+  annotations:
+    description: "Redis cache configuration for {{PROJECT_NAME}}"
+data:
+  redis.conf: |
+    # Redis Configuration for {{PROJECT_NAME}}
+    
+    # Network
+    bind 0.0.0.0
+    port 6379
+    tcp-backlog 511
+    timeout 0
+    tcp-keepalive 300
+    
+    # General
+    daemonize no
+    supervised no
+    pidfile /var/run/redis_6379.pid
+    loglevel notice
+    logfile ""
+    databases 16
+    
+    # Memory Management
+    maxmemory 256mb
+    maxmemory-policy allkeys-lru
+    
+    # Persistence
+    save 900 1
+    save 300 10
+    save 60 10000
+    
+    stop-writes-on-bgsave-error yes
+    rdbcompression yes
+    rdbchecksum yes
+    dbfilename dump.rdb
+    dir /data
+    
+    # Security
+    requirepass "redis-password-change-in-production"
+    
+    # Performance
+    tcp-keepalive 300
+    timeout 0
+---
+# Nginx Configuration ConfigMap (if using nginx sidecar)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{PROJECT_NAME}}-nginx-config
+  namespace: {{PROJECT_NAME}}
+  labels:
+    app: {{PROJECT_NAME}}
+    project: {{PROJECT_NAME}}
+    config-type: proxy
+  annotations:
+    description: "Nginx proxy configuration for {{PROJECT_NAME}}"
+data:
+  nginx.conf: |
+    user nginx;
+    worker_processes auto;
+    error_log /var/log/nginx/error.log warn;
+    pid /var/run/nginx.pid;
+    
+    events {
+        worker_connections 1024;
+        use epoll;
+        multi_accept on;
+    }
+    
+    http {
+        include /etc/nginx/mime.types;
+        default_type application/octet-stream;
+        
+        # Logging
+        log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                        '$status $body_bytes_sent "$http_referer" '
+                        '"$http_user_agent" "$http_x_forwarded_for"';
+        
+        access_log /var/log/nginx/access.log main;
+        
+        # Performance
+        sendfile on;
+        tcp_nopush on;
+        tcp_nodelay on;
+        keepalive_timeout 65;
+        types_hash_max_size 2048;
+        client_max_body_size 50M;
+        
+        # Compression
+        gzip on;
+        gzip_vary on;
+        gzip_proxied any;
+        gzip_comp_level 6;
+        gzip_types
+            text/plain
+            text/css
+            text/xml
+            text/javascript
+            application/json
+            application/javascript
+            application/xml+rss
+            application/atom+xml
+            image/svg+xml;
+        
+        # Security Headers
+        add_header X-Frame-Options DENY always;
+        add_header X-Content-Type-Options nosniff always;
+        add_header X-XSS-Protection "1; mode=block" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        
+        # Upstream
+        upstream {{PROJECT_NAME}}_backend {
+            server localhost:8000;
+            keepalive 32;
+        }
+        
+        server {
+            listen 80;
+            server_name _;
+            
+            # Health Check
+            location /health {
+                access_log off;
+                return 200 "healthy\n";
+                add_header Content-Type text/plain;
+            }
+            
+            # Main Application
+            location / {
+                proxy_pass http://{{PROJECT_NAME}}_backend;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                proxy_connect_timeout 60s;
+                proxy_send_timeout 60s;
+                proxy_read_timeout 60s;
+            }
+            
+            # Static Files (if any)
+            location /static/ {
+                alias /app/static/;
+                expires 1y;
+                add_header Cache-Control "public, immutable";
+            }
+        }
+    }
+---
+# Environment-Specific Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{PROJECT_NAME}}-env-config
+  namespace: {{PROJECT_NAME}}
+  labels:
+    app: {{PROJECT_NAME}}
+    project: {{PROJECT_NAME}}
+    config-type: environment
+  annotations:
+    description: "Environment-specific configuration for {{PROJECT_NAME}}"
+data:
+  # Development Environment
+  development.yaml: |
+    environment: development
+    debug: true
+    log_level: debug
+    database:
+      pool_size: 5
+      echo: true
+    cache:
+      ttl: 300
+    monitoring:
+      sample_rate: 1.0
+  
+  # Staging Environment
+  staging.yaml: |
+    environment: staging
+    debug: false
+    log_level: info
+    database:
+      pool_size: 10
+      echo: false
+    cache:
+      ttl: 1800
+    monitoring:
+      sample_rate: 0.5
+  
+  # Production Environment
+  production.yaml: |
+    environment: production
+    debug: false
+    log_level: warning
+    database:
+      pool_size: 20
+      echo: false
+    cache:
+      ttl: 3600
+    monitoring:
+      sample_rate: 0.1

@@ -1,0 +1,281 @@
+# {{PROJECT_NAME}} Kubernetes Deployment
+# Production-ready deployment configuration for {{PROJECT_NAME}}
+# Includes health checks, resource limits, and security best practices
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{PROJECT_NAME}}-app
+  namespace: {{PROJECT_NAME}}
+  labels:
+    app: {{PROJECT_NAME}}
+    component: app
+    project: {{PROJECT_NAME}}
+    version: "1.0.0"
+    managed-by: terraform
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+    description: "{{PROJECT_NAME}} main application deployment"
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: {{PROJECT_NAME}}
+      component: app
+  template:
+    metadata:
+      labels:
+        app: {{PROJECT_NAME}}
+        component: app
+        project: {{PROJECT_NAME}}
+        version: "1.0.0"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      # Security Context
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      
+      # Service Account
+      serviceAccountName: {{PROJECT_NAME}}-service-account
+      
+      # Init Container (optional - for database migrations, etc.)
+      initContainers:
+      - name: init-db
+        image: busybox:1.35
+        command: ['sh', '-c', 'echo "Initializing database..." && sleep 5']
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop:
+            - ALL
+      
+      containers:
+      - name: {{PROJECT_NAME}}
+        image: {{GITHUB_USERNAME}}/{{PROJECT_NAME}}:latest
+        imagePullPolicy: Always
+        
+        # Ports
+        ports:
+        - name: http
+          containerPort: 8000
+          protocol: TCP
+        - name: metrics
+          containerPort: 8080
+          protocol: TCP
+        
+        # Environment Variables
+        env:
+        - name: PROJECT_NAME
+          value: "{{PROJECT_NAME}}"
+        - name: ENVIRONMENT
+          value: "production"
+        - name: PORT
+          value: "8000"
+        - name: METRICS_PORT
+          value: "8080"
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: {{PROJECT_NAME}}-secrets
+              key: database-url
+        - name: API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{PROJECT_NAME}}-secrets
+              key: api-key
+        
+        # Environment from ConfigMap
+        envFrom:
+        - configMapRef:
+            name: {{PROJECT_NAME}}-config
+        
+        # Resource Limits and Requests
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        
+        # Health Checks
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+          successThreshold: 1
+        
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+          successThreshold: 1
+        
+        startupProbe:
+          httpGet:
+            path: /health
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 5
+          failureThreshold: 30
+          successThreshold: 1
+        
+        # Security Context
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop:
+            - ALL
+        
+        # Volume Mounts
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: var-run
+          mountPath: /var/run
+        - name: app-logs
+          mountPath: /app/logs
+        - name: config-volume
+          mountPath: /app/config
+          readOnly: true
+      
+      # Volumes
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      - name: var-run
+        emptyDir: {}
+      - name: app-logs
+        emptyDir: {}
+      - name: config-volume
+        configMap:
+          name: {{PROJECT_NAME}}-config
+          defaultMode: 0644
+      
+      # Node Selection and Affinity
+      nodeSelector:
+        kubernetes.io/os: linux
+      
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - {{PROJECT_NAME}}
+              topologyKey: kubernetes.io/hostname
+      
+      # Tolerations (if needed for specific nodes)
+      tolerations: []
+      
+      # DNS Configuration
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+---
+# Service Account for the application
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{PROJECT_NAME}}-service-account
+  namespace: {{PROJECT_NAME}}
+  labels:
+    app: {{PROJECT_NAME}}
+    project: {{PROJECT_NAME}}
+  annotations:
+    description: "Service account for {{PROJECT_NAME}} application"
+automountServiceAccountToken: true
+---
+# Horizontal Pod Autoscaler
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{PROJECT_NAME}}-hpa
+  namespace: {{PROJECT_NAME}}
+  labels:
+    app: {{PROJECT_NAME}}
+    project: {{PROJECT_NAME}}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{PROJECT_NAME}}-app
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+---
+# Pod Disruption Budget
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{PROJECT_NAME}}-pdb
+  namespace: {{PROJECT_NAME}}
+  labels:
+    app: {{PROJECT_NAME}}
+    project: {{PROJECT_NAME}}
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: {{PROJECT_NAME}}
+      component: app

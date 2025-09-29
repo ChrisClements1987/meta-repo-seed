@@ -1,0 +1,776 @@
+# {{PROJECT_NAME}} Production Kubernetes Configuration
+# High-availability, security-hardened production deployment
+# Enterprise-grade configuration with comprehensive monitoring and security
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{PROJECT_NAME}}-prod
+  labels:
+    environment: production
+    project: {{PROJECT_NAME}}
+    managed-by: kubectl
+    monitoring: comprehensive
+    security: hardened
+  annotations:
+    description: "{{PROJECT_NAME}} production environment"
+    contact: "devops@{{PROJECT_NAME}}.com"
+    compliance: "soc2,pci-dss,gdpr"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{PROJECT_NAME}}-prod-config
+  namespace: {{PROJECT_NAME}}-prod
+  labels:
+    app: {{PROJECT_NAME}}
+    environment: production
+data:
+  # Application Configuration
+  NODE_ENV: "production"
+  APP_NAME: "{{PROJECT_NAME}}"
+  ENVIRONMENT: "production"
+  PORT: "8000"
+  METRICS_PORT: "8080"
+  LOG_LEVEL: "warn"
+  DEBUG: "false"
+  
+  # Database Configuration
+  DB_HOST: "{{PROJECT_NAME}}-prod-cluster.cluster-xyz.us-east-1.rds.amazonaws.com"
+  DB_READ_HOST: "{{PROJECT_NAME}}-prod-cluster-ro.cluster-xyz.us-east-1.rds.amazonaws.com"
+  DB_PORT: "3306"
+  DB_NAME: "{{PROJECT_NAME}}_production"
+  DB_POOL_SIZE: "50"
+  DB_SSL_MODE: "require"
+  DB_SSL_CERT_VERIFY: "true"
+  
+  # Cache Configuration
+  REDIS_HOST: "{{PROJECT_NAME}}-prod-cluster.abc123.clustercfg.use1.cache.amazonaws.com"
+  REDIS_PORT: "6379"
+  REDIS_DB: "0"
+  REDIS_SSL: "true"
+  REDIS_CLUSTER_MODE: "true"
+  
+  # Security Configuration
+  ENABLE_CORS: "true"
+  CORS_ORIGINS: "https://{{PROJECT_NAME}}.com,https://www.{{PROJECT_NAME}}.com"
+  ENABLE_RATE_LIMITING: "true"
+  RATE_LIMIT_REQUESTS: "10000"
+  RATE_LIMIT_WINDOW: "3600"
+  ENABLE_CSRF_PROTECTION: "true"
+  ENABLE_HELMET: "true"
+  
+  # Performance Configuration
+  ENABLE_GZIP: "true"
+  ENABLE_ETAG: "true"
+  CACHE_TTL: "3600"
+  SESSION_TIMEOUT: "1800"
+  
+  # Feature Flags
+  FEATURE_NEW_UI: "false"
+  FEATURE_BETA: "false"
+  FEATURE_ANALYTICS: "true"
+  FEATURE_MONITORING: "true"
+  
+  # External Services
+  CDN_URL: "https://cdn.{{PROJECT_NAME}}.com"
+  STATIC_URL: "https://static.{{PROJECT_NAME}}.com"
+  
+  # Compliance
+  ENABLE_AUDIT_LOGGING: "true"
+  DATA_RETENTION_DAYS: "2555"  # 7 years
+  GDPR_COMPLIANCE: "true"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{PROJECT_NAME}}-prod-secrets
+  namespace: {{PROJECT_NAME}}-prod
+  labels:
+    app: {{PROJECT_NAME}}
+    environment: production
+  annotations:
+    kubernetes.io/service-account.name: {{PROJECT_NAME}}-prod-sa
+    secret-manager.io/source: "aws-secrets-manager"
+type: Opaque
+data:
+  # Base64 encoded secrets for production
+  # These should be managed by external secret management systems
+  database-url: cHJvZHVjdGlvbi1kYXRhYmFzZS11cmwtY2hhbmdlLW1l
+  database-password: cHJvZHVjdGlvbi1kYi1wYXNzd29yZC1jaGFuZ2UtbWU=
+  redis-password: cHJvZHVjdGlvbi1yZWRpcy1wYXNzd29yZC1jaGFuZ2UtbWU=
+  jwt-secret: cHJvZHVjdGlvbi1qd3Qtc2VjcmV0LTMyLWNoYXJhY3RlcnMtbG9uZw==
+  api-key: cHJvZHVjdGlvbi1hcGkta2V5LXNlY3VyZQ==
+  oauth-client-secret: cHJvZHVjdGlvbi1vYXV0aC1jbGllbnQtc2VjcmV0
+  webhook-secret: cHJvZHVjdGlvbi13ZWJob29rLXNlY3JldA==
+  encryption-key: cHJvZHVjdGlvbi1lbmNyeXB0aW9uLWtleS0zMi1jaGFyYWN0ZXJzLWxvbmc=
+  sentry-dsn: aHR0cHM6Ly9wcm9kLXNlbnRyeS1kc24uaW5nZXN0LnNlbnRyeS5pby8xMjM0NTY=
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{PROJECT_NAME}}-prod
+  namespace: {{PROJECT_NAME}}-prod
+  labels:
+    app: {{PROJECT_NAME}}
+    environment: production
+    version: "1.0.0"
+    tier: application
+spec:
+  replicas: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: {{PROJECT_NAME}}
+      environment: production
+  template:
+    metadata:
+      labels:
+        app: {{PROJECT_NAME}}
+        environment: production
+        version: "1.0.0"
+        tier: application
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+        co.elastic.logs/enabled: "true"
+        co.elastic.logs/json.keys_under_root: "true"
+        co.elastic.logs/json.add_error_key: "true"
+    spec:
+      serviceAccountName: {{PROJECT_NAME}}-prod-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      imagePullSecrets:
+      - name: {{PROJECT_NAME}}-registry-secret
+      containers:
+      - name: {{PROJECT_NAME}}
+        image: {{GITHUB_USERNAME}}/{{PROJECT_NAME}}:1.0.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8000
+          name: http
+        - containerPort: 8080
+          name: metrics
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: {{PROJECT_NAME}}-prod-secrets
+              key: database-url
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{PROJECT_NAME}}-prod-secrets
+              key: jwt-secret
+        - name: API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{PROJECT_NAME}}-prod-secrets
+              key: api-key
+        - name: ENCRYPTION_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{PROJECT_NAME}}-prod-secrets
+              key: encryption-key
+        - name: SENTRY_DSN
+          valueFrom:
+            secretKeyRef:
+              name: {{PROJECT_NAME}}-prod-secrets
+              key: sentry-dsn
+        envFrom:
+        - configMapRef:
+            name: {{PROJECT_NAME}}-prod-config
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            cpu: 2000m
+            memory: 4Gi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+            scheme: HTTP
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+          successThreshold: 1
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8000
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+          successThreshold: 1
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 8000
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 10
+          failureThreshold: 30
+          successThreshold: 1
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: logs
+          mountPath: /app/logs
+        - name: cache
+          mountPath: /app/cache
+      volumes:
+      - name: tmp
+        emptyDir:
+          sizeLimit: 1Gi
+      - name: logs
+        emptyDir:
+          sizeLimit: 10Gi
+      - name: cache
+        emptyDir:
+          sizeLimit: 2Gi
+      nodeSelector:
+        kubernetes.io/os: linux
+        node-type: application
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - {{PROJECT_NAME}}
+            topologyKey: kubernetes.io/hostname
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            preference:
+              matchExpressions:
+              - key: instance-type
+                operator: In
+                values:
+                - m5.large
+                - m5.xlarge
+                - c5.large
+                - c5.xlarge
+      tolerations:
+      - key: "production-workload"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+      terminationGracePeriodSeconds: 60
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{PROJECT_NAME}}-prod-sa
+  namespace: {{PROJECT_NAME}}-prod
+  labels:
+    app: {{PROJECT_NAME}}
+    environment: production
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/{{PROJECT_NAME}}-prod-service-role
+automountServiceAccountToken: true
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{PROJECT_NAME}}-prod-service
+  namespace: {{PROJECT_NAME}}-prod
+  labels:
+    app: {{PROJECT_NAME}}
+    environment: production
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+spec:
+  selector:
+    app: {{PROJECT_NAME}}
+    environment: production
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8000
+    protocol: TCP
+  - name: metrics
+    port: 8080
+    targetPort: 8080
+    protocol: TCP
+  type: ClusterIP
+  sessionAffinity: None
+---
+# Production Load Balancer Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{PROJECT_NAME}}-prod-lb
+  namespace: {{PROJECT_NAME}}-prod
+  labels:
+    app: {{PROJECT_NAME}}
+    environment: production
+    service-type: loadbalancer
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "external"
+    service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "ip"
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-protocol: "HTTP"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-path: "/health"
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "arn:aws:acm:us-east-1:123456789012:certificate/production-cert"
+    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
+spec:
+  type: LoadBalancer
+  selector:
+    app: {{PROJECT_NAME}}
+    environment: production
+  ports:
+  - name: https
+    port: 443
+    targetPort: 8000
+    protocol: TCP
+  - name: http
+    port: 80
+    targetPort: 8000
+    protocol: TCP
+  externalTrafficPolicy: Local
+---
+# Production Ingress with SSL and Security
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{PROJECT_NAME}}-prod-ingress
+  namespace: {{PROJECT_NAME}}-prod
+  labels:
+    app: {{PROJECT_NAME}}
+    environment: production
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/rate-limit-connections: "100"
+    nginx.ingress.kubernetes.io/rate-limit-requests-per-minute: "1000"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "Strict-Transport-Security: max-age=31536000; includeSubDomains; preload";
+      more_set_headers "X-Frame-Options: DENY";
+      more_set_headers "X-Content-Type-Options: nosniff";
+      more_set_headers "X-XSS-Protection: 1; mode=block";
+      more_set_headers "Referrer-Policy: strict-origin-when-cross-origin";
+      more_set_headers "Content-Security-Policy: default-src 'self' https:; script-src 'self' https:; style-src 'self' 'unsafe-inline' https:";
+spec:
+  tls:
+  - hosts:
+    - {{PROJECT_NAME}}.com
+    - www.{{PROJECT_NAME}}.com
+    secretName: {{PROJECT_NAME}}-prod-tls
+  rules:
+  - host: {{PROJECT_NAME}}.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{PROJECT_NAME}}-prod-service
+            port:
+              number: 80
+  - host: www.{{PROJECT_NAME}}.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{PROJECT_NAME}}-prod-service
+            port:
+              number: 80
+---
+# HPA for Production
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{PROJECT_NAME}}-prod-hpa
+  namespace: {{PROJECT_NAME}}-prod
+  labels:
+    app: {{PROJECT_NAME}}
+    environment: production
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{PROJECT_NAME}}-prod
+  minReplicas: 5
+  maxReplicas: 20
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 60
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 70
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 120
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60
+      - type: Pods
+        value: 2
+        periodSeconds: 60
+      selectPolicy: Max
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+      - type: Pods
+        value: 1
+        periodSeconds: 60
+      selectPolicy: Min
+---
+# Vertical Pod Autoscaler (VPA)
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: {{PROJECT_NAME}}-prod-vpa
+  namespace: {{PROJECT_NAME}}-prod
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{PROJECT_NAME}}-prod
+  updatePolicy:
+    updateMode: "Auto"
+  resourcePolicy:
+    containerPolicies:
+    - containerName: {{PROJECT_NAME}}
+      minAllowed:
+        cpu: 100m
+        memory: 128Mi
+      maxAllowed:
+        cpu: 4000m
+        memory: 8Gi
+---
+# Pod Disruption Budget
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{PROJECT_NAME}}-prod-pdb
+  namespace: {{PROJECT_NAME}}-prod
+  labels:
+    app: {{PROJECT_NAME}}
+    environment: production
+spec:
+  minAvailable: 3
+  selector:
+    matchLabels:
+      app: {{PROJECT_NAME}}
+      environment: production
+---
+# Resource Quota for Production
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: {{PROJECT_NAME}}-prod-quota
+  namespace: {{PROJECT_NAME}}-prod
+spec:
+  hard:
+    requests.cpu: "20"
+    requests.memory: 40Gi
+    limits.cpu: "80"
+    limits.memory: 160Gi
+    pods: "50"
+    services: "20"
+    secrets: "30"
+    configmaps: "30"
+    persistentvolumeclaims: "20"
+    services.loadbalancers: "5"
+---
+# Limit Range for Production
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: {{PROJECT_NAME}}-prod-limits
+  namespace: {{PROJECT_NAME}}-prod
+spec:
+  limits:
+  - default:
+      cpu: 2000m
+      memory: 4Gi
+    defaultRequest:
+      cpu: 500m
+      memory: 1Gi
+    type: Container
+  - default:
+      storage: 10Gi
+    type: PersistentVolumeClaim
+---
+# Network Policy for Production (Restrictive)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{PROJECT_NAME}}-prod-network-policy
+  namespace: {{PROJECT_NAME}}-prod
+spec:
+  podSelector:
+    matchLabels:
+      app: {{PROJECT_NAME}}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: {{PROJECT_NAME}}-prod
+    - podSelector: {}
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+  - ports:
+    - protocol: TCP
+      port: 8000
+    - protocol: TCP
+      port: 8080
+  egress:
+  # DNS
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 53
+    - protocol: UDP
+      port: 53
+  # HTTPS/HTTP
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 80
+    - protocol: TCP
+      port: 443
+  # Database
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: database
+    ports:
+    - protocol: TCP
+      port: 3306
+  # Redis
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: cache
+    ports:
+    - protocol: TCP
+      port: 6379
+---
+# ServiceMonitor for Prometheus
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{PROJECT_NAME}}-prod-monitoring
+  namespace: {{PROJECT_NAME}}-prod
+  labels:
+    app: {{PROJECT_NAME}}
+    environment: production
+spec:
+  selector:
+    matchLabels:
+      app: {{PROJECT_NAME}}
+      environment: production
+  endpoints:
+  - port: metrics
+    path: /metrics
+    interval: 15s
+    scrapeTimeout: 10s
+  namespaceSelector:
+    matchNames:
+    - {{PROJECT_NAME}}-prod
+---
+# PrometheusRule for Production Alerts
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{PROJECT_NAME}}-prod-alerts
+  namespace: {{PROJECT_NAME}}-prod
+  labels:
+    app: {{PROJECT_NAME}}
+    environment: production
+spec:
+  groups:
+  - name: {{PROJECT_NAME}}.production.critical
+    rules:
+    - alert: ApplicationDown
+      expr: up{job="{{PROJECT_NAME}}-prod"} == 0
+      for: 1m
+      labels:
+        severity: critical
+        environment: production
+      annotations:
+        summary: "{{PROJECT_NAME}} application is down"
+        description: "{{PROJECT_NAME}} application has been down for more than 1 minute"
+    
+    - alert: HighErrorRate
+      expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.1
+      for: 2m
+      labels:
+        severity: critical
+        environment: production
+      annotations:
+        summary: "High error rate detected"
+        description: "Error rate is above 10% for more than 2 minutes"
+    
+    - alert: HighCPUUsage
+      expr: cpu_usage_percent > 80
+      for: 5m
+      labels:
+        severity: warning
+        environment: production
+      annotations:
+        summary: "High CPU usage on {{PROJECT_NAME}} production"
+        description: "CPU usage is above 80% for more than 5 minutes"
+    
+    - alert: HighMemoryUsage
+      expr: memory_usage_percent > 85
+      for: 5m
+      labels:
+        severity: warning
+        environment: production
+      annotations:
+        summary: "High memory usage on {{PROJECT_NAME}} production"
+        description: "Memory usage is above 85% for more than 5 minutes"
+    
+    - alert: DatabaseConnectionFailure
+      expr: database_connections_failed_total > 0
+      for: 1m
+      labels:
+        severity: critical
+        environment: production
+      annotations:
+        summary: "Database connection failures detected"
+        description: "Database connection failures detected in production"
+---
+# Certificate for production domain
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{PROJECT_NAME}}-prod-cert
+  namespace: {{PROJECT_NAME}}-prod
+spec:
+  secretName: {{PROJECT_NAME}}-prod-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+  - {{PROJECT_NAME}}.com
+  - www.{{PROJECT_NAME}}.com
+---
+# RBAC for production environment
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: {{PROJECT_NAME}}-prod
+  name: {{PROJECT_NAME}}-prod-role
+rules:
+- apiGroups: [""]
+  resources: ["configmaps", "secrets"]
+  verbs: ["get", "list"]
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list", "update", "patch"]
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["get", "list", "create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{PROJECT_NAME}}-prod-rolebinding
+  namespace: {{PROJECT_NAME}}-prod
+subjects:
+- kind: ServiceAccount
+  name: {{PROJECT_NAME}}-prod-sa
+  namespace: {{PROJECT_NAME}}-prod
+roleRef:
+  kind: Role
+  name: {{PROJECT_NAME}}-prod-role
+  apiGroup: rbac.authorization.k8s.io
+---
+# External Secret for production credentials
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: {{PROJECT_NAME}}-prod-external-secret
+  namespace: {{PROJECT_NAME}}-prod
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: aws-secrets-manager-prod
+    kind: ClusterSecretStore
+  target:
+    name: {{PROJECT_NAME}}-prod-external-secrets
+    creationPolicy: Owner
+    template:
+      type: Opaque
+      engineVersion: v2
+      data:
+        database-url: "mysql://{{ .username }}:{{ .password }}@{{ .endpoint }}:3306/{{PROJECT_NAME}}_production"
+  data:
+  - secretKey: username
+    remoteRef:
+      key: {{PROJECT_NAME}}/production/database
+      property: username
+  - secretKey: password
+    remoteRef:
+      key: {{PROJECT_NAME}}/production/database
+      property: password
+  - secretKey: endpoint
+    remoteRef:
+      key: {{PROJECT_NAME}}/production/database
+      property: endpoint
+  - secretKey: redis-password
+    remoteRef:
+      key: {{PROJECT_NAME}}/production/redis
+      property: password
+  - secretKey: jwt-secret
+    remoteRef:
+      key: {{PROJECT_NAME}}/production/jwt
+      property: secret

@@ -1,0 +1,195 @@
+name: PR Quality Check
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+
+jobs:
+  validate-test-evidence:
+    runs-on: ubuntu-latest
+    name: Validate Test Evidence
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-cov
+        
+    - name: Check for new test files
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const { execSync } = require('child_process');
+          
+          try {
+            // Get list of changed files
+            const changedFiles = execSync('git diff --name-only origin/develop..HEAD', { encoding: 'utf8' })
+              .split('\n')
+              .filter(f => f.length > 0);
+            
+            const hasCodeChanges = changedFiles.some(file => 
+              file.endsWith('.py') && 
+              !file.startsWith('tests/') &&
+              file !== 'setup.py' &&
+              file !== 'conftest.py'
+            );
+            
+            const hasTestChanges = changedFiles.some(file => 
+              file.startsWith('tests/') && file.endsWith('.py')
+            );
+            
+            if (hasCodeChanges && !hasTestChanges) {
+              const pr = context.payload.pull_request;
+              await github.rest.issues.createComment({
+                issue_number: pr.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: `## 🚨 Test-Driven Development Alert
+                
+          **Code changes detected without corresponding test changes.**
+          
+          ### Changed Code Files:
+          ${changedFiles.filter(f => f.endsWith('.py') && !f.startsWith('tests/')).map(f => `- ${f}`).join('\n')}
+          
+          ### 📝 Action Required:
+          - Add tests for new/modified functionality
+          - Provide TDD evidence in PR description
+          - Document test-fail-pass-refactor cycle
+          
+          *This is a quality reminder - exceptional cases can be justified in PR description.*`
+              });
+              
+              console.log('⚠️ TDD reminder posted - not blocking merge');
+            } else {
+              console.log('✅ Test evidence validated or no code changes detected');
+            }
+          } catch (error) {
+            console.log('Could not validate test evidence:', error.message);
+            // Don't fail the check if we can't determine file changes
+          }
+          
+  validate-documentation-updates:
+    runs-on: ubuntu-latest
+    name: Validate Documentation Updates
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Check documentation updates
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const { execSync } = require('child_process');
+          const pr = context.payload.pull_request;
+          
+          try {
+            // Get list of changed files
+            const changedFiles = execSync('git diff --name-only origin/develop..HEAD', { encoding: 'utf8' })
+              .split('\n')
+              .filter(f => f.length > 0);
+            
+            const hasFeatureChanges = changedFiles.some(file => 
+              (file.endsWith('.py') && !file.startsWith('tests/')) ||
+              file.includes('src/') ||
+              file.includes('templates/')
+            );
+            
+            const hasDocUpdates = changedFiles.some(file =>
+              file.includes('README') ||
+              file.includes('docs/') ||
+              file.includes('CHANGELOG') ||
+              file.includes('AGENTS.md')
+            );
+            
+            if (hasFeatureChanges && !hasDocUpdates) {
+              await github.rest.issues.createComment({
+                issue_number: pr.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: `## 📚 Documentation Update Suggestion
+                
+          **Feature/code changes detected. Consider updating documentation:**
+          
+          ### 📝 Recommended Updates:
+          - [ ] **README.md** - If user-facing changes
+          - [ ] **CHANGELOG.md** - User-visible changes
+          - [ ] **AGENTS.md** - New patterns or AI context
+          - [ ] **User guides** - If new functionality added
+          
+          *This is a helpful reminder - not all changes require all documentation types.*`
+              });
+              
+              console.log('📚 Documentation reminder posted');
+            } else {
+              console.log('✅ Documentation check passed or no feature changes');
+            }
+          } catch (error) {
+            console.log('Could not validate documentation updates:', error.message);
+          }
+
+  validate-pr-content:
+    runs-on: ubuntu-latest
+    name: Validate PR Content Quality
+    
+    steps:
+    - name: Check PR content
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const pr = context.payload.pull_request;
+          const body = pr.body || '';
+          const title = pr.title || '';
+          
+          const suggestions = [];
+          
+          // Check for meaningful title
+          if (title.length < 10) {
+            suggestions.push('Consider a more descriptive PR title');
+          }
+          
+          // Check for basic PR content
+          if (body.length < 50) {
+            suggestions.push('Consider adding more details about the changes in the PR description');
+          }
+          
+          // Check for TDD keywords (flexible)
+          const tddKeywords = ['test', 'tdd', 'coverage', 'failing'];
+          const hasTddEvidence = tddKeywords.some(keyword => 
+            body.toLowerCase().includes(keyword)
+          );
+          
+          if (!hasTddEvidence && body.length > 100) {
+            suggestions.push('Consider mentioning test strategy or coverage for code changes');
+          }
+          
+          if (suggestions.length > 0) {
+            await github.rest.issues.createComment({
+              issue_number: pr.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## 💡 PR Quality Suggestions
+
+These are friendly suggestions to improve PR quality:
+
+${suggestions.map(s => `- ${s}`).join('\n')}
+
+*These are recommendations, not blocking requirements.*`
+            });
+            
+            console.log(`💡 ${suggestions.length} quality suggestions provided`);
+          } else {
+            console.log('✅ PR content quality looks good');
+          }

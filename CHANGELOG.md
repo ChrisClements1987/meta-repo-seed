@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **CRITICAL: Infrastructure as Code templates** - Complete infrastructure automation for 10-minute deployment
+  - Terraform configurations for AWS, Azure, GCP with production-ready modules
+  - Kubernetes manifests with security contexts, resource limits, and monitoring
+  - Docker multi-stage builds with development and production configurations
+  - Environment-specific configs (dev/staging/production) for scalable deployment
+- **TDD Development Process** - Mandatory test-driven development workflow enforcement
+  - Enhanced issue templates with explicit TDD acceptance criteria
+  - Updated PR templates requiring branch workflow compliance and TDD evidence
+  - AGENTS.md documentation of rigorous development process
 - Comprehensive audit documentation with 8-domain analysis
 - Reusable AI audit prompt template for future quality assessments
 - ADR research documentation and implementation guides

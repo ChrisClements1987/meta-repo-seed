@@ -1,0 +1,508 @@
+# {{PROJECT_NAME}} Staging Kubernetes Configuration
+# Production-like configuration for testing and validation
+# Enhanced monitoring and security with staging-appropriate resource limits
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{PROJECT_NAME}}-staging
+  labels:
+    environment: staging
+    project: {{PROJECT_NAME}}
+    managed-by: kubectl
+    monitoring: enabled
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{PROJECT_NAME}}-staging-config
+  namespace: {{PROJECT_NAME}}-staging
+data:
+  # Application Configuration
+  NODE_ENV: "staging"
+  APP_NAME: "{{PROJECT_NAME}}"
+  ENVIRONMENT: "staging"
+  PORT: "8000"
+  METRICS_PORT: "8080"
+  LOG_LEVEL: "info"
+  DEBUG: "false"
+  
+  # Database Configuration
+  DB_HOST: "{{PROJECT_NAME}}-staging-db.cluster-xyz.us-east-1.rds.amazonaws.com"
+  DB_PORT: "3306"
+  DB_NAME: "{{PROJECT_NAME}}_staging"
+  DB_POOL_SIZE: "15"
+  DB_SSL_MODE: "require"
+  
+  # Cache Configuration
+  REDIS_HOST: "{{PROJECT_NAME}}-staging-cache.abc123.use1.cache.amazonaws.com"
+  REDIS_PORT: "6379"
+  REDIS_DB: "0"
+  REDIS_SSL: "true"
+  
+  # Security Configuration
+  ENABLE_CORS: "true"
+  CORS_ORIGINS: "https://{{PROJECT_NAME}}-staging.com"
+  ENABLE_RATE_LIMITING: "true"
+  RATE_LIMIT_REQUESTS: "1000"
+  RATE_LIMIT_WINDOW: "3600"
+  
+  # Feature Flags
+  FEATURE_NEW_UI: "true"
+  FEATURE_BETA: "false"
+  FEATURE_ANALYTICS: "true"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{PROJECT_NAME}}-staging-secrets
+  namespace: {{PROJECT_NAME}}-staging
+  annotations:
+    kubernetes.io/service-account.name: {{PROJECT_NAME}}-staging-sa
+type: Opaque
+data:
+  # Base64 encoded secrets for staging
+  database-url: bXlzcWw6Ly9hZG1pbjpzdGFnaW5nLXBhc3N3b3JkQGRiOjMzMDYvc3RhZ2luZ19kYg==
+  database-password: c3RhZ2luZy1wYXNzd29yZA==
+  redis-password: c3RhZ2luZy1yZWRpcy1wYXNzd29yZA==
+  jwt-secret: c3RhZ2luZy1qd3Qtc2VjcmV0LWNoYW5nZS1tZS0zMi1jaGFycy1sb25n
+  api-key: c3RhZ2luZy1hcGkta2V5LXNlY3VyZQ==
+  oauth-client-secret: c3RhZ2luZy1vYXV0aC1jbGllbnQtc2VjcmV0
+  webhook-secret: c3RhZ2luZy13ZWJob29rLXNlY3JldA==
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{PROJECT_NAME}}-staging
+  namespace: {{PROJECT_NAME}}-staging
+  labels:
+    app: {{PROJECT_NAME}}
+    environment: staging
+    version: "1.0.0"
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: {{PROJECT_NAME}}
+      environment: staging
+  template:
+    metadata:
+      labels:
+        app: {{PROJECT_NAME}}
+        environment: staging
+        version: "1.0.0"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: {{PROJECT_NAME}}-staging-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+      - name: {{PROJECT_NAME}}
+        image: {{GITHUB_USERNAME}}/{{PROJECT_NAME}}:staging
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+          name: http
+        - containerPort: 8080
+          name: metrics
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: {{PROJECT_NAME}}-staging-secrets
+              key: database-url
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{PROJECT_NAME}}-staging-secrets
+              key: jwt-secret
+        - name: API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{PROJECT_NAME}}-staging-secrets
+              key: api-key
+        envFrom:
+        - configMapRef:
+            name: {{PROJECT_NAME}}-staging-config
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 5
+          failureThreshold: 30
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: logs
+          mountPath: /app/logs
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      - name: logs
+        emptyDir: {}
+      nodeSelector:
+        kubernetes.io/os: linux
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - {{PROJECT_NAME}}
+              topologyKey: kubernetes.io/hostname
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{PROJECT_NAME}}-staging-sa
+  namespace: {{PROJECT_NAME}}-staging
+  labels:
+    app: {{PROJECT_NAME}}
+    environment: staging
+automountServiceAccountToken: true
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{PROJECT_NAME}}-staging-service
+  namespace: {{PROJECT_NAME}}-staging
+  labels:
+    app: {{PROJECT_NAME}}
+    environment: staging
+spec:
+  selector:
+    app: {{PROJECT_NAME}}
+    environment: staging
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8000
+  - name: metrics
+    port: 8080
+    targetPort: 8080
+  type: ClusterIP
+---
+# Staging Ingress with SSL
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{PROJECT_NAME}}-staging-ingress
+  namespace: {{PROJECT_NAME}}-staging
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-staging"
+    nginx.ingress.kubernetes.io/rate-limit-connections: "50"
+    nginx.ingress.kubernetes.io/rate-limit-requests-per-minute: "500"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Frame-Options: DENY";
+      more_set_headers "X-Content-Type-Options: nosniff";
+      more_set_headers "X-XSS-Protection: 1; mode=block";
+spec:
+  tls:
+  - hosts:
+    - {{PROJECT_NAME}}-staging.com
+    secretName: {{PROJECT_NAME}}-staging-tls
+  rules:
+  - host: {{PROJECT_NAME}}-staging.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{PROJECT_NAME}}-staging-service
+            port:
+              number: 80
+---
+# HPA for Staging
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{PROJECT_NAME}}-staging-hpa
+  namespace: {{PROJECT_NAME}}-staging
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{PROJECT_NAME}}-staging
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+---
+# Pod Disruption Budget
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{PROJECT_NAME}}-staging-pdb
+  namespace: {{PROJECT_NAME}}-staging
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: {{PROJECT_NAME}}
+      environment: staging
+---
+# Resource Quota for Staging
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: {{PROJECT_NAME}}-staging-quota
+  namespace: {{PROJECT_NAME}}-staging
+spec:
+  hard:
+    requests.cpu: "4"
+    requests.memory: 4Gi
+    limits.cpu: "8"
+    limits.memory: 8Gi
+    pods: "20"
+    services: "10"
+    secrets: "15"
+    configmaps: "15"
+    persistentvolumeclaims: "5"
+---
+# Network Policy for Staging (More restrictive)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{PROJECT_NAME}}-staging-network-policy
+  namespace: {{PROJECT_NAME}}-staging
+spec:
+  podSelector:
+    matchLabels:
+      app: {{PROJECT_NAME}}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: {{PROJECT_NAME}}-staging
+    - podSelector: {}
+  - from: []
+    ports:
+    - protocol: TCP
+      port: 8000
+  egress:
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 53
+    - protocol: UDP
+      port: 53
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 80
+    - protocol: TCP
+      port: 443
+    - protocol: TCP
+      port: 3306
+    - protocol: TCP
+      port: 6379
+---
+# ServiceMonitor for Prometheus
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{PROJECT_NAME}}-staging-monitoring
+  namespace: {{PROJECT_NAME}}-staging
+  labels:
+    app: {{PROJECT_NAME}}
+    environment: staging
+spec:
+  selector:
+    matchLabels:
+      app: {{PROJECT_NAME}}
+      environment: staging
+  endpoints:
+  - port: metrics
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s
+  namespaceSelector:
+    matchNames:
+    - {{PROJECT_NAME}}-staging
+---
+# PrometheusRule for Staging Alerts
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{PROJECT_NAME}}-staging-alerts
+  namespace: {{PROJECT_NAME}}-staging
+  labels:
+    app: {{PROJECT_NAME}}
+    environment: staging
+spec:
+  groups:
+  - name: {{PROJECT_NAME}}.staging
+    rules:
+    - alert: HighCPUUsage
+      expr: cpu_usage_percent > 80
+      for: 5m
+      labels:
+        severity: warning
+        environment: staging
+      annotations:
+        summary: "High CPU usage on {{PROJECT_NAME}} staging"
+        description: "CPU usage is above 80% for more than 5 minutes"
+    
+    - alert: HighMemoryUsage
+      expr: memory_usage_percent > 85
+      for: 5m
+      labels:
+        severity: warning
+        environment: staging
+      annotations:
+        summary: "High memory usage on {{PROJECT_NAME}} staging"
+        description: "Memory usage is above 85% for more than 5 minutes"
+    
+    - alert: PodCrashLooping
+      expr: rate(kube_pod_container_status_restarts_total[15m]) > 0
+      for: 5m
+      labels:
+        severity: critical
+        environment: staging
+      annotations:
+        summary: "Pod is crash looping in {{PROJECT_NAME}} staging"
+        description: "Pod {{ $labels.pod }} is crash looping"
+---
+# Certificate for staging domain
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{PROJECT_NAME}}-staging-cert
+  namespace: {{PROJECT_NAME}}-staging
+spec:
+  secretName: {{PROJECT_NAME}}-staging-tls
+  issuerRef:
+    name: letsencrypt-staging
+    kind: ClusterIssuer
+  dnsNames:
+  - {{PROJECT_NAME}}-staging.com
+---
+# RBAC for staging environment
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: {{PROJECT_NAME}}-staging
+  name: {{PROJECT_NAME}}-staging-role
+rules:
+- apiGroups: [""]
+  resources: ["configmaps", "secrets"]
+  verbs: ["get", "list"]
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list", "update", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{PROJECT_NAME}}-staging-rolebinding
+  namespace: {{PROJECT_NAME}}-staging
+subjects:
+- kind: ServiceAccount
+  name: {{PROJECT_NAME}}-staging-sa
+  namespace: {{PROJECT_NAME}}-staging
+roleRef:
+  kind: Role
+  name: {{PROJECT_NAME}}-staging-role
+  apiGroup: rbac.authorization.k8s.io
+---
+# External Secret for database credentials (if using External Secrets Operator)
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: {{PROJECT_NAME}}-staging-external-secret
+  namespace: {{PROJECT_NAME}}-staging
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: aws-secrets-manager
+    kind: ClusterSecretStore
+  target:
+    name: {{PROJECT_NAME}}-staging-external-secrets
+    creationPolicy: Owner
+  data:
+  - secretKey: database-password
+    remoteRef:
+      key: {{PROJECT_NAME}}/staging/database
+      property: password
+  - secretKey: redis-password
+    remoteRef:
+      key: {{PROJECT_NAME}}/staging/redis
+      property: password
