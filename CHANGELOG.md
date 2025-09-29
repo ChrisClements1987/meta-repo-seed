@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **MEDIUM: Pre-commit Hooks & Code Formatting** - Automated code quality and formatting workflow
+  - Pre-commit hooks with black, isort, flake8, pydocstyle, and bandit for consistent code quality
+  - pyproject.toml configuration with tool settings and project metadata
+  - Cross-platform setup script for easy developer environment configuration
+  - Requirements file for all formatting and quality dependencies
 - **CRITICAL: Infrastructure as Code templates** - Complete infrastructure automation for 10-minute deployment
   - Terraform configurations for AWS, Azure, GCP with production-ready modules
   - Kubernetes manifests with security contexts, resource limits, and monitoring

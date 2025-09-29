@@ -34,6 +34,8 @@
 - **Main Entry**: `seeding.py` - Core seeding script with `RepoSeeder` class for idempotent project structure creation
 - **Modules**: `src/structure_parser/` (JSON schema validation), `src/automation/` (automation scripts), `src/meta_repo_seed/` (core package)
 - **Templates**: `templates/` directory with Jinja2-style variable replacement ({{PROJECT_NAME}}, {{GITHUB_USERNAME}})
+  - `templates/infrastructure/` - Infrastructure as Code templates (Terraform, K8s, Docker)
+  - `templates/code-formatting/` - Pre-commit hooks and code quality configurations
 - **Config**: Supports YAML/JSON config files for reusable project configurations
 - **Testing**: pytest with coverage, markers for unit/integration/github/slow/network tests
 
