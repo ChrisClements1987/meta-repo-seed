@@ -34,9 +34,15 @@ def run_command(cmd, dry_run=False, verbose=False):
         return True
         
     try:
+        # Split command for security (avoid shell=True)
+        if isinstance(cmd, str):
+            import shlex
+            cmd_list = shlex.split(cmd)
+        else:
+            cmd_list = cmd
+            
         result = subprocess.run(
-            cmd, 
-            shell=True, 
+            cmd_list, 
             check=True, 
             capture_output=not verbose,
             text=True
