@@ -648,6 +648,7 @@ class RepoSeeder:
         self.create_infrastructure_templates()
         self.setup_code_formatting()
         self.create_github_repository_settings()
+        self.create_audit_management_system()
         
         logger.info("Repository seeding completed successfully!")
     
@@ -1389,6 +1390,103 @@ if __name__ == "__main__":
             logger.info(f"    🔧 Automation script: {script_dest_path}")
             logger.info(f"    🤖 GitHub workflow: {workflow_dest_path}")
             logger.info("    💡 Run 'python scripts/apply-github-settings.py' to configure your repository")
+
+    def create_audit_management_system(self):
+        """Create comprehensive audit management system for AI agent coordination.
+        
+        Creates a complete audit management framework including:
+        - Central audit registry for tracking audit status and findings
+        - AI agent coordination configurations for specialized audit domains
+        - Standardized audit templates for consistent reporting
+        - Automation scripts for audit execution and GitHub issue creation
+        - Progress tracking system from audit findings to implementation
+        """
+        if not self.dry_run:
+            logger.info("🔍 Creating audit management and AI agent coordination system...")
+        
+        # Create audit management directory structure
+        audits_path = self.meta_repo_path / 'audits'
+        reports_path = audits_path / 'reports'
+        templates_path = audits_path / 'templates'
+        tracking_path = audits_path / 'tracking'
+        agents_path = audits_path / 'agents'
+        scripts_path = self.meta_repo_path / 'scripts'
+        
+        if not self.dry_run:
+            ensure_directory_exists(audits_path, "Audit management directory")
+            ensure_directory_exists(reports_path, "Audit reports directory")
+            ensure_directory_exists(templates_path, "Audit templates directory")
+            ensure_directory_exists(tracking_path, "Audit tracking directory")
+            ensure_directory_exists(agents_path, "AI agent configurations directory")
+            ensure_directory_exists(scripts_path, "Scripts directory")
+        
+        # Create central audit registry
+        registry_template_path = self.templates_dir / 'audit-management' / 'audit-registry.yaml'
+        registry_dest_path = audits_path / 'audit-registry.yaml'
+        if not self.dry_run:
+            create_file_from_template(registry_template_path, registry_dest_path, self.replacements, "(audit registry)")
+        
+        # Create AI agent coordination configs
+        agent_configs = [
+            'security-agent.yaml',
+            'code-quality-agent.yaml',
+            'architecture-agent.yaml',
+            'business-agent.yaml'
+        ]
+        
+        for agent_config in agent_configs:
+            template_path = self.templates_dir / 'audit-management' / 'agents' / agent_config
+            dest_path = agents_path / agent_config
+            if not self.dry_run:
+                create_file_from_template(template_path, dest_path, self.replacements, f"(agent config: {agent_config})")
+        
+        # Create audit templates
+        audit_templates = [
+            'security-audit-template.md',
+            'code-quality-audit-template.md',
+            'architecture-audit-template.md',
+            'business-audit-template.md',
+            'comprehensive-audit-template.md'
+        ]
+        
+        for template_name in audit_templates:
+            template_path = self.templates_dir / 'audit-management' / 'templates' / template_name
+            dest_path = templates_path / template_name
+            if not self.dry_run:
+                create_file_from_template(template_path, dest_path, self.replacements, f"(audit template: {template_name})")
+        
+        # Create automation scripts
+        script_files = [
+            'audit-manager.py',
+            'audit-coordinator.py',
+            'audit-to-issues.py'
+        ]
+        
+        for script_name in script_files:
+            template_path = self.templates_dir / 'audit-management' / 'scripts' / script_name
+            dest_path = scripts_path / script_name
+            if not self.dry_run:
+                create_file_from_template(template_path, dest_path, self.replacements, f"(audit script: {script_name})")
+        
+        # Create tracking files
+        tracking_files = [
+            ('audit-history.json', tracking_path / 'audit-history.json'),
+            ('implementation-status.yaml', tracking_path / 'implementation-status.yaml')
+        ]
+        
+        for template_name, dest_path in tracking_files:
+            template_path = self.templates_dir / 'audit-management' / 'tracking' / template_name
+            if not self.dry_run:
+                create_file_from_template(template_path, dest_path, self.replacements, f"(audit tracking: {template_name})")
+        
+        if not self.dry_run:
+            logger.info("✅ Audit management system created successfully!")
+            logger.info(f"    📊 Audit registry: {registry_dest_path}")
+            logger.info(f"    🤖 AI agent configs: {agents_path}")
+            logger.info(f"    📋 Audit templates: {templates_path}")
+            logger.info(f"    🔧 Automation scripts: {scripts_path}")
+            logger.info(f"    📈 Progress tracking: {tracking_path}")
+            logger.info("    💡 Run 'python scripts/audit-manager.py' to coordinate audits")
 
 
 # Global logger will be initialized in main()
