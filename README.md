@@ -10,8 +10,6 @@ An idempotent, cross-platform script for creating standardized project structure
 
 This seeding system creates a complete organizational structure for managing multiple repositories, projects, and teams. It establishes governance frameworks, automation pipelines, and documentation standards that scale across your entire organization.
 
-> **🎯 [Project North Star](docs/PROJECT_NORTH_STAR.md)** - Our vision and guiding principles for this tool
-
 ## 🏗️ What It Creates
 
 ### Project Structure
@@ -36,6 +34,7 @@ your-project/
 ```
 
 ### Generated Content
+- **Infrastructure as Code**: Terraform, Kubernetes, Docker configurations for 10-minute deployment
 - **Governance Policies**: Contributing guidelines, code of conduct, security policies
 - **Process Documentation**: Onboarding, code review, release management
 - **Standards**: Coding, documentation, testing, security standards
@@ -202,20 +201,13 @@ meta-repo-seed/
 │   ├── create_roadmap_issues.py # GitHub issue creation
 │   ├── map_issues_to_roadmap.py # Issue-roadmap linking
 │   └── README.md              # Scripts documentation
-├── templates/             # Template files for project generation
-│   ├── governance/        # Governance templates
+├── templates/             # All template files for project generation
 │   ├── github/workflows/  # GitHub Actions templates  
-│   ├── cloud-storage/     # Cloud integration templates
+│   ├── governance/        # Governance document templates
+│   ├── cloud-storage/     # Strategy and architecture templates
 │   └── documentation/     # Documentation templates
 ├── TEMPLATES.md           # Template documentation
-└── seeding.py            # Main seeding script
-├── seeding.py              # Main seeding script
-├── templates/              # All template files
-│   ├── github/             # GitHub workflow templates
-│   ├── governance/         # Governance document templates
-│   ├── cloud-storage/      # Strategy and architecture templates
-│   └── documentation/      # Documentation templates
-├── TEMPLATES.md           # Template documentation
+├── seeding.py            # Main seeding script
 └── README.md              # This file
 ```
 
@@ -269,13 +261,6 @@ PRs **CANNOT** be merged without:
 5. ✅ Automated quality checks passing
 
 *These requirements ensure code quality, maintainability, and team collaboration standards.*
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature-name`
-3. Make your changes and test thoroughly
-4. Submit a pull request with clear description
 
 ## 📄 License
 

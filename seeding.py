@@ -645,6 +645,7 @@ class RepoSeeder:
         self.create_automation_scripts()
         self.setup_documentation()
         self.create_template_content()
+        self.create_infrastructure_templates()
         
         logger.info("Repository seeding completed successfully!")
     
@@ -1165,6 +1166,122 @@ if __name__ == "__main__":
             template_path = self.templates_dir / 'governance' / 'shared-resources' / 'templates' / template_name
             dest_path = templates_path / template_name.replace('.template', '')
             create_file_from_template(template_path, dest_path, self.replacements, f"(template: {template_name})")
+
+    def create_infrastructure_templates(self):
+        """Create Infrastructure as Code templates for 10-minute deployment.
+        
+        Creates comprehensive infrastructure templates including:
+        - Terraform configurations for multiple cloud providers
+        - Kubernetes manifests for container orchestration
+        - Docker configurations for containerization
+        - Environment-specific configurations (dev/staging/production)
+        """
+        if not self.dry_run:
+            logger.info("📦 Creating Infrastructure as Code templates...")
+        
+        infrastructure_path = self.meta_repo_path / 'infrastructure'
+        if not self.dry_run:
+            ensure_directory_exists(infrastructure_path, "Infrastructure as Code root directory")
+        
+        # Create main directory structure
+        terraform_path = infrastructure_path / 'terraform'
+        kubernetes_path = infrastructure_path / 'kubernetes'
+        docker_path = infrastructure_path / 'docker'
+        environments_path = infrastructure_path / 'environments'
+        
+        if not self.dry_run:
+            ensure_directory_exists(terraform_path, "Terraform configuration directory")
+            ensure_directory_exists(kubernetes_path, "Kubernetes manifests directory")
+            ensure_directory_exists(docker_path, "Docker configuration directory")
+            ensure_directory_exists(environments_path, "Environment configurations directory")
+        
+        # Create provider-specific directories
+        aws_terraform_path = terraform_path / 'aws'
+        azure_terraform_path = terraform_path / 'azure'
+        gcp_terraform_path = terraform_path / 'gcp'
+        
+        if not self.dry_run:
+            ensure_directory_exists(aws_terraform_path, "AWS Terraform modules")
+            ensure_directory_exists(azure_terraform_path, "Azure Terraform modules")
+            ensure_directory_exists(gcp_terraform_path, "GCP Terraform modules")
+        
+        # Create environment directories
+        if not self.dry_run:
+            for env in ['dev', 'staging', 'production']:
+                env_path = environments_path / env
+                ensure_directory_exists(env_path, f"{env.capitalize()} environment configuration")
+        
+        # Create main Terraform configuration files
+        terraform_templates = [
+            'main.tf',
+            'variables.tf',
+            'outputs.tf',
+            'providers.tf'
+        ]
+        
+        for template_name in terraform_templates:
+            template_path = self.templates_dir / 'infrastructure' / 'terraform' / template_name
+            dest_path = terraform_path / template_name
+            create_file_from_template(template_path, dest_path, self.replacements, f"(terraform: {template_name})")
+        
+        # Create provider-specific Terraform modules
+        provider_configs = [
+            ('aws', aws_terraform_path),
+            ('azure', azure_terraform_path),
+            ('gcp', gcp_terraform_path)
+        ]
+        
+        for provider, dest_path in provider_configs:
+            provider_template_path = self.templates_dir / 'infrastructure' / 'terraform' / provider / 'main.tf'
+            provider_dest_path = dest_path / 'main.tf'
+            create_file_from_template(provider_template_path, provider_dest_path, self.replacements, f"(terraform: {provider.upper()} infrastructure)")
+        
+        # Create Kubernetes manifests
+        kubernetes_templates = [
+            'namespace.yaml',
+            'deployment.yaml',
+            'service.yaml',
+            'ingress.yaml',
+            'configmap.yaml',
+            'secret.yaml'
+        ]
+        
+        for template_name in kubernetes_templates:
+            template_path = self.templates_dir / 'infrastructure' / 'kubernetes' / template_name
+            dest_path = kubernetes_path / template_name
+            create_file_from_template(template_path, dest_path, self.replacements, f"(kubernetes: {template_name})")
+        
+        # Create Docker configuration files
+        docker_templates = [
+            'Dockerfile.template',
+            'docker-compose.yml',
+            'docker-compose.prod.yml',
+            '.dockerignore'
+        ]
+        
+        for template_name in docker_templates:
+            template_path = self.templates_dir / 'infrastructure' / 'docker' / template_name
+            dest_path = docker_path / template_name
+            create_file_from_template(template_path, dest_path, self.replacements, f"(docker: {template_name})")
+        
+        # Create environment-specific configuration files
+        for env in ['dev', 'staging', 'production']:
+            # Terraform variables for each environment
+            tfvars_template_path = self.templates_dir / 'infrastructure' / 'environments' / env / 'terraform.tfvars'
+            tfvars_dest_path = environments_path / env / 'terraform.tfvars'
+            create_file_from_template(tfvars_template_path, tfvars_dest_path, self.replacements, f"(terraform vars: {env})")
+            
+            # Kubernetes configuration for each environment
+            k8s_template_path = self.templates_dir / 'infrastructure' / 'environments' / env / 'kubernetes.yaml'
+            k8s_dest_path = environments_path / env / 'kubernetes.yaml'
+            create_file_from_template(k8s_template_path, k8s_dest_path, self.replacements, f"(kubernetes config: {env})")
+        
+        if not self.dry_run:
+            logger.info("✅ Infrastructure as Code templates created successfully!")
+            logger.info(f"    📂 Terraform configurations: {terraform_path}")
+            logger.info(f"    📂 Kubernetes manifests: {kubernetes_path}")
+            logger.info(f"    📂 Docker configurations: {docker_path}")
+            logger.info(f"    📂 Environment configs: {environments_path}")
 
 
 # Global logger will be initialized in main()

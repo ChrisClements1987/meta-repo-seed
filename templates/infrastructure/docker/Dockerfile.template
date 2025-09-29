@@ -1,0 +1,240 @@
+# {{PROJECT_NAME}} Production Docker Image
+# Multi-stage build for optimized production deployment
+# Security-hardened container following best practices
+
+# Build stage
+FROM node:18-alpine AS builder
+LABEL stage=builder
+LABEL project={{PROJECT_NAME}}
+LABEL maintainer={{GITHUB_USERNAME}}
+
+# Set working directory
+WORKDIR /app
+
+# Install build dependencies
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    git
+
+# Copy package files
+COPY package*.json ./
+COPY yarn.lock* ./
+
+# Install dependencies
+RUN npm ci --only=production && \
+    npm cache clean --force
+
+# Copy source code
+COPY . .
+
+# Build application
+RUN npm run build
+
+# Remove development dependencies and unnecessary files
+RUN npm prune --production && \
+    rm -rf \
+    /app/src \
+    /app/tests \
+    /app/docs \
+    /app/.git \
+    /app/README.md \
+    /app/CHANGELOG.md \
+    /app/.env.example
+
+# Production stage
+FROM node:18-alpine AS production
+LABEL project={{PROJECT_NAME}}
+LABEL version=1.0.0
+LABEL description="{{PROJECT_NAME}} production container"
+LABEL maintainer={{GITHUB_USERNAME}}
+LABEL org.opencontainers.image.title="{{PROJECT_NAME}}"
+LABEL org.opencontainers.image.description="{{PROJECT_NAME}} application container"
+LABEL org.opencontainers.image.version="1.0.0"
+LABEL org.opencontainers.image.created="2024-01-01T00:00:00Z"
+LABEL org.opencontainers.image.source="https://github.com/{{GITHUB_USERNAME}}/{{PROJECT_NAME}}"
+LABEL org.opencontainers.image.licenses="MIT"
+
+# Install security updates and runtime dependencies
+RUN apk update && \
+    apk upgrade && \
+    apk add --no-cache \
+    tini \
+    curl \
+    ca-certificates \
+    tzdata && \
+    rm -rf /var/cache/apk/*
+
+# Create non-root user for security
+RUN addgroup -g 1001 -S {{PROJECT_NAME}} && \
+    adduser -S -D -H -u 1001 -s /sbin/nologin -G {{PROJECT_NAME}} {{PROJECT_NAME}}
+
+# Set working directory
+WORKDIR /app
+
+# Copy built application from builder stage
+COPY --from=builder --chown={{PROJECT_NAME}}:{{PROJECT_NAME}} /app/dist ./dist
+COPY --from=builder --chown={{PROJECT_NAME}}:{{PROJECT_NAME}} /app/node_modules ./node_modules
+COPY --from=builder --chown={{PROJECT_NAME}}:{{PROJECT_NAME}} /app/package.json ./
+COPY --from=builder --chown={{PROJECT_NAME}}:{{PROJECT_NAME}} /app/package-lock.json ./
+
+# Create necessary directories with proper permissions
+RUN mkdir -p /app/logs /app/tmp /app/uploads && \
+    chown -R {{PROJECT_NAME}}:{{PROJECT_NAME}} /app/logs /app/tmp /app/uploads && \
+    chmod 750 /app/logs /app/tmp /app/uploads
+
+# Copy entrypoint script
+COPY --chown={{PROJECT_NAME}}:{{PROJECT_NAME}} docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# Switch to non-root user
+USER {{PROJECT_NAME}}
+
+# Set environment variables
+ENV NODE_ENV=production \
+    APP_NAME={{PROJECT_NAME}} \
+    PORT=8000 \
+    METRICS_PORT=8080 \
+    TZ=UTC
+
+# Expose ports
+EXPOSE 8000 8080
+
+# Add health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Use tini as init system for proper signal handling
+ENTRYPOINT ["/sbin/tini", "--", "/usr/local/bin/docker-entrypoint.sh"]
+
+# Default command
+CMD ["node", "dist/index.js"]
+
+# Build-time metadata
+ARG BUILD_DATE
+ARG VCS_REF
+ARG VERSION
+
+LABEL org.opencontainers.image.created=$BUILD_DATE
+LABEL org.opencontainers.image.revision=$VCS_REF
+LABEL org.opencontainers.image.version=$VERSION
+
+# Security scan labels
+LABEL com.{{PROJECT_NAME}}.security.scan="true"
+LABEL com.{{PROJECT_NAME}}.environment="production"
+
+# Alternative Python Dockerfile template
+# FROM python:3.11-slim AS python-builder
+# LABEL stage=builder
+# LABEL project={{PROJECT_NAME}}
+# LABEL maintainer={{GITHUB_USERNAME}}
+# 
+# # Install build dependencies
+# RUN apt-get update && \
+#     apt-get install -y --no-install-recommends \
+#     build-essential \
+#     gcc \
+#     git && \
+#     rm -rf /var/lib/apt/lists/*
+# 
+# WORKDIR /app
+# 
+# # Copy requirements
+# COPY requirements*.txt ./
+# 
+# # Install Python dependencies
+# RUN pip install --no-cache-dir --upgrade pip && \
+#     pip install --no-cache-dir -r requirements.txt
+# 
+# # Production Python stage
+# FROM python:3.11-slim AS python-production
+# LABEL project={{PROJECT_NAME}}
+# LABEL version=1.0.0
+# LABEL description="{{PROJECT_NAME}} Python production container"
+# LABEL maintainer={{GITHUB_USERNAME}}
+# 
+# # Install runtime dependencies and security updates
+# RUN apt-get update && \
+#     apt-get upgrade -y && \
+#     apt-get install -y --no-install-recommends \
+#     tini \
+#     curl \
+#     ca-certificates && \
+#     rm -rf /var/lib/apt/lists/*
+# 
+# # Create non-root user
+# RUN groupadd -r {{PROJECT_NAME}} && \
+#     useradd -r -g {{PROJECT_NAME}} -d /app -s /sbin/nologin -c "Docker image user" {{PROJECT_NAME}}
+# 
+# WORKDIR /app
+# 
+# # Copy Python packages from builder
+# COPY --from=python-builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+# COPY --from=python-builder /usr/local/bin /usr/local/bin
+# 
+# # Copy application code
+# COPY --chown={{PROJECT_NAME}}:{{PROJECT_NAME}} . .
+# 
+# # Create directories
+# RUN mkdir -p /app/logs /app/tmp && \
+#     chown -R {{PROJECT_NAME}}:{{PROJECT_NAME}} /app
+# 
+# USER {{PROJECT_NAME}}
+# 
+# ENV PYTHONPATH=/app \
+#     PYTHONUNBUFFERED=1 \
+#     PYTHONDONTWRITEBYTECODE=1
+# 
+# EXPOSE 8000
+# 
+# HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+#     CMD curl -f http://localhost:8000/health || exit 1
+# 
+# ENTRYPOINT ["/usr/bin/tini", "--"]
+# CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+# Alternative Go Dockerfile template
+# FROM golang:1.21-alpine AS go-builder
+# LABEL stage=builder
+# LABEL project={{PROJECT_NAME}}
+# LABEL maintainer={{GITHUB_USERNAME}}
+# 
+# RUN apk add --no-cache git ca-certificates
+# 
+# WORKDIR /app
+# 
+# # Copy go mod files
+# COPY go.mod go.sum ./
+# 
+# # Download dependencies
+# RUN go mod download
+# 
+# # Copy source code
+# COPY . .
+# 
+# # Build the application
+# RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
+#     -ldflags='-w -s -extldflags "-static"' \
+#     -a -installsuffix cgo \
+#     -o {{PROJECT_NAME}} ./cmd/server
+# 
+# # Production Go stage
+# FROM scratch AS go-production
+# LABEL project={{PROJECT_NAME}}
+# LABEL version=1.0.0
+# LABEL description="{{PROJECT_NAME}} Go production container"
+# LABEL maintainer={{GITHUB_USERNAME}}
+# 
+# # Copy CA certificates
+# COPY --from=go-builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+# 
+# # Copy binary
+# COPY --from=go-builder /app/{{PROJECT_NAME}} /{{PROJECT_NAME}}
+# 
+# # Copy timezone data
+# COPY --from=go-builder /usr/share/zoneinfo /usr/share/zoneinfo
+# 
+# EXPOSE 8000
+# 
+# ENTRYPOINT ["/{{PROJECT_NAME}}"]

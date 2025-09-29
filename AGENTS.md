@@ -14,10 +14,21 @@
 - **Type Checking**: `mypy` (planned, not enforced yet)
 - **Formatting**: `black` (planned, not enforced yet)
 
-### Git Workflow
-- **New Feature**: `git checkout develop && git pull origin develop && git checkout -b feature/issue-X-desc`
+### Git Workflow - REQUIRED PROCESS
+- **Start Any Work**: `git checkout develop && git pull origin develop && git checkout -b feature/issue-X-desc`
+- **TDD Mandatory**: Write failing tests FIRST, then implement, then refactor
+- **Branch Naming**: `feature/issue-[number]-description` or `bugfix/issue-[number]-description`
 - **Create PR**: `gh pr create --base develop` (always target develop, never main)  
 - **Branch Cleanup**: Automated via GitHub settings, manual via `./scripts/cleanup-branches.sh`
+
+### Test-Driven Development (TDD) Process - MANDATORY
+1. **Update develop branch** - `git checkout develop && git pull origin develop`
+2. **Create feature branch** - `git checkout -b feature/issue-X-description`
+3. **Write failing tests FIRST** - Document test-fail-pass-refactor cycle in PR
+4. **Implement minimum code** - Make tests pass
+5. **Refactor** - Clean up implementation
+6. **Update documentation** - Guides, roadmap, changelog, AI context
+7. **Commit with clear messages** - Focused, logical commits
 
 ## Architecture
 - **Main Entry**: `seeding.py` - Core seeding script with `RepoSeeder` class for idempotent project structure creation
