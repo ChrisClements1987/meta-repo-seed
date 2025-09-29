@@ -646,6 +646,7 @@ class RepoSeeder:
         self.setup_documentation()
         self.create_template_content()
         self.create_infrastructure_templates()
+        self.setup_code_formatting()
         
         logger.info("Repository seeding completed successfully!")
     
@@ -1282,6 +1283,56 @@ if __name__ == "__main__":
             logger.info(f"    📂 Kubernetes manifests: {kubernetes_path}")
             logger.info(f"    📂 Docker configurations: {docker_path}")
             logger.info(f"    📂 Environment configs: {environments_path}")
+
+    def setup_code_formatting(self):
+        """Set up code formatting and pre-commit hooks for development workflow.
+        
+        Creates comprehensive code formatting configuration including:
+        - Pre-commit hooks for automated formatting and quality checks
+        - Black, isort, flake8 configurations for consistent code style
+        - pyproject.toml with tool configurations and project metadata
+        - Setup script for easy developer environment configuration
+        - Requirements file for formatting dependencies
+        """
+        if not self.dry_run:
+            logger.info("🎨 Setting up code formatting and pre-commit hooks...")
+        
+        # Create scripts directory if it doesn't exist
+        scripts_path = self.meta_repo_path / 'scripts'
+        if not self.dry_run:
+            ensure_directory_exists(scripts_path, "Scripts directory")
+        
+        # Create pre-commit configuration
+        precommit_template_path = self.templates_dir / 'code-formatting' / '.pre-commit-config.yaml'
+        precommit_dest_path = self.meta_repo_path / '.pre-commit-config.yaml'
+        if not self.dry_run:
+            create_file_from_template(precommit_template_path, precommit_dest_path, self.replacements, "(pre-commit config)")
+        
+        # Create pyproject.toml configuration
+        pyproject_template_path = self.templates_dir / 'code-formatting' / 'pyproject.toml'
+        pyproject_dest_path = self.meta_repo_path / 'pyproject.toml'
+        if not self.dry_run:
+            create_file_from_template(pyproject_template_path, pyproject_dest_path, self.replacements, "(pyproject.toml config)")
+        
+        # Create formatting requirements file
+        requirements_template_path = self.templates_dir / 'code-formatting' / 'requirements-formatting.txt'
+        requirements_dest_path = self.meta_repo_path / 'requirements-formatting.txt'
+        if not self.dry_run:
+            create_file_from_template(requirements_template_path, requirements_dest_path, self.replacements, "(formatting requirements)")
+        
+        # Create setup script
+        setup_script_template_path = self.templates_dir / 'code-formatting' / 'setup-formatting.py'
+        setup_script_dest_path = scripts_path / 'setup-formatting.py'
+        if not self.dry_run:
+            create_file_from_template(setup_script_template_path, setup_script_dest_path, self.replacements, "(formatting setup script)")
+        
+        if not self.dry_run:
+            logger.info("✅ Code formatting setup completed successfully!")
+            logger.info(f"    📋 Pre-commit config: {precommit_dest_path}")
+            logger.info(f"    ⚙️  Project config: {pyproject_dest_path}")
+            logger.info(f"    📦 Requirements: {requirements_dest_path}")
+            logger.info(f"    🔧 Setup script: {setup_script_dest_path}")
+            logger.info("    💡 Run 'python scripts/setup-formatting.py' to configure your environment")
 
 
 # Global logger will be initialized in main()
