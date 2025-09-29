@@ -1,0 +1,11 @@
+# Runtime dependencies for Meta-Repo Seed
+# Pinned versions for reproducible builds and security compliance
+
+# Configuration file support
+PyYAML==6.0.2
+
+# JSON Schema validation  
+jsonschema==4.25.1
+
+# Path and file operations (if needed beyond stdlib)
+# Note: Core functionality uses only Python stdlib for maximum compatibility
