@@ -647,6 +647,7 @@ class RepoSeeder:
         self.create_template_content()
         self.create_infrastructure_templates()
         self.setup_code_formatting()
+        self.create_github_repository_settings()
         
         logger.info("Repository seeding completed successfully!")
     
@@ -1333,6 +1334,61 @@ if __name__ == "__main__":
             logger.info(f"    📦 Requirements: {requirements_dest_path}")
             logger.info(f"    🔧 Setup script: {setup_script_dest_path}")
             logger.info("    💡 Run 'python scripts/setup-formatting.py' to configure your environment")
+
+    def create_github_repository_settings(self):
+        """Create GitHub Repository Settings as Code for automated governance.
+        
+        Creates comprehensive GitHub repository automation including:
+        - Repository settings configuration for governance and security
+        - Branch protection rules for code quality enforcement
+        - Standardized labels for issue and PR management
+        - Automation scripts for applying settings via GitHub CLI/API
+        - GitHub Actions workflow for automated settings application
+        """
+        if not self.dry_run:
+            logger.info("⚙️ Creating GitHub Repository Settings as Code...")
+        
+        # Ensure .github directory exists
+        github_path = self.meta_repo_path / '.github'
+        scripts_path = self.meta_repo_path / 'scripts'
+        workflows_path = github_path / 'workflows'
+        
+        if not self.dry_run:
+            ensure_directory_exists(github_path, "GitHub configuration directory")
+            ensure_directory_exists(scripts_path, "Scripts directory")
+            ensure_directory_exists(workflows_path, "GitHub workflows directory")
+        
+        # Create repository settings configuration
+        settings_template_path = self.templates_dir / 'github-settings' / 'repository-settings.yml'
+        settings_dest_path = github_path / 'repository-settings.yml'
+        if not self.dry_run:
+            create_file_from_template(settings_template_path, settings_dest_path, self.replacements, "(repository settings)")
+        
+        # Create labels configuration
+        labels_template_path = self.templates_dir / 'github-settings' / 'labels.yml'
+        labels_dest_path = github_path / 'labels.yml'
+        if not self.dry_run:
+            create_file_from_template(labels_template_path, labels_dest_path, self.replacements, "(repository labels)")
+        
+        # Create automation script
+        script_template_path = self.templates_dir / 'github-settings' / 'apply-github-settings.py'
+        script_dest_path = scripts_path / 'apply-github-settings.py'
+        if not self.dry_run:
+            create_file_from_template(script_template_path, script_dest_path, self.replacements, "(GitHub settings automation)")
+        
+        # Create GitHub Actions workflow
+        workflow_template_path = self.templates_dir / 'github-settings' / 'repository-settings-workflow.yml'
+        workflow_dest_path = workflows_path / 'repository-settings.yml'
+        if not self.dry_run:
+            create_file_from_template(workflow_template_path, workflow_dest_path, self.replacements, "(repository settings workflow)")
+        
+        if not self.dry_run:
+            logger.info("✅ GitHub Repository Settings as Code created successfully!")
+            logger.info(f"    ⚙️  Repository settings: {settings_dest_path}")
+            logger.info(f"    🏷️  Labels configuration: {labels_dest_path}")
+            logger.info(f"    🔧 Automation script: {script_dest_path}")
+            logger.info(f"    🤖 GitHub workflow: {workflow_dest_path}")
+            logger.info("    💡 Run 'python scripts/apply-github-settings.py' to configure your repository")
 
 
 # Global logger will be initialized in main()
