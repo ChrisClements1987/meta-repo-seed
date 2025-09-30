@@ -110,6 +110,29 @@ body:
       required: false
 
   - type: textarea
+    id: fix-acceptance-criteria
+    attributes:
+      label: 🧪 Fix Acceptance Criteria
+      description: Test-driven development requirements for bug fix
+      placeholder: |
+        - [ ] Bug reproduced with failing test
+        - [ ] Fix implemented 
+        - [ ] All tests passing
+      value: |
+        ## 🧪 Test-Driven Development (TDD) Requirements:
+        - [ ] **Reproduction test written FIRST** - Failing test that demonstrates the bug
+        - [ ] **Fix implemented** - Minimal code change to make test pass
+        - [ ] **Regression test coverage** - Ensure bug doesn't reoccur
+        - [ ] **All tests passing** - No new failures introduced
+        
+        ## 📚 Documentation Requirements:
+        - [ ] **Bug documented** - Add to changelog if user-facing
+        - [ ] **Test documentation** - Comment complex test scenarios
+        - [ ] **AI context updated** - AGENTS.md if new patterns introduced
+    validations:
+      required: true
+
+  - type: textarea
     id: additional-context
     attributes:
       label: 📋 Additional Context

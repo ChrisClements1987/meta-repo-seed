@@ -99,10 +99,19 @@ body:
         - [ ] Documentation updated
         - [ ] No regression in functionality
       value: |
+        ## 🧪 Test-Driven Development (TDD) Requirements:
+        - [ ] **Tests written/updated FIRST** - Before any refactoring or code changes
+        - [ ] **Test coverage maintained** - No reduction in overall test coverage
+        - [ ] **Regression prevention** - All existing tests continue passing
+        - [ ] **New test coverage** - Additional tests for improved code paths
+        
+        ## 📝 Implementation Requirements:
         - [ ] Technical debt addressed according to proposed solution
         - [ ] Code quality improved (linting, structure, readability)
-        - [ ] Tests updated or added to cover changes
-        - [ ] Documentation updated if needed
         - [ ] No functional regressions introduced
+        
+        ## 📚 Documentation Requirements:
+        - [ ] Documentation updated if needed
+        - [ ] AI context updated if patterns change
     validations:
       required: true
