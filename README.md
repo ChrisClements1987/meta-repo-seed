@@ -277,15 +277,24 @@ Current Version: **1.0.0**
 
 We welcome contributions! Here's how you can help:
 
+### 🚨 **CRITICAL: All Code-Related Issues Must Include TDD Requirements**
+
+**Before creating any issue involving code changes:**
+1. **Read**: [Creating Issues Guide](docs/development/creating-issues.md) 
+2. **Use proper templates** - They enforce mandatory TDD acceptance criteria
+3. **Include test strategy** - How changes will be tested and verified
+
 ### 💡 Suggesting Features
 1. **Check existing issues** and roadmap first
-2. **Create a feature request** using our GitHub issue template
+2. **Use our feature request template** - Includes mandatory TDD requirements
 3. **Join the discussion** - we value community input on feature design
+4. **Include test strategy** - How the feature will be tested
 
 ### 🐛 Reporting Bugs  
-1. **Use our bug report template** for consistent information
+1. **Use our bug report template** - Includes mandatory TDD fix criteria
 2. **Include reproduction steps** and environment details
 3. **Check for existing reports** to avoid duplicates
+4. **Include test requirements** - How the fix will be verified
 
 ### 🔧 Development Process
 1. **Read the [Contributing Guide](docs/development/contributing.md)** for detailed contribution guidelines
