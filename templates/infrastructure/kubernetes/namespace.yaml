@@ -1,0 +1,116 @@
+# {{PROJECT_NAME}} Kubernetes Namespace
+# This namespace isolates all {{PROJECT_NAME}} resources in the cluster
+# Part of Business-in-a-Box deployment infrastructure
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{PROJECT_NAME}}
+  labels:
+    name: {{PROJECT_NAME}}
+    app: {{PROJECT_NAME}}
+    project: {{PROJECT_NAME}}
+    managed-by: terraform
+    created-by: {{GITHUB_USERNAME}}
+  annotations:
+    description: "{{PROJECT_NAME}} application namespace"
+    contact: "{{GITHUB_USERNAME}}"
+    version: "1.0.0"
+spec:
+  # Optional: Add resource quotas to prevent resource exhaustion
+  # Uncomment and customize based on your needs
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: {{PROJECT_NAME}}-resource-quota
+  namespace: {{PROJECT_NAME}}
+  labels:
+    app: {{PROJECT_NAME}}
+    project: {{PROJECT_NAME}}
+spec:
+  hard:
+    # Compute resources
+    requests.cpu: "2"
+    requests.memory: 4Gi
+    limits.cpu: "4"
+    limits.memory: 8Gi
+    
+    # Storage resources
+    requests.storage: 10Gi
+    
+    # Object counts
+    pods: "10"
+    services: "5"
+    secrets: "10"
+    configmaps: "10"
+    persistentvolumeclaims: "5"
+    
+    # Network resources
+    services.loadbalancers: "2"
+    services.nodeports: "0"
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: {{PROJECT_NAME}}-limit-range
+  namespace: {{PROJECT_NAME}}
+  labels:
+    app: {{PROJECT_NAME}}
+    project: {{PROJECT_NAME}}
+spec:
+  limits:
+  - default:
+      cpu: 500m
+      memory: 512Mi
+    defaultRequest:
+      cpu: 100m
+      memory: 128Mi
+    type: Container
+  - default:
+      storage: 1Gi
+    type: PersistentVolumeClaim
+---
+# Network Policy for enhanced security (if CNI supports it)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{PROJECT_NAME}}-network-policy
+  namespace: {{PROJECT_NAME}}
+  labels:
+    app: {{PROJECT_NAME}}
+    project: {{PROJECT_NAME}}
+spec:
+  podSelector:
+    matchLabels:
+      app: {{PROJECT_NAME}}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: {{PROJECT_NAME}}
+    - podSelector: {}
+  - from: []
+    ports:
+    - protocol: TCP
+      port: 8000
+  egress:
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 53
+    - protocol: UDP
+      port: 53
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 80
+    - protocol: TCP
+      port: 443
+    - protocol: TCP
+      port: 3306
+    - protocol: TCP
+      port: 5432

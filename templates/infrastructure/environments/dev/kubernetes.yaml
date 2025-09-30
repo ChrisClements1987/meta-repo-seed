@@ -1,0 +1,399 @@
+# {{PROJECT_NAME}} Development Kubernetes Configuration
+# Resource limits and configurations optimized for development
+# Cost-effective settings with debugging capabilities enabled
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{PROJECT_NAME}}-dev
+  labels:
+    environment: development
+    project: {{PROJECT_NAME}}
+    managed-by: kubectl
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{PROJECT_NAME}}-dev-config
+  namespace: {{PROJECT_NAME}}-dev
+data:
+  # Application Configuration
+  NODE_ENV: "development"
+  APP_NAME: "{{PROJECT_NAME}}"
+  ENVIRONMENT: "dev"
+  PORT: "8000"
+  METRICS_PORT: "8080"
+  LOG_LEVEL: "debug"
+  DEBUG: "true"
+  
+  # Database Configuration
+  DB_HOST: "mysql-dev"
+  DB_PORT: "3306"
+  DB_NAME: "{{PROJECT_NAME}}_dev"
+  DB_POOL_SIZE: "5"
+  
+  # Cache Configuration
+  REDIS_HOST: "redis-dev"
+  REDIS_PORT: "6379"
+  REDIS_DB: "0"
+  
+  # Development Features
+  ENABLE_HOT_RELOAD: "true"
+  ENABLE_DEBUG_ROUTES: "true"
+  MOCK_EXTERNAL_APIS: "true"
+  DISABLE_RATE_LIMITING: "true"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{PROJECT_NAME}}-dev-secrets
+  namespace: {{PROJECT_NAME}}-dev
+type: Opaque
+data:
+  # Base64 encoded secrets for development
+  database-password: ZGV2LXBhc3N3b3Jk  # dev-password
+  redis-password: ZGV2LXJlZGlz        # dev-redis
+  jwt-secret: ZGV2LWp3dC1zZWNyZXQ=    # dev-jwt-secret
+  api-key: ZGV2LWFwaS1rZXk=           # dev-api-key
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{PROJECT_NAME}}-dev
+  namespace: {{PROJECT_NAME}}-dev
+  labels:
+    app: {{PROJECT_NAME}}
+    environment: development
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{PROJECT_NAME}}
+      environment: development
+  template:
+    metadata:
+      labels:
+        app: {{PROJECT_NAME}}
+        environment: development
+    spec:
+      containers:
+      - name: {{PROJECT_NAME}}
+        image: {{GITHUB_USERNAME}}/{{PROJECT_NAME}}:dev
+        ports:
+        - containerPort: 8000
+        - containerPort: 8080
+        - containerPort: 9229  # Debug port
+        env:
+        - name: DATABASE_URL
+          value: "mysql://admin:$(DATABASE_PASSWORD)@mysql-dev:3306/{{PROJECT_NAME}}_dev"
+        - name: DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{PROJECT_NAME}}-dev-secrets
+              key: database-password
+        envFrom:
+        - configMapRef:
+            name: {{PROJECT_NAME}}-dev-config
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{PROJECT_NAME}}-dev-service
+  namespace: {{PROJECT_NAME}}-dev
+spec:
+  selector:
+    app: {{PROJECT_NAME}}
+    environment: development
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8000
+  - name: metrics
+    port: 8080
+    targetPort: 8080
+  - name: debug
+    port: 9229
+    targetPort: 9229
+  type: ClusterIP
+---
+# Development Database
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-dev
+  namespace: {{PROJECT_NAME}}-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+      environment: development
+  template:
+    metadata:
+      labels:
+        app: mysql
+        environment: development
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8.0
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "rootpassword"
+        - name: MYSQL_DATABASE
+          value: "{{PROJECT_NAME}}_dev"
+        - name: MYSQL_USER
+          value: "admin"
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{PROJECT_NAME}}-dev-secrets
+              key: database-password
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - name: mysql-data
+          mountPath: /var/lib/mysql
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+      volumes:
+      - name: mysql-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-dev
+  namespace: {{PROJECT_NAME}}-dev
+spec:
+  selector:
+    app: mysql
+    environment: development
+  ports:
+  - port: 3306
+    targetPort: 3306
+  type: ClusterIP
+---
+# Development Redis
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-dev
+  namespace: {{PROJECT_NAME}}-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+      environment: development
+  template:
+    metadata:
+      labels:
+        app: redis
+        environment: development
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-dev
+  namespace: {{PROJECT_NAME}}-dev
+spec:
+  selector:
+    app: redis
+    environment: development
+  ports:
+  - port: 6379
+    targetPort: 6379
+  type: ClusterIP
+---
+# Development Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{PROJECT_NAME}}-dev-ingress
+  namespace: {{PROJECT_NAME}}-dev
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"  # Allow HTTP for dev
+spec:
+  rules:
+  - host: {{PROJECT_NAME}}-dev.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{PROJECT_NAME}}-dev-service
+            port:
+              number: 80
+---
+# Resource Quota for Development
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: {{PROJECT_NAME}}-dev-quota
+  namespace: {{PROJECT_NAME}}-dev
+spec:
+  hard:
+    requests.cpu: "2"
+    requests.memory: 2Gi
+    limits.cpu: "4"
+    limits.memory: 4Gi
+    pods: "10"
+    services: "5"
+    secrets: "10"
+    configmaps: "10"
+---
+# Development Tools - Adminer (Database Admin)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adminer-dev
+  namespace: {{PROJECT_NAME}}-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: adminer
+  template:
+    metadata:
+      labels:
+        app: adminer
+    spec:
+      containers:
+      - name: adminer
+        image: adminer:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: ADMINER_DEFAULT_SERVER
+          value: "mysql-dev"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: adminer-dev
+  namespace: {{PROJECT_NAME}}-dev
+spec:
+  selector:
+    app: adminer
+  ports:
+  - port: 8080
+    targetPort: 8080
+  type: ClusterIP
+---
+# Development Ingress for Adminer
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: adminer-dev-ingress
+  namespace: {{PROJECT_NAME}}-dev
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+  - host: adminer-{{PROJECT_NAME}}-dev.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: adminer-dev
+            port:
+              number: 8080
+---
+# Development ServiceMonitor for Prometheus
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{PROJECT_NAME}}-dev-monitoring
+  namespace: {{PROJECT_NAME}}-dev
+  labels:
+    app: {{PROJECT_NAME}}
+    environment: development
+spec:
+  selector:
+    matchLabels:
+      app: {{PROJECT_NAME}}
+      environment: development
+  endpoints:
+  - port: metrics
+    path: /metrics
+    interval: 30s
+---
+# Development HPA (Horizontal Pod Autoscaler)
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{PROJECT_NAME}}-dev-hpa
+  namespace: {{PROJECT_NAME}}-dev
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{PROJECT_NAME}}-dev
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 80
+---
+# Development Network Policy (Permissive for development)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{PROJECT_NAME}}-dev-network-policy
+  namespace: {{PROJECT_NAME}}-dev
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - {}  # Allow all ingress
+  egress:
+  - {}  # Allow all egress

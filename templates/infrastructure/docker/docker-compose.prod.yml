@@ -1,0 +1,440 @@
+# {{PROJECT_NAME}} Production Docker Compose
+# Production-ready configuration with security hardening
+# Use: docker-compose -f docker-compose.prod.yml up -d
+
+version: '3.8'
+
+services:
+  # Main Application - Load Balanced
+  app:
+    image: {{GITHUB_USERNAME}}/{{PROJECT_NAME}}:${VERSION:-latest}
+    deploy:
+      replicas: 3
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      update_config:
+        parallelism: 1
+        delay: 30s
+        failure_action: rollback
+        order: start-first
+      rollback_config:
+        parallelism: 1
+        delay: 0s
+        failure_action: pause
+        order: stop-first
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    environment:
+      - NODE_ENV=production
+      - APP_NAME={{PROJECT_NAME}}
+      - PORT=8000
+      - METRICS_PORT=8080
+      - DATABASE_URL_FILE=/run/secrets/database_url
+      - REDIS_URL_FILE=/run/secrets/redis_url
+      - JWT_SECRET_FILE=/run/secrets/jwt_secret
+      - API_KEY_FILE=/run/secrets/api_key
+      - LOG_LEVEL=info
+      - DEBUG=false
+      - TRUST_PROXY=true
+    secrets:
+      - database_url
+      - redis_url
+      - jwt_secret
+      - api_key
+      - ssl_cert
+      - ssl_key
+    volumes:
+      - app-logs:/app/logs:rw
+      - app-uploads:/app/uploads:rw
+    networks:
+      - frontend
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      # Traefik configuration
+      - "traefik.enable=true"
+      - "traefik.docker.network=frontend"
+      
+      # HTTP to HTTPS redirect
+      - "traefik.http.routers.{{PROJECT_NAME}}-http.rule=Host(`{{PROJECT_NAME}}.com`) || Host(`www.{{PROJECT_NAME}}.com`)"
+      - "traefik.http.routers.{{PROJECT_NAME}}-http.entrypoints=web"
+      - "traefik.http.routers.{{PROJECT_NAME}}-http.middlewares=https-redirect"
+      
+      # HTTPS configuration
+      - "traefik.http.routers.{{PROJECT_NAME}}.rule=Host(`{{PROJECT_NAME}}.com`) || Host(`www.{{PROJECT_NAME}}.com`)"
+      - "traefik.http.routers.{{PROJECT_NAME}}.entrypoints=websecure"
+      - "traefik.http.routers.{{PROJECT_NAME}}.tls=true"
+      - "traefik.http.routers.{{PROJECT_NAME}}.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.{{PROJECT_NAME}}.middlewares=security-headers,rate-limit"
+      
+      # Load balancer configuration
+      - "traefik.http.services.{{PROJECT_NAME}}.loadbalancer.server.port=8000"
+      - "traefik.http.services.{{PROJECT_NAME}}.loadbalancer.healthcheck.path=/health"
+      - "traefik.http.services.{{PROJECT_NAME}}.loadbalancer.healthcheck.interval=30s"
+
+  # Reverse Proxy / Load Balancer
+  traefik:
+    image: traefik:v2.10
+    deploy:
+      replicas: 2
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - TRAEFIK_API_DASHBOARD=false
+      - TRAEFIK_LOG_LEVEL=INFO
+      - TRAEFIK_ACCESSLOG=true
+      - TRAEFIK_METRICS_PROMETHEUS=true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik-certs:/certs:rw
+    networks:
+      - frontend
+    configs:
+      - source: traefik-config
+        target: /etc/traefik/traefik.yml
+      - source: traefik-dynamic
+        target: /etc/traefik/dynamic.yml
+    secrets:
+      - ssl_cert
+      - ssl_key
+    command:
+      - "--api.dashboard=false"
+      - "--log.level=INFO"
+      - "--accesslog=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.swarmmode=true"
+      - "--providers.file.filename=/etc/traefik/dynamic.yml"
+      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.email=admin@{{PROJECT_NAME}}.com"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/certs/acme.json"
+      - "--metrics.prometheus=true"
+      - "--metrics.prometheus.buckets=0.1,0.3,1.2,5.0"
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck", "--ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "traefik.enable=false"
+
+  # Database (Production MySQL)
+  db:
+    image: mysql:8.0
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.database == true
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+    environment:
+      - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/mysql_root_password
+      - MYSQL_DATABASE={{PROJECT_NAME}}
+      - MYSQL_USER={{PROJECT_NAME}}_user
+      - MYSQL_PASSWORD_FILE=/run/secrets/mysql_user_password
+      - MYSQL_CHARSET=utf8mb4
+      - MYSQL_COLLATION=utf8mb4_unicode_ci
+    secrets:
+      - mysql_root_password
+      - mysql_user_password
+    volumes:
+      - db-data:/var/lib/mysql
+      - db-backups:/backups
+    networks:
+      - backend
+    configs:
+      - source: mysql-config
+        target: /etc/mysql/conf.d/custom.cnf
+    command: >
+      --default-authentication-plugin=mysql_native_password
+      --innodb-buffer-pool-size=1G
+      --innodb-log-file-size=256M
+      --max-connections=200
+      --slow-query-log=1
+      --slow-query-log-file=/var/log/mysql/slow.log
+      --long-query-time=2
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$(cat /run/secrets/mysql_root_password)"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # Redis Cache/Session Store
+  redis:
+    image: redis:7-alpine
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.cache == true
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    volumes:
+      - redis-data:/data
+    networks:
+      - backend
+    configs:
+      - source: redis-config
+        target: /usr/local/etc/redis/redis.conf
+    secrets:
+      - redis_password
+    command: redis-server /usr/local/etc/redis/redis.conf --requirepass "$(cat /run/secrets/redis_password)"
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "$(cat /run/secrets/redis_password)", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Database Backup Service
+  db-backup:
+    image: mysql:8.0
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_DATABASE={{PROJECT_NAME}}
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD_FILE=/run/secrets/mysql_root_password
+      - BACKUP_FREQUENCY=daily
+      - BACKUP_RETENTION_DAYS=30
+    secrets:
+      - mysql_root_password
+    volumes:
+      - db-backups:/backups
+    networks:
+      - backend
+    entrypoint: |
+      sh -c '
+      while true; do
+        echo "Starting backup at $$(date)"
+        mysqldump -h$$MYSQL_HOST -u$$MYSQL_USER -p$$(cat $$MYSQL_PASSWORD_FILE) $$MYSQL_DATABASE > /backups/backup-$$(date +%Y%m%d-%H%M%S).sql
+        find /backups -name "backup-*.sql" -mtime +$$BACKUP_RETENTION_DAYS -delete
+        echo "Backup completed at $$(date)"
+        sleep 86400  # 24 hours
+      done
+      '
+
+  # Monitoring - Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.monitoring == true
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    volumes:
+      - prometheus-data:/prometheus
+    networks:
+      - backend
+      - monitoring
+    configs:
+      - source: prometheus-config
+        target: /etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+
+  # Monitoring - Node Exporter
+  node-exporter:
+    image: prom/node-exporter:latest
+    deploy:
+      mode: global
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    networks:
+      - monitoring
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+
+  # Log Management
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.8.0
+    deploy:
+      mode: global
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+    user: root
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - app-logs:/app-logs:ro
+    networks:
+      - backend
+    configs:
+      - source: filebeat-config
+        target: /usr/share/filebeat/filebeat.yml
+    environment:
+      - ELASTICSEARCH_HOST=elasticsearch:9200
+
+# Networks
+networks:
+  frontend:
+    driver: overlay
+    attachable: true
+  backend:
+    driver: overlay
+    internal: true
+  monitoring:
+    driver: overlay
+    internal: true
+
+# Volumes
+volumes:
+  db-data:
+    driver: local
+  db-backups:
+    driver: local
+  redis-data:
+    driver: local
+  app-logs:
+    driver: local
+  app-uploads:
+    driver: local
+  traefik-certs:
+    driver: local
+  prometheus-data:
+    driver: local
+
+# Configs
+configs:
+  traefik-config:
+    external: true
+  traefik-dynamic:
+    external: true
+  mysql-config:
+    external: true
+  redis-config:
+    external: true
+  prometheus-config:
+    external: true
+  filebeat-config:
+    external: true
+
+# Secrets
+secrets:
+  database_url:
+    external: true
+  redis_url:
+    external: true
+  jwt_secret:
+    external: true
+  api_key:
+    external: true
+  ssl_cert:
+    external: true
+  ssl_key:
+    external: true
+  mysql_root_password:
+    external: true
+  mysql_user_password:
+    external: true
+  redis_password:
+    external: true
+
+# Production deployment commands:
+# 
+# 1. Create secrets:
+#    echo "mysql://user:pass@db:3306/{{PROJECT_NAME}}" | docker secret create database_url -
+#    echo "redis://redis:6379/0" | docker secret create redis_url -
+#    echo "super-secret-jwt-key" | docker secret create jwt_secret -
+#    echo "api-key-value" | docker secret create api_key -
+#    cat ssl_cert.pem | docker secret create ssl_cert -
+#    cat ssl_key.pem | docker secret create ssl_key -
+#    echo "mysql-root-password" | docker secret create mysql_root_password -
+#    echo "mysql-user-password" | docker secret create mysql_user_password -
+#    echo "redis-password" | docker secret create redis_password -
+# 
+# 2. Create configs:
+#    docker config create traefik-config traefik.prod.yml
+#    docker config create mysql-config mysql.prod.cnf
+#    docker config create redis-config redis.prod.conf
+#    docker config create prometheus-config prometheus.prod.yml
+# 
+# 3. Label nodes:
+#    docker node update --label-add database=true node1
+#    docker node update --label-add cache=true node2
+#    docker node update --label-add monitoring=true node3
+# 
+# 4. Deploy stack:
+#    docker stack deploy -c docker-compose.prod.yml {{PROJECT_NAME}}
+# 
+# 5. Scale services:
+#    docker service scale {{PROJECT_NAME}}_app=5
+# 
+# 6. Monitor deployment:
+#    docker stack services {{PROJECT_NAME}}
+#    docker service logs {{PROJECT_NAME}}_app

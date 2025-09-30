@@ -1,0 +1,155 @@
+name: Repository Settings Automation
+
+# Automatically apply repository settings when configuration changes
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - '.github/repository-settings.yml'
+      - '.github/labels.yml'
+      - 'scripts/apply-github-settings.py'
+  
+  # Allow manual triggering
+  workflow_dispatch:
+    inputs:
+      settings_only:
+        description: 'Apply only repository settings (skip labels)'
+        required: false
+        default: 'false'
+        type: boolean
+      labels_only:
+        description: 'Apply only labels (skip repository settings)'
+        required: false
+        default: 'false'
+        type: boolean
+      dry_run:
+        description: 'Preview changes without applying them'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  apply-repository-settings:
+    runs-on: ubuntu-latest
+    name: Apply GitHub Repository Settings
+    
+    # Only run if we have the necessary permissions
+    if: github.repository == '{{GITHUB_USERNAME}}/{{PROJECT_NAME}}'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install PyYAML
+        
+    - name: Verify GitHub CLI
+      run: |
+        gh --version
+        gh auth status
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Apply repository settings
+      run: |
+        cd .github
+        
+        # Determine flags based on workflow inputs
+        FLAGS=""
+        if [[ "${{ github.event.inputs.settings_only }}" == "true" ]]; then
+          FLAGS="$FLAGS --settings-only"
+        fi
+        if [[ "${{ github.event.inputs.labels_only }}" == "true" ]]; then
+          FLAGS="$FLAGS --labels-only"
+        fi
+        if [[ "${{ github.event.inputs.dry_run }}" == "true" ]]; then
+          FLAGS="$FLAGS --dry-run"
+        fi
+        
+        # Apply settings
+        python ../scripts/apply-github-settings.py $FLAGS --verbose
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Verify settings applied
+      run: |
+        echo "[VERIFY] Checking repository settings..."
+        gh repo view {{GITHUB_USERNAME}}/{{PROJECT_NAME}} --json name,description,isPrivate,hasIssues,hasProjects,hasWiki
+        
+        echo "[VERIFY] Checking branch protection..."
+        gh api repos/{{GITHUB_USERNAME}}/{{PROJECT_NAME}}/branches/main/protection --jq '.required_status_checks.contexts[]' || echo "Branch protection may not be fully configured yet"
+        
+        echo "[VERIFY] Checking labels..."
+        gh label list --limit 10
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  validate-governance:
+    runs-on: ubuntu-latest
+    name: Validate Governance Configuration
+    needs: apply-repository-settings
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Validate configuration files
+      run: |
+        echo "[VALIDATE] Checking YAML syntax..."
+        python -c "
+        import yaml
+        import sys
+        
+        files_to_check = [
+            '.github/repository-settings.yml',
+            '.github/labels.yml'
+        ]
+        
+        for file_path in files_to_check:
+            try:
+                with open(file_path, 'r') as f:
+                    yaml.safe_load(f)
+                print(f'✓ {file_path} - Valid YAML')
+            except Exception as e:
+                print(f'✗ {file_path} - Invalid YAML: {e}')
+                sys.exit(1)
+        
+        print('All configuration files are valid')
+        "
+        
+    - name: Validate Business-in-a-Box compliance
+      run: |
+        echo "[VALIDATE] Checking Business-in-a-Box governance compliance..."
+        
+        # Check that essential governance features are enabled
+        python -c "
+        import yaml
+        
+        with open('.github/repository-settings.yml', 'r') as f:
+            settings = yaml.safe_load(f)
+        
+        # Essential checks for Business-in-a-Box governance
+        checks = [
+            ('has_issues', True, 'Issues must be enabled for governance'),
+            ('delete_branch_on_merge', True, 'Auto-delete branches for clean workflow'),
+            ('vulnerability_alerts', True, 'Security alerts must be enabled'),
+            ('automated_security_fixes', True, 'Auto-security fixes must be enabled'),
+        ]
+        
+        for key, expected, message in checks:
+            actual = settings.get(key)
+            if actual != expected:
+                print(f'✗ {message}: {key}={actual}, expected {expected}')
+                exit(1)
+            else:
+                print(f'✓ {message}')
+        
+        print('✓ All Business-in-a-Box governance requirements met')
+        "

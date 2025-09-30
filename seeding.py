@@ -645,6 +645,9 @@ class RepoSeeder:
         self.create_automation_scripts()
         self.setup_documentation()
         self.create_template_content()
+        self.create_infrastructure_templates()
+        self.setup_code_formatting()
+        self.create_github_repository_settings()
         
         logger.info("Repository seeding completed successfully!")
     
@@ -1165,6 +1168,227 @@ if __name__ == "__main__":
             template_path = self.templates_dir / 'governance' / 'shared-resources' / 'templates' / template_name
             dest_path = templates_path / template_name.replace('.template', '')
             create_file_from_template(template_path, dest_path, self.replacements, f"(template: {template_name})")
+
+    def create_infrastructure_templates(self):
+        """Create Infrastructure as Code templates for 10-minute deployment.
+        
+        Creates comprehensive infrastructure templates including:
+        - Terraform configurations for multiple cloud providers
+        - Kubernetes manifests for container orchestration
+        - Docker configurations for containerization
+        - Environment-specific configurations (dev/staging/production)
+        """
+        if not self.dry_run:
+            logger.info("📦 Creating Infrastructure as Code templates...")
+        
+        infrastructure_path = self.meta_repo_path / 'infrastructure'
+        if not self.dry_run:
+            ensure_directory_exists(infrastructure_path, "Infrastructure as Code root directory")
+        
+        # Create main directory structure
+        terraform_path = infrastructure_path / 'terraform'
+        kubernetes_path = infrastructure_path / 'kubernetes'
+        docker_path = infrastructure_path / 'docker'
+        environments_path = infrastructure_path / 'environments'
+        
+        if not self.dry_run:
+            ensure_directory_exists(terraform_path, "Terraform configuration directory")
+            ensure_directory_exists(kubernetes_path, "Kubernetes manifests directory")
+            ensure_directory_exists(docker_path, "Docker configuration directory")
+            ensure_directory_exists(environments_path, "Environment configurations directory")
+        
+        # Create provider-specific directories
+        aws_terraform_path = terraform_path / 'aws'
+        azure_terraform_path = terraform_path / 'azure'
+        gcp_terraform_path = terraform_path / 'gcp'
+        
+        if not self.dry_run:
+            ensure_directory_exists(aws_terraform_path, "AWS Terraform modules")
+            ensure_directory_exists(azure_terraform_path, "Azure Terraform modules")
+            ensure_directory_exists(gcp_terraform_path, "GCP Terraform modules")
+        
+        # Create environment directories
+        if not self.dry_run:
+            for env in ['dev', 'staging', 'production']:
+                env_path = environments_path / env
+                ensure_directory_exists(env_path, f"{env.capitalize()} environment configuration")
+        
+        # Create main Terraform configuration files
+        terraform_templates = [
+            'main.tf',
+            'variables.tf',
+            'outputs.tf',
+            'providers.tf'
+        ]
+        
+        for template_name in terraform_templates:
+            template_path = self.templates_dir / 'infrastructure' / 'terraform' / template_name
+            dest_path = terraform_path / template_name
+            create_file_from_template(template_path, dest_path, self.replacements, f"(terraform: {template_name})")
+        
+        # Create provider-specific Terraform modules
+        provider_configs = [
+            ('aws', aws_terraform_path),
+            ('azure', azure_terraform_path),
+            ('gcp', gcp_terraform_path)
+        ]
+        
+        for provider, dest_path in provider_configs:
+            provider_template_path = self.templates_dir / 'infrastructure' / 'terraform' / provider / 'main.tf'
+            provider_dest_path = dest_path / 'main.tf'
+            create_file_from_template(provider_template_path, provider_dest_path, self.replacements, f"(terraform: {provider.upper()} infrastructure)")
+        
+        # Create Kubernetes manifests
+        kubernetes_templates = [
+            'namespace.yaml',
+            'deployment.yaml',
+            'service.yaml',
+            'ingress.yaml',
+            'configmap.yaml',
+            'secret.yaml'
+        ]
+        
+        for template_name in kubernetes_templates:
+            template_path = self.templates_dir / 'infrastructure' / 'kubernetes' / template_name
+            dest_path = kubernetes_path / template_name
+            create_file_from_template(template_path, dest_path, self.replacements, f"(kubernetes: {template_name})")
+        
+        # Create Docker configuration files
+        docker_templates = [
+            'Dockerfile.template',
+            'docker-compose.yml',
+            'docker-compose.prod.yml',
+            '.dockerignore'
+        ]
+        
+        for template_name in docker_templates:
+            template_path = self.templates_dir / 'infrastructure' / 'docker' / template_name
+            dest_path = docker_path / template_name
+            create_file_from_template(template_path, dest_path, self.replacements, f"(docker: {template_name})")
+        
+        # Create environment-specific configuration files
+        for env in ['dev', 'staging', 'production']:
+            # Terraform variables for each environment
+            tfvars_template_path = self.templates_dir / 'infrastructure' / 'environments' / env / 'terraform.tfvars'
+            tfvars_dest_path = environments_path / env / 'terraform.tfvars'
+            create_file_from_template(tfvars_template_path, tfvars_dest_path, self.replacements, f"(terraform vars: {env})")
+            
+            # Kubernetes configuration for each environment
+            k8s_template_path = self.templates_dir / 'infrastructure' / 'environments' / env / 'kubernetes.yaml'
+            k8s_dest_path = environments_path / env / 'kubernetes.yaml'
+            create_file_from_template(k8s_template_path, k8s_dest_path, self.replacements, f"(kubernetes config: {env})")
+        
+        if not self.dry_run:
+            logger.info("✅ Infrastructure as Code templates created successfully!")
+            logger.info(f"    📂 Terraform configurations: {terraform_path}")
+            logger.info(f"    📂 Kubernetes manifests: {kubernetes_path}")
+            logger.info(f"    📂 Docker configurations: {docker_path}")
+            logger.info(f"    📂 Environment configs: {environments_path}")
+
+    def setup_code_formatting(self):
+        """Set up code formatting and pre-commit hooks for development workflow.
+        
+        Creates comprehensive code formatting configuration including:
+        - Pre-commit hooks for automated formatting and quality checks
+        - Black, isort, flake8 configurations for consistent code style
+        - pyproject.toml with tool configurations and project metadata
+        - Setup script for easy developer environment configuration
+        - Requirements file for formatting dependencies
+        """
+        if not self.dry_run:
+            logger.info("🎨 Setting up code formatting and pre-commit hooks...")
+        
+        # Create scripts directory if it doesn't exist
+        scripts_path = self.meta_repo_path / 'scripts'
+        if not self.dry_run:
+            ensure_directory_exists(scripts_path, "Scripts directory")
+        
+        # Create pre-commit configuration
+        precommit_template_path = self.templates_dir / 'code-formatting' / '.pre-commit-config.yaml'
+        precommit_dest_path = self.meta_repo_path / '.pre-commit-config.yaml'
+        if not self.dry_run:
+            create_file_from_template(precommit_template_path, precommit_dest_path, self.replacements, "(pre-commit config)")
+        
+        # Create pyproject.toml configuration
+        pyproject_template_path = self.templates_dir / 'code-formatting' / 'pyproject.toml'
+        pyproject_dest_path = self.meta_repo_path / 'pyproject.toml'
+        if not self.dry_run:
+            create_file_from_template(pyproject_template_path, pyproject_dest_path, self.replacements, "(pyproject.toml config)")
+        
+        # Create formatting requirements file
+        requirements_template_path = self.templates_dir / 'code-formatting' / 'requirements-formatting.txt'
+        requirements_dest_path = self.meta_repo_path / 'requirements-formatting.txt'
+        if not self.dry_run:
+            create_file_from_template(requirements_template_path, requirements_dest_path, self.replacements, "(formatting requirements)")
+        
+        # Create setup script
+        setup_script_template_path = self.templates_dir / 'code-formatting' / 'setup-formatting.py'
+        setup_script_dest_path = scripts_path / 'setup-formatting.py'
+        if not self.dry_run:
+            create_file_from_template(setup_script_template_path, setup_script_dest_path, self.replacements, "(formatting setup script)")
+        
+        if not self.dry_run:
+            logger.info("✅ Code formatting setup completed successfully!")
+            logger.info(f"    📋 Pre-commit config: {precommit_dest_path}")
+            logger.info(f"    ⚙️  Project config: {pyproject_dest_path}")
+            logger.info(f"    📦 Requirements: {requirements_dest_path}")
+            logger.info(f"    🔧 Setup script: {setup_script_dest_path}")
+            logger.info("    💡 Run 'python scripts/setup-formatting.py' to configure your environment")
+
+    def create_github_repository_settings(self):
+        """Create GitHub Repository Settings as Code for automated governance.
+        
+        Creates comprehensive GitHub repository automation including:
+        - Repository settings configuration for governance and security
+        - Branch protection rules for code quality enforcement
+        - Standardized labels for issue and PR management
+        - Automation scripts for applying settings via GitHub CLI/API
+        - GitHub Actions workflow for automated settings application
+        """
+        if not self.dry_run:
+            logger.info("⚙️ Creating GitHub Repository Settings as Code...")
+        
+        # Ensure .github directory exists
+        github_path = self.meta_repo_path / '.github'
+        scripts_path = self.meta_repo_path / 'scripts'
+        workflows_path = github_path / 'workflows'
+        
+        if not self.dry_run:
+            ensure_directory_exists(github_path, "GitHub configuration directory")
+            ensure_directory_exists(scripts_path, "Scripts directory")
+            ensure_directory_exists(workflows_path, "GitHub workflows directory")
+        
+        # Create repository settings configuration
+        settings_template_path = self.templates_dir / 'github-settings' / 'repository-settings.yml'
+        settings_dest_path = github_path / 'repository-settings.yml'
+        if not self.dry_run:
+            create_file_from_template(settings_template_path, settings_dest_path, self.replacements, "(repository settings)")
+        
+        # Create labels configuration
+        labels_template_path = self.templates_dir / 'github-settings' / 'labels.yml'
+        labels_dest_path = github_path / 'labels.yml'
+        if not self.dry_run:
+            create_file_from_template(labels_template_path, labels_dest_path, self.replacements, "(repository labels)")
+        
+        # Create automation script
+        script_template_path = self.templates_dir / 'github-settings' / 'apply-github-settings.py'
+        script_dest_path = scripts_path / 'apply-github-settings.py'
+        if not self.dry_run:
+            create_file_from_template(script_template_path, script_dest_path, self.replacements, "(GitHub settings automation)")
+        
+        # Create GitHub Actions workflow
+        workflow_template_path = self.templates_dir / 'github-settings' / 'repository-settings-workflow.yml'
+        workflow_dest_path = workflows_path / 'repository-settings.yml'
+        if not self.dry_run:
+            create_file_from_template(workflow_template_path, workflow_dest_path, self.replacements, "(repository settings workflow)")
+        
+        if not self.dry_run:
+            logger.info("✅ GitHub Repository Settings as Code created successfully!")
+            logger.info(f"    ⚙️  Repository settings: {settings_dest_path}")
+            logger.info(f"    🏷️  Labels configuration: {labels_dest_path}")
+            logger.info(f"    🔧 Automation script: {script_dest_path}")
+            logger.info(f"    🤖 GitHub workflow: {workflow_dest_path}")
+            logger.info("    💡 Run 'python scripts/apply-github-settings.py' to configure your repository")
 
 
 # Global logger will be initialized in main()

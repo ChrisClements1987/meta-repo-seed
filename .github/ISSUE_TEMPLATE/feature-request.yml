@@ -47,10 +47,25 @@ body:
         - [ ] Tests written for new functionality
         - [ ] Feature works cross-platform
       value: |
+        ## 🧪 Test-Driven Development (TDD) Requirements:
+        - [ ] **Tests written FIRST** - Before any implementation code
+        - [ ] **Test-fail-pass-refactor cycle documented** - Evidence of TDD process
+        - [ ] **Test coverage maintained** - No reduction in overall test coverage
+        - [ ] **All tests passing** - New functionality fully tested
+
+        ## 📝 Implementation Requirements:
         - [ ] Feature implemented according to description
-        - [ ] Documentation updated with examples
-        - [ ] Tests written for new functionality
         - [ ] Feature works cross-platform (Windows, macOS, Linux)
+        
+        ## 📚 Documentation Requirements:
+        - [ ] Documentation updated with examples
+        - [ ] UX changes reflected in user guides
+        - [ ] Roadmap and changelog files updated
+        
+        ## 🤖 AI Context Management:
+        - [ ] AGENTS.md updated with new patterns/workflows
+        - [ ] AI context preserved for future development
+        - [ ] Integration guidance documented
     validations:
       required: true
 
