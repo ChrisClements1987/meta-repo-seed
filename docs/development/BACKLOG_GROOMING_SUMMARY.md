@@ -1,5 +1,10 @@
 # Backlog Grooming Summary - September 25, 2025
 
+**Canonical Source of Truth:**
+The authoritative backlog for the meta-repo-seed project is maintained in the GitHub Issues for the repository ([GitHub Issues](https://github.com/ChrisClements1987/meta-repo-seed/issues)).
+
+This file is a convenience summary and may not always reflect the latest state. Always refer to GitHub Issues for the most current backlog, priorities, and assignments.
+
 Based on comprehensive audit findings, the backlog has been reorganized for optimal development flow.
 
 ## 📊 Backlog Health Analysis
