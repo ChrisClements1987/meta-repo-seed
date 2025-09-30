@@ -21,14 +21,61 @@
 - **Create PR**: `gh pr create --base develop` (always target develop, never main)  
 - **Branch Cleanup**: Automated via GitHub settings, manual via `./scripts/cleanup-branches.sh`
 
+### Emergency Hotfix Process - USE SPARINGLY
+**Only for production emergencies:** Complete deployment failures, active security exploits, data loss, critical functionality broken for all users
+
+**Hotfix Workflow:**
+1. **Declare incident** using communication template
+2. **Branch from main**: `git checkout main && git checkout -b hotfix/v1.2.1-brief-description`
+3. **Minimal fix only** - no scope creep, include test that would catch issue
+4. **Expedited review** - 1 approval or emergency bypass with documentation
+5. **Deploy to main** - merge with `--no-ff`, tag immediately, push
+6. **Sync to develop** - merge hotfix back to develop branch
+7. **Post-incident review** - mandatory within 1 week
+
+**See `docs/operations/hotfix-workflow.md` for complete emergency procedures**
+
 ### Test-Driven Development (TDD) Process - MANDATORY
 1. **Update develop branch** - `git checkout develop && git pull origin develop`
 2. **Create feature branch** - `git checkout -b feature/issue-X-description`
 3. **Write failing tests FIRST** - Document test-fail-pass-refactor cycle in PR
 4. **Implement minimum code** - Make tests pass
 5. **Refactor** - Clean up implementation
-6. **Update documentation** - Guides, roadmap, changelog, AI context
+6. **Update documentation** - Follow 3-category documentation standards (see below)
 7. **Commit with clear messages** - Focused, logical commits
+
+### Documentation Standards - MANDATORY
+**3-Category Documentation System:**
+
+**👤 User Documentation (Required for user-facing changes):**
+- User guides and manuals in `docs/guides/user/`
+- FAQ updates for common scenarios
+- Release notes and changelog entries
+- Migration guides for breaking changes
+
+**👨‍💻 Developer Documentation (Required for technical changes):**
+- API reference and OpenAPI specifications
+- Architecture documentation and ADRs in `docs/architecture/`
+- Code comments for complex logic
+- README updates for setup changes
+
+**⚙️ Operations Documentation (Required for deployment/config changes):**
+- Installation and deployment guides
+- Configuration documentation
+- Environment variable documentation
+- Monitoring and troubleshooting guides
+
+**📋 Process/Research Documentation (Internal work - flexible requirements):**
+- Analysis and research documents
+- Audit documentation with findings
+- Process documentation with examples
+- Internal documentation following structure standards
+
+**Documentation Category Assessment:**
+- 🚀 User-Facing Changes → Require User + Developer + Operations docs as applicable
+- 🛠️ Technical Changes → Require Developer + Operations docs as applicable  
+- 📋 Process/Research → Use flexible Process/Research documentation standards
+- 🐛 Bug Fixes → Minimal documentation, focus on changelog if user-visible
 
 ## Architecture
 - **Main Entry**: `seeding.py` - Core seeding script with `RepoSeeder` class for idempotent project structure creation
