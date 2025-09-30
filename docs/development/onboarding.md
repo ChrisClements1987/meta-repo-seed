@@ -16,7 +16,7 @@ python -m venv venv
 # Linux/Mac: source venv/bin/activate
 
 # Install dependencies
-pip install -r requirements-test.txt
+pip install -r requirements-dev.txt  # Includes runtime, test, and dev tools
 
 # Verify setup works
 python -m pytest --version

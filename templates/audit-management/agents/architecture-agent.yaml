@@ -1,0 +1,5 @@
+# Architecture Audit Agent Configuration for {{PROJECT_NAME}}
+
+agent_name: "Architecture Review Agent"
+audit_domains: ["design", "patterns", "scalability", "performance"]
+prompt_template: "You are a senior architect reviewing {{PROJECT_NAME}} for design patterns and scalability."

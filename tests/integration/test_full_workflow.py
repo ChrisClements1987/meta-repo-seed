@@ -125,7 +125,6 @@ class TestMainFunctionIntegration:
             
             mock_run.assert_called_once()
     
-    @patch('sys.argv', ['seeding.py', '--config', 'test-config.yaml'])
     def test_main_function_with_config_file(self, temp_dir, mock_templates_dir):
         """Test main function with configuration file."""
         # Create configuration file
@@ -140,7 +139,9 @@ class TestMainFunctionIntegration:
         config_file = temp_dir / "test-config.yaml"
         config.save(config_file)
         
-        with patch('seeding.Path.cwd', return_value=temp_dir), \
+        # Use absolute path for config file in CLI args
+        with patch('sys.argv', ['seeding.py', '--config', str(config_file)]), \
+             patch('seeding.Path.cwd', return_value=temp_dir), \
              patch.object(RepoSeeder, 'run') as mock_run:
             
             main()
@@ -396,17 +397,20 @@ class TestTemplateIntegrationWorkflows:
             # Test template processing by creating files from templates
             from seeding import create_file_from_template
             
-            for template_name, _ in templates.items():
+            for template_name, template_content in templates.items():
                 template_file = mock_templates_dir / template_name
                 output_file = project_root / template_name.replace('.template', '')
-                
+
                 result = create_file_from_template(template_file, output_file, seeder.replacements)
                 assert result is True
                 assert output_file.exists()
-                
+
                 content = output_file.read_text()
+                # Always check for project name (used in all templates)
                 assert "template-workflow-project" in content
-                assert "template-user" in content
+                # Only check for username in templates that actually use the variable
+                if '{{GITHUB_USERNAME}}' in template_content:
+                    assert "template-user" in content
     
     def test_template_error_recovery_in_workflow(self, temp_dir, mock_templates_dir):
         """Test workflow continues when some templates fail to process."""

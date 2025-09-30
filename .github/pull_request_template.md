@@ -50,26 +50,93 @@ If TDD or full test coverage isn't feasible:
 
 ## 📚 Documentation Updates
 
-### ✅ **Core Documentation Updates** *(Required if applicable)*
-- [ ] **README.md** - Updated if user-facing changes or new features
-- [ ] **CHANGELOG.md** - Entry added describing changes for users
-- [ ] **docs/development/roadmap.md** - Updated if this affects planned features
-- [ ] **N/A** - No core documentation updates needed because: _______________
+### 🎯 **Documentation Category Assessment**
+**Select the type of change to determine documentation requirements:**
 
-### 📖 **Guides and Architecture Documentation** *(Required if applicable)*
-- [ ] **User Guides** - Created/updated if new user functionality
-  - [ ] `docs/guides/` - New guide created for complex features
-  - [ ] Existing guides updated for changed functionality
-- [ ] **Architecture Documentation** - Updated if system design changed
-  - [ ] `docs/architecture/` - Architecture decision records (ADRs) added
-  - [ ] System diagrams updated if architectural changes made
-  - [ ] API documentation updated if interfaces changed
-- [ ] **N/A** - No guides/architecture updates needed because: _______________
+- [ ] **🚀 User-Facing Changes** - New features, UI changes, API changes, configuration changes
+- [ ] **🛠️ Technical Changes** - Internal refactoring, architecture changes, development process changes  
+- [ ] **📋 Process/Research** - Analysis documents, research, audits, internal documentation
+- [ ] **🐛 Bug Fixes** - Fixes that don't change user experience significantly
 
-### 🔧 **Developer Documentation**
-- [ ] **Code Comments** - Complex logic explained inline
-- [ ] **Docstrings** - All new functions/classes documented
-- [ ] **Type Hints** - Added to all new Python code
+---
+
+### 👤 **User Documentation** *(Required for User-Facing Changes)*
+*Skip this section if you selected "Process/Research" or "Technical Changes" above*
+
+- [ ] **User Guides/Manuals Updated**
+  - [ ] `docs/guides/user/` - User-facing functionality documented
+  - [ ] Getting Started guides updated for new features
+  - [ ] Usage examples provided for new functionality
+- [ ] **FAQ Updated** 
+  - [ ] Common scenarios documented in `docs/guides/faq.md`
+  - [ ] Troubleshooting steps added for new features
+- [ ] **Release Notes Drafted**
+  - [ ] `CHANGELOG.md` entry added with user-facing changes
+  - [ ] Breaking changes clearly documented
+  - [ ] Migration steps provided if needed
+- [ ] **N/A** - No user documentation needed because: _______________
+
+### 👨‍💻 **Developer Documentation** *(Required for Technical Changes)*
+*Skip this section if you selected "Process/Research" above*
+
+- [ ] **API Reference/OpenAPI Specs Updated**
+  - [ ] API endpoints documented in `docs/api/`
+  - [ ] Request/response examples provided
+  - [ ] Error codes and responses documented
+- [ ] **Architecture Documentation Updated**  
+  - [ ] `docs/architecture/` - ADRs added for design decisions
+  - [ ] System diagrams updated if architecture changed
+  - [ ] Component relationships documented
+- [ ] **Code Documentation Enhanced**
+  - [ ] Complex logic explained with inline comments
+  - [ ] All new functions/classes have comprehensive docstrings
+  - [ ] Type hints added to all new Python code
+- [ ] **README.md Updated** *(if setup/installation changed)*
+  - [ ] Installation instructions updated
+  - [ ] Dependencies documented
+  - [ ] Development setup instructions current
+- [ ] **N/A** - No developer documentation needed because: _______________
+
+### ⚙️ **Operations Documentation** *(Required for Deployment/Config Changes)*
+*Skip this section if you selected "Process/Research" above*
+
+- [ ] **Installation & Deployment Guide Updated**
+  - [ ] `docs/operations/deployment.md` updated with new steps
+  - [ ] System requirements documented
+  - [ ] Deployment automation scripts updated
+- [ ] **Configuration Guide Updated**
+  - [ ] `docs/operations/configuration.md` updated with new options
+  - [ ] Environment variables documented
+  - [ ] Configuration examples provided
+- [ ] **Migration Guide Created** *(for breaking changes)*
+  - [ ] Step-by-step migration instructions provided
+  - [ ] Backward compatibility notes included
+  - [ ] Rollback procedures documented
+- [ ] **Monitoring & Troubleshooting**
+  - [ ] New monitoring requirements documented
+  - [ ] Log output changes documented
+  - [ ] Troubleshooting steps for new functionality
+- [ ] **N/A** - No operations documentation needed because: _______________
+
+### 📋 **Process/Research Documentation** *(For Internal Work)*
+*Complete this section if you selected "Process/Research" above*
+
+- [ ] **Analysis/Research Documents**
+  - [ ] Findings clearly documented with executive summary
+  - [ ] Recommendations provided with rationale
+  - [ ] Implementation roadmap included if applicable
+- [ ] **Audit Documentation**
+  - [ ] Audit scope and methodology documented
+  - [ ] Issues identified with severity levels
+  - [ ] Remediation plan provided
+- [ ] **Process Documentation**
+  - [ ] New processes clearly documented with examples
+  - [ ] Integration with existing workflows explained
+  - [ ] Success criteria and metrics defined
+- [ ] **Internal Documentation Complete**
+  - [ ] Document follows internal structure standards
+  - [ ] Proper categorization in docs/ directory
+  - [ ] Cross-references to related work included
 
 ---
 

@@ -1,28 +1,70 @@
 # Contributing Guide
 
-Welcome to the Meta-Repo Seed project! We appreciate your interest in contributing. This guide will help you understand how to contribute effectively to the project.
+Welcome to Business-in-a-Box! We appreciate your interest in contributing to our rapid infrastructure deployment system. This guide provides a high-level overview - **all contributors must complete the onboarding process first**.
+
+## 🚀 **START HERE: Contributor Onboarding**
+
+**🚨 MANDATORY: Complete Before Your First Contribution**
+- **[Contributor Onboarding Guide](./contributor-onboarding.md)** - **REQUIRED reading** for all contributors (human developers, AI agents, external contributors)
+
+This comprehensive guide covers:
+- Development workflow and GitFlow branching
+- Documentation standards and PR template requirements  
+- Conventional commit format and validation
+- Test-driven development methodology
+- Common mistakes and success patterns
 
 ## 📋 Essential Documentation
 
-Before contributing, please familiarize yourself with our workflow and standards:
+After completing onboarding, reference these guides as needed:
 
+**🚨 CRITICAL: Read First**
+- **[Creating Issues Guide](./creating-issues.md)** - **MANDATORY TDD requirements** for all code-related issues
+- **[Documentation Standards](./documentation-standards.md)** - **3-category documentation system**
+- **[Conventional Commits](./conventional-commits.md)** - **Commit message standards and validation**
+
+**Development Process:**
 - **[Issue Management Guide](./issue-management.md)** - Issue types, labels, and backlog management
 - **[Workflow Standards](./workflow-standards.md)** - Development process, branches, and releases
 - **[GitHub Issue Templates](../../.github/ISSUE_TEMPLATE/)** - Structured templates for creating issues
+
+## 🧪 **Mandatory Test-Driven Development (TDD)**
+
+**EVERY contribution involving code changes MUST follow TDD:**
+
+### **Issue Creation Requirements:**
+1. **Include TDD acceptance criteria** - Use issue templates that enforce TDD requirements
+2. **Write tests first** - Before any implementation
+3. **Document test cycle** - Show test-fail-pass-refactor evidence in PRs
+4. **Maintain coverage** - No reduction in test coverage allowed
+
+### **Development Workflow:**
+1. **Update develop branch**: `git checkout develop && git pull origin develop`
+2. **Create feature branch**: `git checkout -b feature/issue-[number]-description`
+3. **Write failing tests FIRST** - Before any implementation code
+4. **Implement minimal code** - Make tests pass
+5. **Refactor** - Clean up implementation
+6. **Update documentation** - Guides, roadmap, changelog, AI context
+
+**📖 Detailed TDD Guide: [Test-Driven Development](../guides/test-driven-development.md)**
+
+---
 
 ## 🎯 Ways to Contribute
 
 ### 🐛 Bug Reports
 - Report bugs through [GitHub Issues](https://github.com/your-org/meta-repo-seed/issues)
-- Use the bug report template
+- **Use the bug report template** - Includes mandatory TDD acceptance criteria
 - Provide detailed reproduction steps
 - Include environment information
+- **Include TDD fix criteria** - How the bug will be tested and verified
 
 ### 💡 Feature Requests
 - Suggest new features through [GitHub Issues](https://github.com/your-org/meta-repo-seed/issues)
-- Use the feature request template  
+- **Use the feature request template** - Includes comprehensive TDD requirements
 - Explain the use case and benefits
 - Provide examples when possible
+- **Include test strategy** - How the feature will be tested
 
 ### 📝 Documentation
 - Improve existing documentation

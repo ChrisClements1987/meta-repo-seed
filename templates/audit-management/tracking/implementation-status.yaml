@@ -1,0 +1,4 @@
+# Implementation Status Tracking for {{PROJECT_NAME}}
+project: "{{PROJECT_NAME}}"
+created: "{{CURRENT_DATE}}"
+implementations: []

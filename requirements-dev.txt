@@ -1,0 +1,22 @@
+# Development dependencies for Meta-Repo Seed
+# Pinned versions for reproducible builds
+
+# Include runtime and test dependencies
+-r requirements.txt
+-r requirements-test.txt
+
+# Code quality tools
+flake8==7.3.0
+black==25.9.0
+isort==6.0.1
+
+# Security scanning
+bandit==1.8.6
+safety==3.2.10
+
+# Development utilities
+pip-licenses==5.0.0
+
+# Future tools (planned but not enforced yet)
+# mypy==1.13.0
+# ruff==0.8.4

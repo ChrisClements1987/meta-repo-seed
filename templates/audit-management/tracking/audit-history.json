@@ -1,0 +1,9 @@
+{
+  "project": "{{PROJECT_NAME}}",
+  "created": "{{CURRENT_DATE}}",
+  "audits": [],
+  "metrics": {
+    "total_audits": 0,
+    "total_findings": 0
+  }
+}

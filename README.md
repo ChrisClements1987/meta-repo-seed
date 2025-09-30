@@ -1,6 +1,6 @@
-# Meta-Repo Seeding System
+# Business-in-a-Box: Rapid Infrastructure Deployment System
 
-An idempotent, cross-platform script for creating standardized project structures with comprehensive governance, automation, and documentation frameworks.
+An idempotent, cross-platform system for deploying complete business infrastructure in under 10 minutes. Supports startups, charities, nonprofits, and SMBs with professional-grade templates and automation.
 
 > **📍 [Project North Star](docs/PROJECT_NORTH_STAR.md)** - Our vision and guiding principles for this tool
 
@@ -9,8 +9,6 @@ An idempotent, cross-platform script for creating standardized project structure
 ## 🎯 Overview
 
 This seeding system creates a complete organizational structure for managing multiple repositories, projects, and teams. It establishes governance frameworks, automation pipelines, and documentation standards that scale across your entire organization.
-
-> **🎯 [Project North Star](docs/PROJECT_NORTH_STAR.md)** - Our vision and guiding principles for this tool
 
 ## 🏗️ What It Creates
 
@@ -36,6 +34,10 @@ your-project/
 ```
 
 ### Generated Content
+- **Infrastructure as Code**: Terraform, Kubernetes, Docker configurations for 10-minute deployment
+- **Audit Management System**: AI agent coordination and audit-to-implementation tracking for continuous improvement  
+- **Repository Governance Automation**: GitHub settings, branch protection, and label management as code
+- **Code Quality Automation**: Pre-commit hooks, formatting tools, and quality checks for consistent development
 - **Governance Policies**: Contributing guidelines, code of conduct, security policies
 - **Process Documentation**: Onboarding, code review, release management
 - **Standards**: Coding, documentation, testing, security standards
@@ -45,7 +47,7 @@ your-project/
 
 ## 🚀 Quick Start
 
-> **👨‍💻 New Developer?** Check out [Developer Onboarding Guide](docs/development/onboarding.md) for a 5-minute setup guide!
+> **👨‍💻 New Contributor?** **MANDATORY:** Complete [Contributor Onboarding](docs/development/contributor-onboarding.md) before making any contributions!
 
 ### Prerequisites
 - **Git** (latest version)
@@ -186,10 +188,10 @@ The project includes comprehensive documentation organized in the `docs/` direct
 > **📖 [Complete Documentation Index](docs/README.md)** - All documentation with organized structure
 
 ### Quick Links
-- **[Developer Onboarding](docs/development/onboarding.md)** - 5-minute setup for new developers
-- **[Configuration Guide](docs/guides/configuration.md)** - Setup and configuration options
-- **[CLI Reference](docs/reference/cli.md)** - Command-line interface documentation
-- **[Contributing Guide](docs/development/contributing.md)** - How to contribute
+- **[Contributor Onboarding](docs/development/contributor-onboarding.md)** - **REQUIRED** for all contributors
+- **[Contributing Guide](docs/development/contributing.md)** - High-level contribution overview  
+- **[Documentation Standards](docs/development/documentation-standards.md)** - 3-category documentation system
+- **[Conventional Commits](docs/development/conventional-commits.md)** - Commit message standards
 - **[Project Vision](docs/PROJECT_NORTH_STAR.md)** - Business-in-a-Box vision and strategy
 
 ## 🔧 Development
@@ -202,20 +204,13 @@ meta-repo-seed/
 │   ├── create_roadmap_issues.py # GitHub issue creation
 │   ├── map_issues_to_roadmap.py # Issue-roadmap linking
 │   └── README.md              # Scripts documentation
-├── templates/             # Template files for project generation
-│   ├── governance/        # Governance templates
+├── templates/             # All template files for project generation
 │   ├── github/workflows/  # GitHub Actions templates  
-│   ├── cloud-storage/     # Cloud integration templates
+│   ├── governance/        # Governance document templates
+│   ├── cloud-storage/     # Strategy and architecture templates
 │   └── documentation/     # Documentation templates
 ├── TEMPLATES.md           # Template documentation
-└── seeding.py            # Main seeding script
-├── seeding.py              # Main seeding script
-├── templates/              # All template files
-│   ├── github/             # GitHub workflow templates
-│   ├── governance/         # Governance document templates
-│   ├── cloud-storage/      # Strategy and architecture templates
-│   └── documentation/      # Documentation templates
-├── TEMPLATES.md           # Template documentation
+├── seeding.py            # Main seeding script
 └── README.md              # This file
 ```
 
@@ -270,34 +265,36 @@ PRs **CANNOT** be merged without:
 
 *These requirements ensure code quality, maintainability, and team collaboration standards.*
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature-name`
-3. Make your changes and test thoroughly
-4. Submit a pull request with clear description
-
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🏷️ Version
 
-Current Version: **1.0.0**
+Current Version: **2.0.0**
 
 ## 🤝 Contributing
 
 We welcome contributions! Here's how you can help:
 
+### 🚨 **CRITICAL: All Code-Related Issues Must Include TDD Requirements**
+
+**Before creating any issue involving code changes:**
+1. **Read**: [Creating Issues Guide](docs/development/creating-issues.md) 
+2. **Use proper templates** - They enforce mandatory TDD acceptance criteria
+3. **Include test strategy** - How changes will be tested and verified
+
 ### 💡 Suggesting Features
 1. **Check existing issues** and roadmap first
-2. **Create a feature request** using our GitHub issue template
+2. **Use our feature request template** - Includes mandatory TDD requirements
 3. **Join the discussion** - we value community input on feature design
+4. **Include test strategy** - How the feature will be tested
 
 ### 🐛 Reporting Bugs  
-1. **Use our bug report template** for consistent information
+1. **Use our bug report template** - Includes mandatory TDD fix criteria
 2. **Include reproduction steps** and environment details
 3. **Check for existing reports** to avoid duplicates
+4. **Include test requirements** - How the fix will be verified
 
 ### 🔧 Development Process
 1. **Read the [Contributing Guide](docs/development/contributing.md)** for detailed contribution guidelines
