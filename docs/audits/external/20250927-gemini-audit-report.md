@@ -60,5 +60,3 @@ Several packages have UNKNOWN or ambiguous licenses.
 Replace GPL-licensed dependencies with alternatives that have more permissive licenses.
 Investigate the usage of LGPL-licensed dependencies to ensure compliance.
 Clarify all UNKNOWN and ambiguous licenses.
-
-
