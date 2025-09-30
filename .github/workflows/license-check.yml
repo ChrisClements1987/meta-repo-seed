@@ -85,7 +85,7 @@ jobs:
         echo "- 📋 Review unknown licenses quarterly" >> license-report.md
         
     - name: Upload license report
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: license-compliance-report
         path: license-report.md
