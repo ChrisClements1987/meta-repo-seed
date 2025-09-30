@@ -14,15 +14,133 @@
 - **Type Checking**: `mypy` (planned, not enforced yet)
 - **Formatting**: `black` (planned, not enforced yet)
 
-### Git Workflow
-- **New Feature**: `git checkout develop && git pull origin develop && git checkout -b feature/issue-X-desc`
+### Git Workflow - REQUIRED PROCESS
+- **Start Any Work**: `git checkout develop && git pull origin develop && git checkout -b feature/issue-X-desc`
+- **TDD Mandatory**: Write failing tests FIRST, then implement, then refactor
+- **Branch Naming**: `feature/issue-[number]-description` or `bugfix/issue-[number]-description`
 - **Create PR**: `gh pr create --base develop` (always target develop, never main)  
 - **Branch Cleanup**: Automated via GitHub settings, manual via `./scripts/cleanup-branches.sh`
+
+### Emergency Hotfix Process - USE SPARINGLY
+**Only for production emergencies:** Complete deployment failures, active security exploits, data loss, critical functionality broken for all users
+
+**Hotfix Workflow:**
+1. **Declare incident** using communication template
+2. **Branch from main**: `git checkout main && git checkout -b hotfix/v1.2.1-brief-description`
+3. **Minimal fix only** - no scope creep, include test that would catch issue
+4. **Expedited review** - 1 approval or emergency bypass with documentation
+5. **Deploy to main** - merge with `--no-ff`, tag immediately, push
+6. **Sync to develop** - merge hotfix back to develop branch
+7. **Post-incident review** - mandatory within 1 week
+
+**See `docs/operations/hotfix-workflow.md` for complete emergency procedures**
+
+### Test-Driven Development (TDD) Process - MANDATORY
+1. **Update develop branch** - `git checkout develop && git pull origin develop`
+2. **Create feature branch** - `git checkout -b feature/issue-X-description`
+3. **Write failing tests FIRST** - Document test-fail-pass-refactor cycle in PR
+4. **Implement minimum code** - Make tests pass
+5. **Refactor** - Clean up implementation
+6. **Update documentation** - Follow 3-category documentation standards (see below)
+7. **Commit with clear messages** - Follow conventional commit standards (see below)
+
+### Conventional Commit Standards - MANDATORY
+**Format:** `<type>[optional scope]: <description>`
+
+**Required Types:**
+- `feat` - New feature for users
+- `fix` - Bug fix that affects users  
+- `docs` - Documentation changes only
+- `style` - Code formatting (no logic change)
+- `refactor` - Code refactoring
+- `test` - Test changes
+- `chore` - Build/tooling changes
+- `perf` - Performance improvements
+- `ci` - CI/CD changes
+- `hotfix` - Emergency production fixes
+
+**Common Scopes:** `business`, `cli`, `templates`, `auth`, `deploy`, `api`, `config`, `ci`, `deps`, `security`
+
+**Examples:**
+- `feat(business): add charity-nonprofit profile template`
+- `fix(deploy): resolve template processing error`
+- `docs: update installation guide`
+- `chore(deps): update Python dependencies`
+
+**See `docs/development/conventional-commits.md` for complete standards guide**
+
+### Documentation Standards - MANDATORY
+**3-Category Documentation System:**
+
+**👤 User Documentation (Required for user-facing changes):**
+- User guides and manuals in `docs/guides/user/`
+- FAQ updates for common scenarios
+- Release notes and changelog entries
+- Migration guides for breaking changes
+
+**👨‍💻 Developer Documentation (Required for technical changes):**
+- API reference and OpenAPI specifications
+- Architecture documentation and ADRs in `docs/architecture/`
+- Code comments for complex logic
+- README updates for setup changes
+
+**⚙️ Operations Documentation (Required for deployment/config changes):**
+- Installation and deployment guides
+- Configuration documentation
+- Environment variable documentation
+- Monitoring and troubleshooting guides
+
+**📋 Process/Research Documentation (Internal work - flexible requirements):**
+- Analysis and research documents
+- Audit documentation with findings
+- Process documentation with examples
+- Internal documentation following structure standards
+
+**Documentation Category Assessment:**
+- 🚀 User-Facing Changes → Require User + Developer + Operations docs as applicable
+- 🛠️ Technical Changes → Require Developer + Operations docs as applicable  
+- 📋 Process/Research → Use flexible Process/Research documentation standards
+- 🐛 Bug Fixes → Minimal documentation, focus on changelog if user-visible
+
+### AI Integration Guidelines - MANDATORY
+**AI Tools as Supplementary Aids, Not Primary Drivers**
+
+**✅ AI Strengths - Use For:**
+- Code completion and boilerplate generation
+- Test case generation and TDD support
+- Documentation writing and enhancement
+- Code review supplementation (never replacement)
+- Pattern recognition and consistency checking
+
+**❌ AI Limitations - Human Required:**
+- Domain-specific business logic and architectural decisions
+- Security vulnerability assessment and performance optimization
+- Understanding Business-in-a-Box constraints and market positioning
+- Business partnership decisions and strategic direction
+
+**🔧 Integration with Development Workflow:**
+- **Issue Analysis:** AI research + Human decision making
+- **TDD Phase:** AI test generation + Human validation against business requirements
+- **Implementation:** AI code assistance + Human business logic and integration
+- **Documentation:** AI enhancement + Human accuracy and business context validation
+- **Code Review:** AI initial review + Human final approval and business impact assessment
+
+**⚠️ Critical Requirements:**
+- Always validate AI suggestions against Business-in-a-Box requirements
+- Maintain human review for all business-critical decisions
+- Never share sensitive information (API keys, customer data) with AI tools
+- Test all AI-generated code thoroughly for business logic correctness
+
+**See `docs/development/ai-integration-guidelines.md` for complete AI usage standards**
 
 ## Architecture
 - **Main Entry**: `seeding.py` - Core seeding script with `RepoSeeder` class for idempotent project structure creation
 - **Modules**: `src/structure_parser/` (JSON schema validation), `src/automation/` (automation scripts), `src/meta_repo_seed/` (core package)
 - **Templates**: `templates/` directory with Jinja2-style variable replacement ({{PROJECT_NAME}}, {{GITHUB_USERNAME}})
+  - `templates/infrastructure/` - Infrastructure as Code templates (Terraform, K8s, Docker)
+  - `templates/code-formatting/` - Pre-commit hooks and code quality configurations
+  - `templates/github-settings/` - Repository governance automation and GitHub settings
+  - `templates/audit-management/` - AI agent coordination and audit tracking system
 - **Config**: Supports YAML/JSON config files for reusable project configurations
 - **Testing**: pytest with coverage, markers for unit/integration/github/slow/network tests
 
@@ -40,3 +158,4 @@
 - **PR Standards**: Use diff coverage (>=80% on changed lines), conditional documentation updates, legacy debt tracking
 - **Quality Gates**: Tests must pass OR be marked xfail/skip with linked issues during stabilization phase
 - **CLI Contract**: Defined in `docs/architecture/cli.md` - use `--project`, `--username`, `--dry-run`, `--verbose`
+- **Dependencies**: Pinned versions in requirements-*.txt files for reproducible builds and security compliance
