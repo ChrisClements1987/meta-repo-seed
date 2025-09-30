@@ -21,6 +21,20 @@
 - **Create PR**: `gh pr create --base develop` (always target develop, never main)  
 - **Branch Cleanup**: Automated via GitHub settings, manual via `./scripts/cleanup-branches.sh`
 
+### Emergency Hotfix Process - USE SPARINGLY
+**Only for production emergencies:** Complete deployment failures, active security exploits, data loss, critical functionality broken for all users
+
+**Hotfix Workflow:**
+1. **Declare incident** using communication template
+2. **Branch from main**: `git checkout main && git checkout -b hotfix/v1.2.1-brief-description`
+3. **Minimal fix only** - no scope creep, include test that would catch issue
+4. **Expedited review** - 1 approval or emergency bypass with documentation
+5. **Deploy to main** - merge with `--no-ff`, tag immediately, push
+6. **Sync to develop** - merge hotfix back to develop branch
+7. **Post-incident review** - mandatory within 1 week
+
+**See `docs/operations/hotfix-workflow.md` for complete emergency procedures**
+
 ### Test-Driven Development (TDD) Process - MANDATORY
 1. **Update develop branch** - `git checkout develop && git pull origin develop`
 2. **Create feature branch** - `git checkout -b feature/issue-X-description`
