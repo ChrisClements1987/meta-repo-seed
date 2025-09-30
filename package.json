@@ -1,0 +1,44 @@
+{
+  "name": "meta-repo-seed",
+  "version": "1.0.0",
+  "description": "Business-in-a-Box: Rapid Infrastructure Deployment System",
+  "private": true,
+  "scripts": {
+    "commit": "git-cz",
+    "commitlint": "commitlint --from HEAD~1 --to HEAD --verbose",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^17.7.1",
+    "@commitlint/config-conventional": "^17.7.0",
+    "commitizen": "^4.3.0",
+    "cz-conventional-changelog": "^3.3.0",
+    "husky": "^8.0.3"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "keywords": [
+    "business-in-a-box",
+    "infrastructure",
+    "deployment",
+    "automation",
+    "startup",
+    "charity",
+    "nonprofit",
+    "SMB"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ChrisClements1987/meta-repo-seed.git"
+  },
+  "author": "Chris Clements",
+  "license": "MIT"
+}

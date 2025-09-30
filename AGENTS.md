@@ -42,7 +42,32 @@
 4. **Implement minimum code** - Make tests pass
 5. **Refactor** - Clean up implementation
 6. **Update documentation** - Follow 3-category documentation standards (see below)
-7. **Commit with clear messages** - Focused, logical commits
+7. **Commit with clear messages** - Follow conventional commit standards (see below)
+
+### Conventional Commit Standards - MANDATORY
+**Format:** `<type>[optional scope]: <description>`
+
+**Required Types:**
+- `feat` - New feature for users
+- `fix` - Bug fix that affects users  
+- `docs` - Documentation changes only
+- `style` - Code formatting (no logic change)
+- `refactor` - Code refactoring
+- `test` - Test changes
+- `chore` - Build/tooling changes
+- `perf` - Performance improvements
+- `ci` - CI/CD changes
+- `hotfix` - Emergency production fixes
+
+**Common Scopes:** `business`, `cli`, `templates`, `auth`, `deploy`, `api`, `config`, `ci`, `deps`, `security`
+
+**Examples:**
+- `feat(business): add charity-nonprofit profile template`
+- `fix(deploy): resolve template processing error`
+- `docs: update installation guide`
+- `chore(deps): update Python dependencies`
+
+**See `docs/development/conventional-commits.md` for complete standards guide**
 
 ### Documentation Standards - MANDATORY
 **3-Category Documentation System:**
