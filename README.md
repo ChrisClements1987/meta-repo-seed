@@ -1,6 +1,6 @@
-# Meta-Repo Seeding System
+# Business-in-a-Box: Rapid Infrastructure Deployment System
 
-An idempotent, cross-platform script for creating standardized project structures with comprehensive governance, automation, and documentation frameworks.
+An idempotent, cross-platform system for deploying complete business infrastructure in under 10 minutes. Supports startups, charities, nonprofits, and SMBs with professional-grade templates and automation.
 
 > **📍 [Project North Star](docs/PROJECT_NORTH_STAR.md)** - Our vision and guiding principles for this tool
 
@@ -47,7 +47,7 @@ your-project/
 
 ## 🚀 Quick Start
 
-> **👨‍💻 New Developer?** Check out [Developer Onboarding Guide](docs/development/onboarding.md) for a 5-minute setup guide!
+> **👨‍💻 New Contributor?** **MANDATORY:** Complete [Contributor Onboarding](docs/development/contributor-onboarding.md) before making any contributions!
 
 ### Prerequisites
 - **Git** (latest version)
@@ -188,10 +188,10 @@ The project includes comprehensive documentation organized in the `docs/` direct
 > **📖 [Complete Documentation Index](docs/README.md)** - All documentation with organized structure
 
 ### Quick Links
-- **[Developer Onboarding](docs/development/onboarding.md)** - 5-minute setup for new developers
-- **[Configuration Guide](docs/guides/configuration.md)** - Setup and configuration options
-- **[CLI Reference](docs/reference/cli.md)** - Command-line interface documentation
-- **[Contributing Guide](docs/development/contributing.md)** - How to contribute
+- **[Contributor Onboarding](docs/development/contributor-onboarding.md)** - **REQUIRED** for all contributors
+- **[Contributing Guide](docs/development/contributing.md)** - High-level contribution overview  
+- **[Documentation Standards](docs/development/documentation-standards.md)** - 3-category documentation system
+- **[Conventional Commits](docs/development/conventional-commits.md)** - Commit message standards
 - **[Project Vision](docs/PROJECT_NORTH_STAR.md)** - Business-in-a-Box vision and strategy
 
 ## 🔧 Development

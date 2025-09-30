@@ -1,14 +1,27 @@
 # Contributing Guide
 
-Welcome to the Meta-Repo Seed project! We appreciate your interest in contributing. This guide will help you understand how to contribute effectively to the project.
+Welcome to Business-in-a-Box! We appreciate your interest in contributing to our rapid infrastructure deployment system. This guide provides a high-level overview - **all contributors must complete the onboarding process first**.
+
+## 🚀 **START HERE: Contributor Onboarding**
+
+**🚨 MANDATORY: Complete Before Your First Contribution**
+- **[Contributor Onboarding Guide](./contributor-onboarding.md)** - **REQUIRED reading** for all contributors (human developers, AI agents, external contributors)
+
+This comprehensive guide covers:
+- Development workflow and GitFlow branching
+- Documentation standards and PR template requirements  
+- Conventional commit format and validation
+- Test-driven development methodology
+- Common mistakes and success patterns
 
 ## 📋 Essential Documentation
 
-Before contributing, please familiarize yourself with our workflow and standards:
+After completing onboarding, reference these guides as needed:
 
 **🚨 CRITICAL: Read First**
 - **[Creating Issues Guide](./creating-issues.md)** - **MANDATORY TDD requirements** for all code-related issues
-- **[Test-Driven Development Guide](../guides/test-driven-development.md)** - **Required reading** for all contributors
+- **[Documentation Standards](./documentation-standards.md)** - **3-category documentation system**
+- **[Conventional Commits](./conventional-commits.md)** - **Commit message standards and validation**
 
 **Development Process:**
 - **[Issue Management Guide](./issue-management.md)** - Issue types, labels, and backlog management
