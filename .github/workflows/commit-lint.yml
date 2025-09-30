@@ -1,0 +1,68 @@
+name: Commit Message Validation
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  commitlint:
+    runs-on: ubuntu-latest
+    name: Validate Commit Messages
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Install commitlint
+      run: |
+        npm install --save-dev @commitlint/config-conventional @commitlint/cli
+        
+    - name: Validate current commit (push)
+      if: github.event_name == 'push'
+      run: npx commitlint --from HEAD~1 --to HEAD --verbose
+      
+    - name: Validate PR commits (pull_request)
+      if: github.event_name == 'pull_request'
+      run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to HEAD --verbose
+      
+    - name: Show commit message format help on failure
+      if: failure()
+      run: |
+        echo "❌ Commit message validation failed!"
+        echo ""
+        echo "📋 Conventional Commit Format Required:"
+        echo "   <type>[optional scope]: <description>"
+        echo ""
+        echo "📝 Valid Types:"
+        echo "   feat     - New feature for users"
+        echo "   fix      - Bug fix that affects users"  
+        echo "   docs     - Documentation changes only"
+        echo "   style    - Code formatting (no logic change)"
+        echo "   refactor - Code refactoring"
+        echo "   test     - Test changes"
+        echo "   chore    - Build/tooling changes"
+        echo "   perf     - Performance improvements"
+        echo "   ci       - CI/CD changes"
+        echo "   hotfix   - Emergency production fixes"
+        echo ""
+        echo "🎯 Valid Scopes:"
+        echo "   business, cli, templates, auth, deploy, api, config"
+        echo "   ci, deps, security, docs, test, build"
+        echo ""
+        echo "✅ Examples:"
+        echo "   feat(business): add charity-nonprofit profile template"
+        echo "   fix(deploy): resolve template processing error"
+        echo "   docs: update installation guide"
+        echo "   chore(deps): update Python dependencies"
+        echo ""
+        echo "📖 See docs/development/conventional-commits.md for complete guide"
+        exit 1
