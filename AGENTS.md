@@ -102,6 +102,37 @@
 - 📋 Process/Research → Use flexible Process/Research documentation standards
 - 🐛 Bug Fixes → Minimal documentation, focus on changelog if user-visible
 
+### AI Integration Guidelines - MANDATORY
+**AI Tools as Supplementary Aids, Not Primary Drivers**
+
+**✅ AI Strengths - Use For:**
+- Code completion and boilerplate generation
+- Test case generation and TDD support
+- Documentation writing and enhancement
+- Code review supplementation (never replacement)
+- Pattern recognition and consistency checking
+
+**❌ AI Limitations - Human Required:**
+- Domain-specific business logic and architectural decisions
+- Security vulnerability assessment and performance optimization
+- Understanding Business-in-a-Box constraints and market positioning
+- Business partnership decisions and strategic direction
+
+**🔧 Integration with Development Workflow:**
+- **Issue Analysis:** AI research + Human decision making
+- **TDD Phase:** AI test generation + Human validation against business requirements
+- **Implementation:** AI code assistance + Human business logic and integration
+- **Documentation:** AI enhancement + Human accuracy and business context validation
+- **Code Review:** AI initial review + Human final approval and business impact assessment
+
+**⚠️ Critical Requirements:**
+- Always validate AI suggestions against Business-in-a-Box requirements
+- Maintain human review for all business-critical decisions
+- Never share sensitive information (API keys, customer data) with AI tools
+- Test all AI-generated code thoroughly for business logic correctness
+
+**See `docs/development/ai-integration-guidelines.md` for complete AI usage standards**
+
 ## Architecture
 - **Main Entry**: `seeding.py` - Core seeding script with `RepoSeeder` class for idempotent project structure creation
 - **Modules**: `src/structure_parser/` (JSON schema validation), `src/automation/` (automation scripts), `src/meta_repo_seed/` (core package)
