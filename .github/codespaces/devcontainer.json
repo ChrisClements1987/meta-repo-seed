@@ -1,0 +1,136 @@
+{
+	"name": "Business-in-a-Box Codespaces",
+	"image": "mcr.microsoft.com/vscode/devcontainers/python:3.11-bullseye",
+	
+	// Use the same configuration as local devcontainer but optimized for cloud
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				// Core Python development
+				"ms-python.python",
+				"ms-python.black-formatter", 
+				"ms-python.flake8",
+				"ms-python.isort",
+				
+				// GitHub integration (especially useful in Codespaces)
+				"GitHub.vscode-pull-request-github",
+				"GitHub.copilot",
+				"GitHub.copilot-chat",
+				"eamodio.gitlens",
+				
+				// Conventional commits and workflow
+				"vivaxy.vscode-conventional-commits",
+				"ms-vscode.vscode-github-issue-pr",
+				
+				// Documentation
+				"yzhang.markdown-all-in-one",
+				"davidanson.vscode-markdownlint",
+				"bierner.markdown-mermaid",
+				
+				// Testing
+				"ms-python.pytest",
+				"hbenl.vscode-test-explorer"
+			],
+			
+			"settings": {
+				// Python configuration optimized for Codespaces
+				"python.defaultInterpreterPath": "/usr/local/bin/python",
+				"python.formatting.provider": "none",
+				"python.linting.enabled": true,
+				"python.linting.flake8Enabled": true,
+				"python.testing.pytestEnabled": true,
+				
+				// Formatting configuration
+				"[python]": {
+					"editor.formatOnSave": true,
+					"editor.codeActionsOnSave": {
+						"source.organizeImports": true
+					}
+				},
+				"black-formatter.args": ["--line-length=127"],
+				"isort.args": ["--line-length=127"],
+				
+				// Git configuration for Codespaces
+				"git.enableSmartCommit": true,
+				"git.autofetch": true,
+				"git.openRepositoryInParentFolders": "always",
+				
+				// Terminal configuration
+				"terminal.integrated.defaultProfile.linux": "bash",
+				
+				// Conventional commits configuration
+				"conventionalCommits.scopes": [
+					"business", "cli", "templates", "auth", "deploy", 
+					"api", "config", "ci", "deps", "security"
+				],
+				
+				// Codespaces-specific optimizations
+				"files.watcherExclude": {
+					"**/.git/**": true,
+					"**/node_modules/**": true,
+					"**/__pycache__/**": true,
+					"**/.pytest_cache/**": true
+				},
+				
+				// Editor settings
+				"editor.tabSize": 4,
+				"editor.rulers": [127],
+				"workbench.startupEditor": "readme"
+			}
+		},
+		
+		"codespaces": {
+			"openFiles": [
+				"README.md",
+				"docs/development/contributor-onboarding.md"
+			]
+		}
+	},
+	
+	// Forward ports for development servers
+	"forwardPorts": [8000, 3000, 5000],
+	"portsAttributes": {
+		"8000": {
+			"label": "Business API Server",
+			"onAutoForward": "notify"
+		},
+		"3000": {
+			"label": "Frontend Dev Server", 
+			"onAutoForward": "notify"
+		},
+		"5000": {
+			"label": "Flask/API Server",
+			"onAutoForward": "notify"
+		}
+	},
+	
+	// Environment configuration for Codespaces
+	"containerEnv": {
+		"PYTHONPATH": "/workspaces/meta-repo-seed",
+		"ENVIRONMENT": "codespaces",
+		"TZ": "UTC",
+		"GITHUB_CODESPACES": "true"
+	},
+	
+	// Post-create command optimized for Codespaces
+	"postCreateCommand": "bash .devcontainer/codespaces-setup.sh",
+	
+	// Enable useful Codespaces features
+	"features": {
+		"ghcr.io/devcontainers/features/git:1": {
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers/features/github-cli:1": {
+			"version": "latest"
+		}
+	},
+	
+	// Codespaces-specific configuration
+	"remoteUser": "vscode",
+	"updateContentCommand": "pip install -r requirements-dev.txt && npm install",
+	
+	// Lifecycle scripts for better Codespaces experience
+	"initializeCommand": "echo 'Initializing Business-in-a-Box Codespace...'",
+	"onCreateCommand": "echo 'Creating Business-in-a-Box development environment...'",
+	"updateContentCommand": "echo 'Updating Business-in-a-Box dependencies...'"
+}

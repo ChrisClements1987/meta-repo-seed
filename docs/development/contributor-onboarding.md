@@ -241,31 +241,123 @@ If validation fails:
 
 ## 🔧 Development Environment Setup
 
-### Required Tools
+Choose the development environment option that works best for your setup:
+
+### **Option 1: DevContainers (Recommended - Zero Setup)**
+**One-click setup with VS Code Dev Containers:**
+
+1. **Install Prerequisites:**
+   - VS Code with Dev Containers extension
+   - Docker Desktop
+
+2. **Setup:**
+   ```bash
+   git clone https://github.com/ChrisClements1987/meta-repo-seed.git
+   cd meta-repo-seed
+   code .
+   # Click "Reopen in Container" when prompted
+   ```
+
+3. **Ready!** - Fully configured environment with all tools
+
+**Benefits:**
+- ✅ **Consistent across all platforms** (Windows, macOS, Linux)
+- ✅ **All tools pre-installed** - Python, Node.js, commitlint, formatters
+- ✅ **VS Code fully configured** - Extensions and settings optimized
+- ✅ **Zero manual setup** - Everything automated
+
+### **Option 2: GitHub Codespaces (Cloud Development)**
+**Instant cloud development environment:**
+
+1. **Navigate to repository** on GitHub
+2. **Click "Code" → "Create codespace"**
+3. **Wait 2-3 minutes** - cloud environment ready
+4. **Start developing** - all tools pre-configured
+
+**Benefits:**
+- ✅ **No local setup required** - Works from any device
+- ✅ **Powerful cloud resources** - Fast builds and tests
+- ✅ **GitHub integration** - Seamless PR and issue management
+- ✅ **Consistent team environment** - Same setup for all contributors
+
+### **Option 3: Docker Compose (Local Development Stack)**
+**Full local development with optional services:**
+
+```bash
+# Basic development environment
+docker-compose -f docker-compose.dev.yml up -d business-in-a-box-dev
+
+# Work in the container
+docker-compose -f docker-compose.dev.yml exec business-in-a-box-dev bash
+
+# Optional: Add database for database-related work
+docker-compose -f docker-compose.dev.yml --profile database up -d
+
+# Optional: Add Redis for caching development
+docker-compose -f docker-compose.dev.yml --profile cache up -d
+
+# Optional: Serve docs locally
+docker-compose -f docker-compose.dev.yml --profile docs up -d
+
+# Clean up when done
+docker-compose -f docker-compose.dev.yml down
+```
+
+### **Option 4: Manual Setup (Fallback)**
+**Traditional local setup if containers aren't available:**
+
 ```bash
 # Python environment
 python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+# Windows: venv\Scripts\activate
+# macOS/Linux: source venv/bin/activate
 pip install -r requirements-dev.txt
 
-# Node.js for commit validation
+# Node.js dependencies (for commitlint)
 npm install
 
-# Git hooks (optional but recommended)
-npm run prepare  # Installs husky for commit linting
+# Optional: Install commitizen globally
+npm install -g commitizen
 ```
 
-### Recommended VS Code Extensions
-- **Conventional Commits** - Guided commit messages
-- **Python** - Language support and debugging
-- **GitLens** - Enhanced git capabilities
-- **Markdown All in One** - Documentation editing
+### Development Environment Validation
+**Verify your setup works (available in all container options):**
+
+```bash
+# Automated validation (available in containers)
+validate-env
+
+# Manual validation
+python --version          # Should be 3.11+
+node --version            # Should be 18+
+python -m pytest --version
+black --version
+flake8 --version
+npx commitlint --version
+```
+
+### Container-Specific Development Commands
+**Available in DevContainers and Codespaces:**
+
+```bash
+# Quick development commands (pre-configured aliases)
+test         # Run pytest with coverage
+format       # Format code with black and isort
+check        # Validate formatting and linting
+seed-dry     # Test seeding script (dry run)
+validate     # Validate development environment
+issues       # List open GitHub issues (Codespaces)
+prs          # List open pull requests (Codespaces)
+sync         # Sync with develop branch
+commit       # Use guided conventional commits
+```
 
 ### Recommended Development Workflow
-1. **Install commitizen** for guided commits: `npm install -g commitizen`
-2. **Use guided commits**: `git cz` instead of `git commit`
-3. **Run tests locally**: `python -m pytest` before pushing
-4. **Check documentation**: Ensure appropriate docs updated
+1. **Use container environment** (DevContainer or Codespaces recommended)
+2. **Use guided commits**: `commit` or `git cz` for conventional commit format
+3. **Run validation**: `check` before pushing to catch issues early
+4. **Test frequently**: `test` to ensure TDD compliance
+5. **Validate environment**: `validate-env` if issues arise
 
 ## ❌ Common Mistakes to Avoid
 

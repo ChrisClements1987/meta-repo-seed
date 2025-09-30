@@ -1,0 +1,104 @@
+version: '3.8'
+
+services:
+  # Main development environment
+  business-in-a-box-dev:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    container_name: business-in-a-box-dev
+    volumes:
+      # Mount source code
+      - .:/workspaces/meta-repo-seed
+      # Preserve git configuration
+      - ~/.gitconfig:/home/vscode/.gitconfig:ro
+      - ~/.ssh:/home/vscode/.ssh:ro
+      # Persist node_modules and Python cache for performance
+      - node_modules:/workspaces/meta-repo-seed/node_modules
+      - python_cache:/home/vscode/.cache
+    working_dir: /workspaces/meta-repo-seed
+    environment:
+      - PYTHONPATH=/workspaces/meta-repo-seed
+      - ENVIRONMENT=development
+      - TZ=UTC
+    ports:
+      - "8000:8000"   # Business API server
+      - "3000:3000"   # Frontend development server
+      - "5000:5000"   # Flask/API development server
+    command: tail -f /dev/null  # Keep container running
+    networks:
+      - business-dev-network
+    
+    # Development tools and debugging
+    stdin_open: true
+    tty: true
+    
+    # Resource limits for development
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+  # Optional: Database for development (if needed in future)
+  dev-database:
+    image: postgres:15-alpine
+    container_name: business-dev-db
+    environment:
+      POSTGRES_DB: business_in_a_box_dev
+      POSTGRES_USER: developer
+      POSTGRES_PASSWORD: dev_password_change_in_production
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5432:5432"
+    networks:
+      - business-dev-network
+    profiles:
+      - database  # Only start with --profile database
+
+  # Optional: Redis for caching (if needed in future)
+  dev-redis:
+    image: redis:7-alpine
+    container_name: business-dev-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - business-dev-network
+    profiles:
+      - cache  # Only start with --profile cache
+
+  # Optional: Documentation server for local docs
+  docs-server:
+    image: nginx:alpine
+    container_name: business-docs-server
+    volumes:
+      - ./docs:/usr/share/nginx/html/docs:ro
+      - ./README.md:/usr/share/nginx/html/index.md:ro
+    ports:
+      - "8080:80"
+    networks:
+      - business-dev-network
+    profiles:
+      - docs  # Only start with --profile docs
+
+volumes:
+  node_modules:
+    driver: local
+  python_cache:
+    driver: local
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  business-dev-network:
+    driver: bridge
+    name: business-dev-network
