@@ -27,8 +27,41 @@
 3. **Write failing tests FIRST** - Document test-fail-pass-refactor cycle in PR
 4. **Implement minimum code** - Make tests pass
 5. **Refactor** - Clean up implementation
-6. **Update documentation** - Guides, roadmap, changelog, AI context
+6. **Update documentation** - Follow 3-category documentation standards (see below)
 7. **Commit with clear messages** - Focused, logical commits
+
+### Documentation Standards - MANDATORY
+**3-Category Documentation System:**
+
+**👤 User Documentation (Required for user-facing changes):**
+- User guides and manuals in `docs/guides/user/`
+- FAQ updates for common scenarios
+- Release notes and changelog entries
+- Migration guides for breaking changes
+
+**👨‍💻 Developer Documentation (Required for technical changes):**
+- API reference and OpenAPI specifications
+- Architecture documentation and ADRs in `docs/architecture/`
+- Code comments for complex logic
+- README updates for setup changes
+
+**⚙️ Operations Documentation (Required for deployment/config changes):**
+- Installation and deployment guides
+- Configuration documentation
+- Environment variable documentation
+- Monitoring and troubleshooting guides
+
+**📋 Process/Research Documentation (Internal work - flexible requirements):**
+- Analysis and research documents
+- Audit documentation with findings
+- Process documentation with examples
+- Internal documentation following structure standards
+
+**Documentation Category Assessment:**
+- 🚀 User-Facing Changes → Require User + Developer + Operations docs as applicable
+- 🛠️ Technical Changes → Require Developer + Operations docs as applicable  
+- 📋 Process/Research → Use flexible Process/Research documentation standards
+- 🐛 Bug Fixes → Minimal documentation, focus on changelog if user-visible
 
 ## Architecture
 - **Main Entry**: `seeding.py` - Core seeding script with `RepoSeeder` class for idempotent project structure creation
