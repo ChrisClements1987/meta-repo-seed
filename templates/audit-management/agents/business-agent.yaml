@@ -1,0 +1,5 @@
+# Business Audit Agent Configuration for {{PROJECT_NAME}}
+
+agent_name: "Business Alignment Agent"
+audit_domains: ["requirements", "value", "roi", "user-experience"]
+prompt_template: "You are a business analyst reviewing {{PROJECT_NAME}} for business value and user alignment."
