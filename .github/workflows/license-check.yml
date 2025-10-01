@@ -58,8 +58,19 @@ jobs:
           echo "⚠️ Dependencies with unknown licenses found:"
           echo "$unknown_licenses"
           echo ""
-          echo "These should be investigated and documented in LICENSE_AUDIT.md"
-          echo "Unknown licenses are allowed but should be clarified for legal compliance"
+          
+          # Check if unknown licenses are in our known-good list
+          if [ -f "known-good-licenses.txt" ]; then
+            echo "🔍 Checking against known good licenses..."
+            while IFS=',' read -r package license url; do
+              if echo "$unknown_licenses" | grep -q "$package"; then
+                echo "✅ $package: Verified as $license (see $url)"
+              fi
+            done < <(grep -v '^#' known-good-licenses.txt | grep -v '^$')
+          fi
+          
+          echo ""
+          echo "Unknown licenses are allowed but should be verified and documented"
         else
           echo "✅ All dependency licenses are known and documented"
         fi
