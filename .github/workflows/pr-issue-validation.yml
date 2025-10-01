@@ -54,3 +54,4 @@ jobs:
         
         echo ""
         echo "✅ PR issue linking validation passed!"
+        echo "🎯 Auto-close process verified and ready for use."
