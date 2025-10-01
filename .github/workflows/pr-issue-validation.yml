@@ -10,51 +10,27 @@ jobs:
     
     steps:
     - name: Validate PR links to issues
+      env:
+        PR_BODY: ${{ github.event.pull_request.body }}
       run: |
         echo "Validating PR properly links to issues..."
+        echo "DEBUG: Checking PR body for issue links..."
         
-        PR_BODY="${{ github.event.pull_request.body }}"
-        echo "DEBUG: PR Body content:"
-        echo "$PR_BODY"
-        echo "---"
-        
-        # Check for auto-close keywords (case-insensitive)
-        if echo "$PR_BODY" | grep -iE "(closes|fixes|resolves) #[0-9]+"; then
-          echo "SUCCESS: PR properly links to issues with auto-close keywords"
+        # Simple check for auto-close keywords
+        if echo "$PR_BODY" | grep -q -i "closes #[0-9]\+\|fixes #[0-9]\+\|resolves #[0-9]\+"; then
+          echo "SUCCESS: Found auto-close keywords in PR"
+          echo "$PR_BODY" | grep -i "closes #\|fixes #\|resolves #" || true
           
-          # Extract and display linked issues
-          linked_issues=$(echo "$PR_BODY" | grep -ioE "(closes|fixes|resolves) #[0-9]+" || true)
-          if [ -n "$linked_issues" ]; then
-            echo ""
-            echo "Issues that will auto-close when PR merges:"
-            echo "$linked_issues"
-          fi
+        elif echo "$PR_BODY" | grep -q -i "related to #[0-9]\+"; then
+          echo "WARNING: Found references but no auto-close keywords"
           
-        # Check for reference-only links
-        elif echo "$PR_BODY" | grep -iE "related to #[0-9]+"; then
-          echo "WARNING: PR contains issue references but no auto-close keywords"
-          echo "Consider using: Closes #123, Fixes #456, or Resolves #789"
-          echo "References found:"
-          echo "$PR_BODY" | grep -ioE "related to #[0-9]+" || true
-          
-        # Check for explanation of no related issues
-        elif echo "$PR_BODY" | grep -iE "(no related issues|no existing issues|doesn't address existing)"; then
-          echo "SUCCESS: PR explains why it doesn't address existing issues"
+        elif echo "$PR_BODY" | grep -q -i "no related issues\|no existing issues\|doesn't address existing"; then
+          echo "SUCCESS: PR explains no related issues"
           
         else
           echo "ERROR: PR must link to issues or explain why none exist"
-          echo ""
-          echo "Required formats:"
-          echo "  - Closes #123 (auto-closes issue when PR merges)"
-          echo "  - Fixes #456 (auto-closes issue when PR merges)"  
-          echo "  - Resolves #789 (auto-closes issue when PR merges)"
-          echo "  - Related to #123 (reference only, doesn't auto-close)"
-          echo "  - Or explain why no existing issues are addressed"
-          echo ""
-          echo "This ensures proper issue management and prevents orphaned work."
+          echo "Required: 'Closes #123' or 'Fixes #456' or 'Resolves #789'"
           exit 1
         fi
         
-        echo ""
-        echo "PR issue linking validation passed!"
-        echo "Auto-close process verified and ready for use."
+        echo "Validation passed!"
