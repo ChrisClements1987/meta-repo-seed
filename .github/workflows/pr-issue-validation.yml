@@ -11,35 +11,38 @@ jobs:
     steps:
     - name: Validate PR links to issues
       run: |
-        echo "🔍 Validating PR properly links to issues..."
+        echo "Validating PR properly links to issues..."
         
         PR_BODY="${{ github.event.pull_request.body }}"
+        echo "DEBUG: PR Body content:"
+        echo "$PR_BODY"
+        echo "---"
         
         # Check for auto-close keywords (case-insensitive)
         if echo "$PR_BODY" | grep -iE "(closes|fixes|resolves) #[0-9]+"; then
-          echo "✅ PR properly links to issues with auto-close keywords"
+          echo "SUCCESS: PR properly links to issues with auto-close keywords"
           
           # Extract and display linked issues
           linked_issues=$(echo "$PR_BODY" | grep -ioE "(closes|fixes|resolves) #[0-9]+" || true)
           if [ -n "$linked_issues" ]; then
             echo ""
-            echo "📋 Issues that will auto-close when PR merges:"
+            echo "Issues that will auto-close when PR merges:"
             echo "$linked_issues"
           fi
           
         # Check for reference-only links
         elif echo "$PR_BODY" | grep -iE "related to #[0-9]+"; then
-          echo "⚠️ PR contains issue references but no auto-close keywords"
+          echo "WARNING: PR contains issue references but no auto-close keywords"
           echo "Consider using: Closes #123, Fixes #456, or Resolves #789"
           echo "References found:"
           echo "$PR_BODY" | grep -ioE "related to #[0-9]+" || true
           
         # Check for explanation of no related issues
         elif echo "$PR_BODY" | grep -iE "(no related issues|no existing issues|doesn't address existing)"; then
-          echo "✅ PR explains why it doesn't address existing issues"
+          echo "SUCCESS: PR explains why it doesn't address existing issues"
           
         else
-          echo "❌ PR must link to issues or explain why none exist"
+          echo "ERROR: PR must link to issues or explain why none exist"
           echo ""
           echo "Required formats:"
           echo "  - Closes #123 (auto-closes issue when PR merges)"
@@ -53,5 +56,5 @@ jobs:
         fi
         
         echo ""
-        echo "✅ PR issue linking validation passed!"
-        echo "🎯 Auto-close process verified and ready for use."
+        echo "PR issue linking validation passed!"
+        echo "Auto-close process verified and ready for use."
