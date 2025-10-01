@@ -1,0 +1,674 @@
+name: Compliance Enforcement
+# Self-governing compliance and policy enforcement automation
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # Weekly Monday 9 AM
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  repository_dispatch:
+    types: [compliance-check]
+  workflow_dispatch:
+    inputs:
+      enforcement_level:
+        description: 'Enforcement level'
+        required: false
+        type: choice
+        options: ['strict', 'advisory', 'report-only']
+        default: 'advisory'
+
+env:
+  ENFORCEMENT_LEVEL: ${{ github.event.inputs.enforcement_level || 'advisory' }}
+
+jobs:
+  detect-business-profile:
+    name: Detect Business Profile
+    runs-on: ubuntu-latest
+    outputs:
+      business_profile: ${{ steps.detect.outputs.business_profile }}
+      compliance_rules: ${{ steps.detect.outputs.compliance_rules }}
+    steps:
+      - uses: actions/checkout@v4
+        
+      - name: Detect business profile and compliance requirements
+        id: detect
+        run: |
+          # Try to detect from repository metadata or governance files
+          profile="startup-basic"  # default
+          
+          if [ -f "governance/business-profile.yml" ]; then
+            profile=$(grep "profile:" governance/business-profile.yml | cut -d: -f2 | xargs)
+          elif [ -f "governance/policies/transparency-policy.md" ]; then
+            profile="charity-nonprofit"
+          elif [ -f "governance/policies/client-data-policy.md" ]; then
+            profile="consulting-firm"
+          elif [ -f "governance/policies/business-compliance.md" ]; then
+            profile="smb-standard"
+          fi
+          
+          echo "business_profile=$profile" >> $GITHUB_OUTPUT
+          
+          # Set compliance rules based on profile
+          case "$profile" in
+            "startup-basic")
+              echo "compliance_rules=standard,security,quality,documentation" >> $GITHUB_OUTPUT
+              ;;
+            "charity-nonprofit")
+              echo "compliance_rules=enhanced,transparency,donor-privacy,impact-reporting" >> $GITHUB_OUTPUT
+              ;;
+            "smb-standard") 
+              echo "compliance_rules=business,security,professional,continuity" >> $GITHUB_OUTPUT
+              ;;
+            "consulting-firm")
+              echo "compliance_rules=professional,client-confidentiality,partner-approval,billing" >> $GITHUB_OUTPUT
+              ;;
+          esac
+          
+          echo "🔍 Detected business profile: $profile"
+
+  license-compliance-check:
+    name: License Compliance Check
+    runs-on: ubuntu-latest
+    needs: detect-business-profile
+    steps:
+      - uses: actions/checkout@v4
+        
+      - name: Verify license compliance
+        run: |
+          echo "📄 Checking license compliance for ${{ needs.detect-business-profile.outputs.business_profile }}"
+          
+          # Check for LICENSE file
+          if [ ! -f "LICENSE" ] && [ ! -f "LICENSE.md" ] && [ ! -f "LICENSE.txt" ]; then
+            echo "::error::No LICENSE file found"
+            exit 1
+          fi
+          
+          # Profile-specific license checks
+          case "${{ needs.detect-business-profile.outputs.business_profile }}" in
+            "charity-nonprofit")
+              # Check for GPL-compatible or public domain license
+              if grep -iq "GPL\|MIT\|Apache\|BSD\|CC0" LICENSE*; then
+                echo "✅ Open source license found (appropriate for charity)"
+              else
+                echo "::warning::Consider open source license for transparency"
+              fi
+              ;;
+            "consulting-firm")
+              # May need proprietary license for client work
+              if grep -iq "proprietary\|confidential\|all rights reserved" LICENSE*; then
+                echo "✅ Proprietary license found (appropriate for client work)"
+              else
+                echo "::warning::Verify license is appropriate for client work"
+              fi
+              ;;
+          esac
+          
+      - name: Check dependency licenses
+        run: |
+          echo "🔍 Checking dependency licenses"
+          
+          # Check for package files and scan dependencies
+          if [ -f "package.json" ]; then
+            echo "📦 Scanning npm dependencies"
+            npx license-checker --summary || echo "::warning::Install license-checker for full dependency audit"
+          fi
+          
+          if [ -f "requirements.txt" ]; then
+            echo "🐍 Scanning Python dependencies"  
+            echo "::notice::Manual review recommended for Python dependencies"
+          fi
+          
+          if [ -f "go.mod" ]; then
+            echo "🐹 Scanning Go dependencies"
+            echo "::notice::Manual review recommended for Go dependencies"
+          fi
+
+  code-quality-enforcement:
+    name: Code Quality Enforcement
+    runs-on: ubuntu-latest  
+    needs: detect-business-profile
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup quality tools
+        run: |
+          profile="${{ needs.detect-business-profile.outputs.business_profile }}"
+          
+          # Install appropriate linters based on project type
+          if [ -f "package.json" ]; then
+            npm install --no-save eslint prettier
+          fi
+          
+          if [ -f "requirements.txt" ] || [ -f "pyproject.toml" ]; then
+            pip install flake8 black mypy
+          fi
+          
+          echo "🛠️ Quality tools ready for $profile profile"
+      
+      - name: Run code quality checks
+        run: |
+          quality_score=0
+          max_score=0
+          
+          echo "🔍 Running code quality enforcement"
+          
+          # JavaScript/TypeScript quality
+          if [ -f "package.json" ]; then
+            max_score=$((max_score + 2))
+            
+            if npx eslint --ext .js,.ts,.jsx,.tsx . --max-warnings 0; then
+              echo "✅ ESLint passed"
+              quality_score=$((quality_score + 1))
+            else
+              echo "❌ ESLint issues found"
+            fi
+            
+            if npx prettier --check .; then
+              echo "✅ Prettier formatting passed"  
+              quality_score=$((quality_score + 1))
+            else
+              echo "❌ Code formatting issues found"
+            fi
+          fi
+          
+          # Python quality
+          if [ -f "requirements.txt" ] || [ -f "pyproject.toml" ]; then
+            max_score=$((max_score + 2))
+            
+            if flake8 .; then
+              echo "✅ Flake8 passed"
+              quality_score=$((quality_score + 1))
+            else
+              echo "❌ Python code quality issues found"
+            fi
+            
+            if black --check .; then
+              echo "✅ Black formatting passed"
+              quality_score=$((quality_score + 1))
+            else
+              echo "❌ Python formatting issues found"
+            fi
+          fi
+          
+          # Calculate quality percentage
+          if [ $max_score -gt 0 ]; then
+            quality_percentage=$((quality_score * 100 / max_score))
+            echo "📊 Code quality score: $quality_percentage%"
+            
+            # Profile-specific quality thresholds
+            case "${{ needs.detect-business-profile.outputs.business_profile }}" in
+              "startup-basic")
+                threshold=70
+                ;;
+              "charity-nonprofit"|"consulting-firm")
+                threshold=85
+                ;;
+              "smb-standard")
+                threshold=80
+                ;;
+            esac
+            
+            if [ $quality_percentage -lt $threshold ]; then
+              echo "::error::Code quality $quality_percentage% below $threshold% threshold"
+              if [ "${{ env.ENFORCEMENT_LEVEL }}" = "strict" ]; then
+                exit 1
+              fi
+            fi
+          fi
+
+  documentation-standards-check:
+    name: Documentation Standards Check
+    runs-on: ubuntu-latest
+    needs: detect-business-profile
+    steps:
+      - uses: actions/checkout@v4
+        
+      - name: Check documentation completeness
+        run: |
+          echo "📚 Checking documentation standards"
+          profile="${{ needs.detect-business-profile.outputs.business_profile }}"
+          
+          doc_score=0
+          max_doc_score=0
+          
+          # Essential documentation checks
+          required_docs=("README.md" "CONTRIBUTING.md")
+          for doc in "${required_docs[@]}"; do
+            max_doc_score=$((max_doc_score + 1))
+            if [ -f "$doc" ]; then
+              echo "✅ $doc found"
+              doc_score=$((doc_score + 1))
+              
+              # Check content quality
+              word_count=$(wc -w < "$doc")
+              if [ $word_count -gt 100 ]; then
+                echo "✅ $doc has substantial content ($word_count words)"
+              else
+                echo "::warning::$doc seems incomplete ($word_count words)"
+              fi
+            else
+              echo "❌ $doc missing"
+            fi
+          done
+          
+          # Profile-specific documentation requirements
+          case "$profile" in
+            "charity-nonprofit")
+              max_doc_score=$((max_doc_score + 2))
+              if [ -f "docs/impact-reporting.md" ]; then
+                echo "✅ Impact reporting documentation found"
+                doc_score=$((doc_score + 1))
+              else
+                echo "❌ Impact reporting documentation missing"
+              fi
+              
+              if [ -f "docs/transparency-policy.md" ] || [ -f "governance/policies/transparency-policy.md" ]; then
+                echo "✅ Transparency policy documented"
+                doc_score=$((doc_score + 1))
+              else
+                echo "❌ Transparency policy documentation missing"
+              fi
+              ;;
+              
+            "consulting-firm")
+              max_doc_score=$((max_doc_score + 2))
+              if [ -f "docs/client-guidelines.md" ]; then
+                echo "✅ Client guidelines documented"
+                doc_score=$((doc_score + 1))
+              else
+                echo "❌ Client guidelines missing"
+              fi
+              
+              if [ -f "docs/professional-standards.md" ]; then
+                echo "✅ Professional standards documented"
+                doc_score=$((doc_score + 1))
+              else
+                echo "❌ Professional standards documentation missing"
+              fi
+              ;;
+          esac
+          
+          # Documentation directory structure
+          max_doc_score=$((max_doc_score + 1))
+          if [ -d "docs" ] && [ -d "docs/user" ] && [ -d "docs/developer" ]; then
+            echo "✅ Proper documentation structure"
+            doc_score=$((doc_score + 1))
+          else
+            echo "❌ Documentation structure incomplete"
+          fi
+          
+          # Calculate documentation score
+          if [ $max_doc_score -gt 0 ]; then
+            doc_percentage=$((doc_score * 100 / max_doc_score))
+            echo "📊 Documentation completeness: $doc_percentage%"
+            
+            if [ $doc_percentage -lt 80 ]; then
+              echo "::warning::Documentation below 80% completeness"
+            fi
+          fi
+
+  security-vulnerability-scan:
+    name: Security Vulnerability Scan
+    runs-on: ubuntu-latest
+    needs: detect-business-profile
+    steps:
+      - uses: actions/checkout@v4
+        
+      - name: Run security scans
+        run: |
+          echo "🔒 Running security vulnerability scan"
+          profile="${{ needs.detect-business-profile.outputs.business_profile }}"
+          
+          security_issues=0
+          
+          # Check for secrets in code
+          echo "🔍 Scanning for exposed secrets"
+          if grep -r -i "password\|secret\|api[_-]key\|token" --include="*.js" --include="*.py" --include="*.go" --include="*.yaml" --include="*.json" . | grep -v node_modules | grep -v ".git"; then
+            echo "::warning::Potential secrets found in code"
+            security_issues=$((security_issues + 1))
+          else
+            echo "✅ No obvious secrets found in code"
+          fi
+          
+          # Check dependency vulnerabilities
+          if [ -f "package.json" ]; then
+            echo "📦 Checking npm vulnerabilities"
+            if npm audit --audit-level=moderate; then
+              echo "✅ No npm vulnerabilities found"
+            else
+              echo "❌ npm vulnerabilities detected"
+              security_issues=$((security_issues + 1))
+            fi
+          fi
+          
+          # Profile-specific security checks
+          case "$profile" in
+            "charity-nonprofit")
+              echo "🏛️ Checking charity-specific security requirements"
+              # Check for donor data protection measures
+              if grep -r -i "gdpr\|privacy\|donor.*data" docs/ governance/ 2>/dev/null; then
+                echo "✅ Privacy protection measures documented"
+              else
+                echo "::warning::Consider documenting donor privacy protections"
+              fi
+              ;;
+              
+            "consulting-firm")
+              echo "👔 Checking consulting-specific security requirements"
+              # Check for client confidentiality measures
+              if grep -r -i "confidential\|nda\|client.*data" docs/ governance/ 2>/dev/null; then
+                echo "✅ Client confidentiality measures documented"
+              else
+                echo "::warning::Client confidentiality measures should be documented"
+              fi
+              ;;
+          esac
+          
+          echo "🔒 Security scan completed: $security_issues issues found"
+          
+          if [ $security_issues -gt 0 ] && [ "${{ env.ENFORCEMENT_LEVEL }}" = "strict" ]; then
+            echo "::error::Security issues found in strict mode"
+            exit 1
+          fi
+
+  governance-policy-validation:
+    name: Governance Policy Validation
+    runs-on: ubuntu-latest
+    needs: detect-business-profile
+    steps:
+      - uses: actions/checkout@v4
+        
+      - name: Validate governance policies
+        run: |
+          echo "⚖️ Validating governance policies"
+          profile="${{ needs.detect-business-profile.outputs.business_profile }}"
+          
+          governance_score=0
+          max_governance_score=0
+          
+          # Check CODEOWNERS file
+          max_governance_score=$((max_governance_score + 1))
+          if [ -f ".github/CODEOWNERS" ]; then
+            echo "✅ CODEOWNERS file exists"
+            governance_score=$((governance_score + 1))
+            
+            # Validate CODEOWNERS syntax
+            if grep -q "^[^#].*@" .github/CODEOWNERS; then
+              echo "✅ CODEOWNERS has valid entries"
+            else
+              echo "::warning::CODEOWNERS file may be empty or invalid"
+            fi
+          else
+            echo "❌ CODEOWNERS file missing"
+          fi
+          
+          # Check for governance directory structure
+          max_governance_score=$((max_governance_score + 1))
+          if [ -d "governance" ] && [ -d "governance/policies" ]; then
+            echo "✅ Governance directory structure exists"
+            governance_score=$((governance_score + 1))
+          else
+            echo "❌ Governance directory structure missing"
+          fi
+          
+          # Profile-specific governance validation
+          case "$profile" in
+            "charity-nonprofit")
+              max_governance_score=$((max_governance_score + 2))
+              if [ -f "governance/policies/transparency-policy.md" ]; then
+                echo "✅ Transparency policy exists"
+                governance_score=$((governance_score + 1))
+              else
+                echo "❌ Transparency policy missing"
+              fi
+              
+              # Check for board oversight mechanisms
+              if grep -r -i "board\|oversight\|governance" governance/ 2>/dev/null; then
+                echo "✅ Board oversight mechanisms documented"
+                governance_score=$((governance_score + 1))
+              else
+                echo "❌ Board oversight mechanisms not documented"
+              fi
+              ;;
+              
+            "consulting-firm")
+              max_governance_score=$((max_governance_score + 2))
+              if [ -f "governance/policies/client-data-policy.md" ]; then
+                echo "✅ Client data policy exists"
+                governance_score=$((governance_score + 1))
+              else
+                echo "❌ Client data policy missing"
+              fi
+              
+              # Check for partner approval requirements
+              if grep -r -i "partner.*approval\|senior.*review" .github/ governance/ 2>/dev/null; then
+                echo "✅ Partner approval requirements documented"
+                governance_score=$((governance_score + 1))
+              else
+                echo "❌ Partner approval requirements not documented"
+              fi
+              ;;
+          esac
+          
+          # Calculate governance score
+          if [ $max_governance_score -gt 0 ]; then
+            governance_percentage=$((governance_score * 100 / max_governance_score))
+            echo "📊 Governance completeness: $governance_percentage%"
+            
+            if [ $governance_percentage -lt 80 ]; then
+              echo "::warning::Governance policies below 80% completeness"
+            fi
+          fi
+
+  compliance-report-generation:
+    name: Generate Compliance Report
+    runs-on: ubuntu-latest
+    needs: [detect-business-profile, license-compliance-check, code-quality-enforcement, documentation-standards-check, security-vulnerability-scan, governance-policy-validation]
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+        
+      - name: Generate comprehensive compliance report
+        run: |
+          echo "📊 Generating compliance report"
+          profile="${{ needs.detect-business-profile.outputs.business_profile }}"
+          
+          mkdir -p compliance/reports
+          report_file="compliance/reports/compliance-report-$(date +%Y-%m-%d-%H%M).md"
+          
+          cat > "$report_file" << EOF
+          # Compliance Report - $(date +%Y-%m-%d)
+          
+          **Repository:** ${{ github.repository }}
+          **Business Profile:** $profile
+          **Enforcement Level:** ${{ env.ENFORCEMENT_LEVEL }}
+          **Triggered By:** ${{ github.event_name }}
+          
+          ## Executive Summary
+          
+          This automated compliance report covers all business operations automation requirements for our $profile business profile.
+          
+          ## Compliance Checks
+          
+          ### License Compliance
+          **Status:** ${{ needs.license-compliance-check.result == 'success' && '✅ PASS' || '❌ FAIL' }}
+          - License file verification
+          - Dependency license scanning
+          - Profile-specific license requirements
+          
+          ### Code Quality Enforcement  
+          **Status:** ${{ needs.code-quality-enforcement.result == 'success' && '✅ PASS' || '❌ FAIL' }}
+          - Automated linting and formatting
+          - Quality threshold validation
+          - Profile-specific quality standards
+          
+          ### Documentation Standards
+          **Status:** ${{ needs.documentation-standards-check.result == 'success' && '✅ PASS' || '❌ FAIL' }}
+          - Essential documentation completeness
+          - Profile-specific documentation requirements
+          - Documentation structure validation
+          
+          ### Security Vulnerability Scan
+          **Status:** ${{ needs.security-vulnerability-scan.result == 'success' && '✅ PASS' || '❌ FAIL' }}
+          - Secret exposure scanning
+          - Dependency vulnerability assessment
+          - Profile-specific security requirements
+          
+          ### Governance Policy Validation
+          **Status:** ${{ needs.governance-policy-validation.result == 'success' && '✅ PASS' || '❌ FAIL' }}
+          - CODEOWNERS validation
+          - Governance structure verification  
+          - Profile-specific governance policies
+          
+          ## Recommendations
+          
+          Based on the $profile business profile:
+          
+          EOF
+          
+          # Add profile-specific recommendations
+          case "$profile" in
+            "startup-basic")
+              cat >> "$report_file" << EOF
+          ### Startup-Specific Recommendations
+          - Maintain lean but professional standards
+          - Focus on growth-ready automation
+          - Ensure investor-ready documentation
+          - Consider scaling governance as team grows
+          EOF
+              ;;
+            "charity-nonprofit")
+              cat >> "$report_file" << EOF
+          ### Charity/Non-Profit Recommendations
+          - Maintain transparency in all operations
+          - Ensure donor privacy protection
+          - Document impact measurement processes
+          - Regular compliance audits recommended
+          EOF
+              ;;
+            "smb-standard")
+              cat >> "$report_file" << EOF
+          ### Small-Medium Business Recommendations
+          - Balance professionalism with operational efficiency
+          - Ensure business continuity procedures
+          - Consider professional service standards
+          - Regular business compliance reviews
+          EOF
+              ;;
+            "consulting-firm")
+              cat >> "$report_file" << EOF
+          ### Consulting Firm Recommendations
+          - Strict client confidentiality enforcement
+          - Partner-level approval for sensitive changes
+          - Client-specific access control validation
+          - Professional service delivery standards
+          EOF
+              ;;
+          esac
+          
+          cat >> "$report_file" << EOF
+          
+          ## Next Actions
+          
+          1. Review any failed compliance checks above
+          2. Address recommendations specific to $profile profile
+          3. Schedule regular compliance reviews
+          4. Update governance policies as needed
+          
+          ---
+          *Report generated automatically by Business Operations Automation*
+          *Next scheduled run: $(date -d "+7 days" +%Y-%m-%d)*
+          EOF
+          
+          echo "📋 Compliance report generated: $report_file"
+          
+          # Commit the report if we're on main/develop
+          if [[ "${{ github.ref }}" =~ ^refs/heads/(main|develop)$ ]]; then
+            git config --local user.email "action@github.com"
+            git config --local user.name "Compliance Bot"
+            git add "$report_file"
+            git commit -m "📊 Automated compliance report - $profile [skip ci]" || exit 0
+            git push
+          fi
+        
+      - name: Create compliance issue if failures
+        if: contains(needs.*.result, 'failure')
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const profile = '${{ needs.detect-business-profile.outputs.business_profile }}';
+            const failedChecks = [];
+            
+            const checks = {
+              'license-compliance-check': 'License Compliance',
+              'code-quality-enforcement': 'Code Quality', 
+              'documentation-standards-check': 'Documentation Standards',
+              'security-vulnerability-scan': 'Security Scan',
+              'governance-policy-validation': 'Governance Validation'
+            };
+            
+            const results = ${{ toJSON(needs) }};
+            
+            for (const [key, check] of Object.entries(checks)) {
+              if (results[key] && results[key].result === 'failure') {
+                failedChecks.push(`❌ ${check}`);
+              }
+            }
+            
+            if (failedChecks.length > 0) {
+              const issueBody = `# Compliance Issues Detected 🚨
+              
+              **Business Profile:** ${profile}
+              **Date:** ${new Date().toISOString().split('T')[0]}
+              **Trigger:** ${context.eventName}
+              
+              ## Failed Compliance Checks
+              
+              ${failedChecks.join('\n')}
+              
+              ## Required Actions
+              
+              1. Review the workflow run for detailed error messages
+              2. Address each failed compliance check
+              3. Re-run compliance validation after fixes
+              4. Update governance policies if needed
+              
+              ## Business Profile Requirements
+              
+              This repository follows the **${profile}** business profile with specific compliance requirements. Please ensure all profile-specific policies are followed.
+              
+              ---
+              *This issue was automatically created by the compliance enforcement system*
+              `;
+              
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `🚨 Compliance Issues - ${profile} Profile`,
+                body: issueBody,
+                labels: ['compliance', 'automated', 'high-priority']
+              });
+            }
+
+  notify-stakeholders:
+    name: Notify Stakeholders
+    runs-on: ubuntu-latest
+    needs: [detect-business-profile, compliance-report-generation]
+    if: always() && github.event_name == 'schedule'
+    steps:
+      - name: Send compliance summary
+        run: |
+          profile="${{ needs.detect-business-profile.outputs.business_profile }}"
+          
+          echo "📬 Sending compliance summary to stakeholders"
+          echo "Business Profile: $profile"
+          echo "Overall Status: ${{ needs.compliance-report-generation.result == 'success' && 'Compliant' || 'Action Required' }}"
+          
+          # In a real implementation, this would send emails, Slack messages, etc.
+          # For now, we'll just log the summary
+          echo "✅ Weekly compliance check completed for $profile profile"
+          echo "📊 Detailed report available in compliance/reports/"
+          echo "🔄 Next automated check scheduled for next Monday"
