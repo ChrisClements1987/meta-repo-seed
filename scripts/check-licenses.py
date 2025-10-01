@@ -59,10 +59,10 @@ class LicenseChecker:
             )
             return json.loads(result.stdout)
         except subprocess.CalledProcessError as e:
-            print(f"❌ Error running pip-licenses: {e}")
+            print(f"ERROR: Error running pip-licenses: {e}")
             sys.exit(1)
         except json.JSONDecodeError as e:
-            print(f"❌ Error parsing pip-licenses output: {e}")
+            print(f"ERROR: Error parsing pip-licenses output: {e}")
             sys.exit(1)
 
     def normalize_license(self, license_name: str) -> str:
@@ -91,7 +91,7 @@ class LicenseChecker:
         unknown_packages = []
         approved_count = 0
         
-        print("🔍 Checking license compliance for all dependencies...")
+        print("Checking license compliance for all dependencies...")
         print()
         
         for dep in dependencies:
@@ -101,42 +101,50 @@ class LicenseChecker:
             
             normalized_license = self.normalize_license(license_name)
             
-            # Check for prohibited licenses (GPL family)
-            if any(prohibited in normalized_license for prohibited in self.PROHIBITED_LICENSES):
-                violations.append(f"❌ {name} {version}: {license_name} (PROHIBITED)")
+            # Check for prohibited licenses (GPL family - but NOT LGPL)
+            is_prohibited = False
+            for prohibited in self.PROHIBITED_LICENSES:
+                if prohibited in normalized_license:
+                    # Special case: LGPL is allowed, only pure GPL is prohibited
+                    if 'LGPL' not in normalized_license and 'Lesser' not in normalized_license:
+                        is_prohibited = True
+                        break
+            
+            if is_prohibited:
+                violations.append(f"VIOLATION: {name} {version}: {license_name} (PROHIBITED)")
                 continue
             
             # Check manually verified packages first
             if name in self.VERIFIED_PACKAGES:
                 verified_license = self.VERIFIED_PACKAGES[name]
-                print(f"✅ {name} {version}: {license_name} → Verified as {verified_license}")
+                print(f"VERIFIED: {name} {version}: {license_name} -> {verified_license}")
                 approved_count += 1
                 continue
                 
             # Check approved licenses
             if normalized_license in self.APPROVED_LICENSES:
-                print(f"✅ {name} {version}: {license_name}")
+                print(f"APPROVED: {name} {version}: {license_name}")
                 approved_count += 1
                 continue
                 
             # Unknown license - needs investigation but not blocking
             if normalized_license == 'UNKNOWN':
-                unknown_packages.append(f"⚠️ {name} {version}: {license_name} (needs verification)")
+                unknown_packages.append(f"UNKNOWN: {name} {version}: {license_name} (needs verification)")
                 continue
                 
             # Unrecognized license - may need review
-            unknown_packages.append(f"❓ {name} {version}: {license_name} (unrecognized)")
+            unknown_packages.append(f"UNRECOGNIZED: {name} {version}: {license_name}")
         
         print()
-        print("📊 License Compliance Summary:")
-        print(f"✅ Approved: {approved_count} packages")
-        print(f"⚠️ Unknown/Unrecognized: {len(unknown_packages)} packages")
-        print(f"❌ Violations: {len(violations)} packages")
+        print("License Compliance Summary:")
+        print(f"Approved: {approved_count} packages")
+        print(f"Unknown/Unrecognized: {len(unknown_packages)} packages")
+        print(f"Violations: {len(violations)} packages")
         print()
         
         # Report violations (blocking)
         if violations:
-            print("🚨 LICENSE VIOLATIONS FOUND:")
+            print("LICENSE VIOLATIONS FOUND:")
             for violation in violations:
                 print(violation)
             print()
@@ -145,13 +153,13 @@ class LicenseChecker:
             
         # Report unknown licenses (non-blocking but noted)
         if unknown_packages:
-            print("⚠️ Unknown licenses detected (non-blocking):")
+            print("Unknown licenses detected (non-blocking):")
             for unknown in unknown_packages:
                 print(unknown)
             print()
             print("These should be investigated and added to VERIFIED_PACKAGES if safe.")
             
-        print("✅ License compliance check passed!")
+        print("License compliance check passed!")
         return True
 
 
@@ -160,10 +168,10 @@ def main():
     checker = LicenseChecker()
     
     if not checker.check_license_compliance():
-        print("❌ License compliance check failed!")
+        print("License compliance check failed!")
         sys.exit(1)
         
-    print("🎉 All license requirements satisfied!")
+    print("All license requirements satisfied!")
     sys.exit(0)
 
 
