@@ -35,34 +35,10 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         if [ -f requirements-test.txt ]; then pip install -r requirements-test.txt; fi
         
-    - name: Check for GPL license violations
+    - name: Run comprehensive license compliance check
       run: |
-        echo "🔍 Scanning for GPL license violations..."
-        
-        # Fail on any GPL licenses (incompatible with MIT)
-        if pip-licenses --format=csv | grep -i -E "(GPL|GPLv[0-9])"; then
-          echo "❌ GPL-licensed dependencies found! These are incompatible with MIT license."
-          echo "GPL dependencies must be removed or replaced with MIT/BSD/Apache alternatives."
-          exit 1
-        fi
-        
-        echo "✅ No GPL license violations found"
-        
-    - name: Check for unknown licenses
-      run: |
-        echo "🔍 Checking for unknown or unclear licenses..."
-        
-        # List unknown licenses for review
-        unknown_licenses=$(pip-licenses --format=csv | grep -i "UNKNOWN" || true)
-        if [ -n "$unknown_licenses" ]; then
-          echo "⚠️ Dependencies with unknown licenses found:"
-          echo "$unknown_licenses"
-          echo ""
-          echo "These should be investigated and documented in LICENSE_AUDIT.md"
-          echo "Unknown licenses are allowed but should be clarified for legal compliance"
-        else
-          echo "✅ All dependency licenses are known and documented"
-        fi
+        echo "🔍 Running comprehensive license compliance check..."
+        python scripts/check-licenses.py
         
     - name: Generate license report
       run: |
@@ -85,7 +61,7 @@ jobs:
         echo "- 📋 Review unknown licenses quarterly" >> license-report.md
         
     - name: Upload license report
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: license-compliance-report
         path: license-report.md

@@ -403,21 +403,90 @@ def start_onboarding_command(args) -> int:
     """
     logger = setup_logging(args.verbose)
     
-    logger.info("Starting business onboarding workflow...")
+    logger.info("Starting business operations automation onboarding...")
     
-    if args.dry_run:
-        logger.info("DRY RUN - Would start onboarding:")
-        logger.info("  ✓ Company information setup")
-        logger.info("  ✓ Domain and DNS configuration")
-        logger.info("  ✓ Team member invitation workflow")
-        logger.info("  ✓ Security and compliance checklist")
-        logger.info("  ✓ Integration with GitHub Issues/Projects")
-        return 0
+    # Import business operations automation
+    import asyncio
+    import os
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).parent.parent / "automation"))
+    from business_operations import deploy_business_operations_automation, BusinessProfile
     
-    # TODO: Implement onboarding workflow
-    logger.info("🚀 Onboarding workflow starting...")
-    logger.info("This feature is under development - Phase 1 Sprint 1")
-    return 0
+    # Get organization and repository info
+    org_name = getattr(args, 'org_name', None) or os.path.basename(os.getcwd())
+    repo_name = getattr(args, 'repo_name', None) or os.path.basename(os.getcwd())
+    business_profile = getattr(args, 'profile', 'startup-basic')
+    automation_level = getattr(args, 'automation_level', 'standard')
+    
+    async def run_onboarding():
+        logger.info("🚀 Starting business operations automation deployment...")
+        logger.info(f"Organization: {org_name}")
+        logger.info(f"Repository: {repo_name}")
+        logger.info(f"Business Profile: {business_profile}")
+        logger.info(f"Automation Level: {automation_level}")
+        
+        try:
+            # Deploy business operations automation
+            results = await deploy_business_operations_automation(
+                target_dir=Path('.'),
+                org_name=org_name,
+                repo_name=repo_name,
+                business_profile=business_profile,
+                automation_level=automation_level,
+                dry_run=args.dry_run
+            )
+            
+            if results['overall_success']:
+                logger.info("✅ Business operations automation deployed successfully!")
+                logger.info(f"   Success Rate: {results['deployment_summary']['success_rate']:.1f}%")
+                logger.info(f"   Workflows Created: {results['deployment_summary']['workflows_created']}")
+                logger.info(f"   Policies Applied: {results['deployment_summary']['policies_applied']}")
+                logger.info(f"   Governance Files: {results['deployment_summary']['governance_files']}")
+                
+                if args.dry_run:
+                    logger.info("")
+                    logger.info("This was a DRY RUN - no actual changes were made.")
+                    logger.info("Run without --dry-run to deploy the automation.")
+                else:
+                    logger.info("")
+                    logger.info("🎉 Self-governing business operations are now active!")
+                    logger.info("Next steps:")
+                    logger.info("1. Review the compliance checklist issue that will be created")
+                    logger.info("2. Customize governance policies in /governance/ as needed")
+                    logger.info("3. Monitor the automated workflows in action")
+                    logger.info("4. Check reports/business-operations/ for deployment details")
+                
+                return 0
+            else:
+                logger.error("❌ Business operations automation deployment failed!")
+                logger.error(f"   Success Rate: {results['deployment_summary']['success_rate']:.1f}%")
+                
+                if results['errors']:
+                    logger.error("   Errors:")
+                    for error in results['errors']:
+                        logger.error(f"     - {error}")
+                
+                return 1
+                
+        except Exception as e:
+            logger.error(f"Failed to deploy business operations automation: {e}")
+            if args.verbose:
+                import traceback
+                traceback.print_exc()
+            return 1
+    
+    # Run the onboarding
+    try:
+        return asyncio.run(run_onboarding())
+    except KeyboardInterrupt:
+        logger.info("Onboarding cancelled by user")
+        return 1
+    except Exception as e:
+        logger.error(f"Onboarding failed with error: {e}")
+        if args.verbose:
+            import traceback
+            traceback.print_exc()
+        return 1
 
 
 def validate_deployment_command(args) -> int:
@@ -522,8 +591,18 @@ infrastructure to focus on their core business instead of technology setup.
     onboard_parser = subparsers.add_parser(
         'start-onboarding',
         help='Start post-deployment business onboarding',
-        description='Begin guided setup workflow for business configuration and team onboarding'
+        description='Begin guided setup workflow for business configuration and team onboarding with self-governing automation'
     )
+    onboard_parser.add_argument('--profile', 
+                               choices=BusinessDeploymentProfiles.list_profiles(),
+                               default='startup-basic',
+                               help='Business profile for automation (default: startup-basic)')
+    onboard_parser.add_argument('--automation-level',
+                               choices=['conservative', 'standard', 'aggressive'],
+                               default='standard',
+                               help='Level of business operations automation (default: standard)')
+    onboard_parser.add_argument('--org-name', help='Organization name (defaults to current directory)')
+    onboard_parser.add_argument('--repo-name', help='Repository name (defaults to current directory)')
     onboard_parser.add_argument('--dry-run', action='store_true', help='Preview onboarding without making changes')
     onboard_parser.add_argument('--verbose', '-v', action='store_true', help='Enable detailed logging')
     onboard_parser.set_defaults(func=start_onboarding_command)
