@@ -1,0 +1,273 @@
+# {{PROJECT_NAME}} Prometheus Alert Rules
+# Business-focused alerting for true 10-minute deployment monitoring
+# Integrates with Business Operations Automation
+
+groups:
+  - name: business_operations
+    rules:
+      # Business Profile: {{BUSINESS_PROFILE}}
+      - alert: BusinessOperationsDown
+        expr: up{job="business-operations"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          business_profile: "{{BUSINESS_PROFILE}}"
+          component: "business-automation"
+        annotations:
+          summary: "Business operations automation is down"
+          description: "The business operations automation system has been down for more than 5 minutes."
+          
+      - alert: ComplianceScoreLow
+        expr: business_automation_compliance_score < 80
+        for: 10m
+        labels:
+          severity: warning
+          business_profile: "{{BUSINESS_PROFILE}}"
+          component: "compliance"
+        annotations:
+          summary: "Compliance score below threshold"
+          description: "Compliance score is {{ $value }}%, below the 80% threshold."
+          
+      - alert: AutomationWorkflowsFailed
+        expr: business_automation_workflows_failed > 3
+        for: 5m
+        labels:
+          severity: critical
+          business_profile: "{{BUSINESS_PROFILE}}"
+          component: "automation"
+        annotations:
+          summary: "Multiple automation workflows failing"
+          description: "{{ $value }} automation workflows have failed in the last 5 minutes."
+
+  - name: application_health
+    rules:
+      - alert: ApplicationDown
+        expr: up{job="{{PROJECT_NAME}}-app"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          service: "{{PROJECT_NAME}}"
+        annotations:
+          summary: "{{PROJECT_NAME}} application is down"
+          description: "The main application has been unreachable for more than 2 minutes."
+          
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{job="{{PROJECT_NAME}}-app",code=~"5.."}[5m]) / rate(http_requests_total{job="{{PROJECT_NAME}}-app"}[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          service: "{{PROJECT_NAME}}"
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value | humanizePercentage }}."
+          
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="{{PROJECT_NAME}}-app"}[5m])) > 1
+        for: 10m
+        labels:
+          severity: warning
+          service: "{{PROJECT_NAME}}"
+        annotations:
+          summary: "High response time"
+          description: "95th percentile response time is {{ $value }}s."
+
+  - name: infrastructure
+    rules:
+      - alert: HighCPUUsage
+        expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 15m
+        labels:
+          severity: warning
+          component: "infrastructure"
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is {{ $value }}%."
+          
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 10m
+        labels:
+          severity: warning
+          component: "infrastructure"
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "Memory usage is {{ $value }}%."
+          
+      - alert: DiskSpaceLow
+        expr: (1 - (node_filesystem_avail_bytes / node_filesystem_size_bytes)) * 100 > 90
+        for: 5m
+        labels:
+          severity: critical
+          component: "infrastructure"
+        annotations:
+          summary: "Low disk space on {{ $labels.instance }}"
+          description: "Disk usage is {{ $value }}% on {{ $labels.mountpoint }}."
+
+  - name: database
+    rules:
+      - alert: DatabaseDown
+        expr: up{job=~"postgres|mysql"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: "database"
+        annotations:
+          summary: "Database is down"
+          description: "Database {{ $labels.job }} has been down for more than 2 minutes."
+          
+      - alert: DatabaseConnectionsHigh
+        expr: pg_stat_database_numbackends > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: "database"
+        annotations:
+          summary: "High number of database connections"
+          description: "Database has {{ $value }} connections."
+
+  - name: security
+    rules:
+      - alert: SecurityScanFailed
+        expr: security_scan_success == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: "security"
+        annotations:
+          summary: "Security scan failed"
+          description: "Latest security scan has failed."
+          
+      - alert: UnauthorizedAccess
+        expr: rate(http_requests_total{code="401"}[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+          component: "security"
+        annotations:
+          summary: "High rate of unauthorized access attempts"
+          description: "{{ $value }} unauthorized access attempts per second."
+
+  # Business Profile Specific Alerts
+  {% if BUSINESS_PROFILE == 'startup-basic' %}
+  - name: startup_specific
+    rules:
+      - alert: InvestorDashboardDown
+        expr: up{job="investor-dashboard"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          business_profile: "startup-basic"
+        annotations:
+          summary: "Investor dashboard is down"
+          description: "The investor dashboard has been unreachable."
+          
+      - alert: GrowthMetricsStale
+        expr: time() - growth_metrics_last_update > 3600
+        for: 10m
+        labels:
+          severity: warning
+          business_profile: "startup-basic"
+        annotations:
+          summary: "Growth metrics are stale"
+          description: "Growth metrics haven't been updated for over an hour."
+  {% endif %}
+
+  {% if BUSINESS_PROFILE == 'charity-nonprofit' %}
+  - name: charity_specific
+    rules:
+      - alert: TransparencyDashboardDown
+        expr: up{job="transparency-dashboard"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          business_profile: "charity-nonprofit"
+        annotations:
+          summary: "Transparency dashboard is down"
+          description: "The public transparency dashboard is unreachable."
+          
+      - alert: DonorPrivacyViolation
+        expr: donor_privacy_violations > 0
+        for: 1m
+        labels:
+          severity: critical
+          business_profile: "charity-nonprofit"
+        annotations:
+          summary: "Potential donor privacy violation detected"
+          description: "{{ $value }} privacy violations detected."
+          
+      - alert: ImpactMetricsStale
+        expr: time() - impact_metrics_last_update > 86400
+        for: 10m
+        labels:
+          severity: warning
+          business_profile: "charity-nonprofit"
+        annotations:
+          summary: "Impact metrics are stale"
+          description: "Impact metrics haven't been updated in over 24 hours."
+  {% endif %}
+
+  - name: cost_management
+    rules:
+      - alert: HighCosts
+        expr: aws_billing_estimated_charges > 1000
+        for: 1h
+        labels:
+          severity: warning
+          component: "cost"
+        annotations:
+          summary: "Monthly costs are high"
+          description: "Estimated monthly costs are ${{ $value }}."
+          
+      - alert: CostBudgetExceeded
+        expr: aws_billing_estimated_charges > cost_budget_threshold
+        for: 30m
+        labels:
+          severity: critical
+          component: "cost"
+        annotations:
+          summary: "Cost budget exceeded"
+          description: "Monthly costs ${{ $value }} have exceeded the budget."
+
+  - name: deployment
+    rules:
+      - alert: DeploymentFailed
+        expr: deployment_status == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: "deployment"
+        annotations:
+          summary: "Deployment failed"
+          description: "Latest deployment has failed."
+          
+      - alert: LongDeploymentTime
+        expr: deployment_duration_seconds > 600  # 10 minutes
+        for: 1m
+        labels:
+          severity: warning
+          component: "deployment"
+        annotations:
+          summary: "Deployment taking too long"
+          description: "Current deployment has been running for {{ $value }}s (over 10 minutes)."
+
+  - name: business_metrics
+    rules:
+      - alert: LowUserEngagement
+        expr: daily_active_users < user_engagement_threshold
+        for: 1d
+        labels:
+          severity: warning
+          component: "business"
+        annotations:
+          summary: "User engagement is low"
+          description: "Daily active users ({{ $value }}) below threshold."
+          
+      - alert: ConversionRateDrop
+        expr: conversion_rate < conversion_rate_threshold * 0.8
+        for: 4h
+        labels:
+          severity: warning
+          component: "business"
+        annotations:
+          summary: "Conversion rate dropped significantly"
+          description: "Conversion rate is {{ $value | humanizePercentage }}."

@@ -1,0 +1,271 @@
+# Charity/Nonprofit - Infrastructure Configuration
+# Optimized for transparency, cost efficiency, and donor privacy
+# Business-in-a-Box infrastructure profile for charitable organizations
+
+name: "charity-nonprofit"
+description: "Infrastructure optimized for charitable organizations with transparency and donor privacy"
+version: "1.0.0"
+
+# Deployment Strategy
+deployment_strategy:
+  approach: "rolling"
+  rollback_enabled: true
+  canary_percentage: 5
+  max_deployment_time: "15m"
+  health_check_timeout: "10m"
+  maintenance_window: "saturday 2am-4am"
+
+# Resource Configuration - Cost Optimized
+resources:
+  compute:
+    min_instances: 1
+    max_instances: 5
+    target_cpu_utilization: 80
+    instance_type: 
+      aws: "t3.small"
+      azure: "Standard_B1s"
+      gcp: "e2-small"
+  
+  database:
+    engine: "postgresql"
+    instance_class:
+      aws: "db.t3.micro"
+      azure: "Basic"
+      gcp: "db-f1-micro"
+    storage_gb: 20
+    backup_retention_days: 90  # Enhanced for transparency
+    multi_az: false
+    encryption_enabled: true  # Donor privacy protection
+  
+  storage:
+    type: "object"
+    initial_size_gb: 50
+    lifecycle_enabled: true
+    versioning: true  # Transparency requirements
+    access_logging: true
+
+# Cost Optimization - Critical for Nonprofits
+cost_optimization:
+  enable_spot_instances: true
+  enable_auto_scaling: true
+  enable_scheduled_scaling: true
+  reserved_capacity_percentage: 50
+  cost_alerts_threshold_usd: 200
+  budget_constraints: true
+  free_tier_maximization: true
+
+# Security Configuration - Enhanced for Donor Privacy
+security:
+  encryption_at_rest: true
+  encryption_in_transit: true
+  enable_waf: true
+  enable_ddos_protection: false
+  ssl_certificate: "letsencrypt"
+  security_scanning: "enhanced"
+  data_classification: "sensitive"
+  donor_privacy_protection: true
+  gdpr_compliance: true
+
+# Monitoring Configuration - Enhanced Transparency
+monitoring:
+  level: "comprehensive"
+  metrics_retention_days: 365  # Annual reporting
+  log_retention_days: 30
+  enable_alerting: true
+  alert_channels: ["email", "github-issues", "board-notifications"]
+  public_status_page: true  # Transparency
+  dashboards:
+    - "business-operations"
+    - "transparency-metrics"
+    - "donor-privacy-compliance"
+    - "cost-tracking"
+    - "impact-metrics"
+
+# Business Operations Integration
+business_operations:
+  automated_onboarding: true
+  compliance_enforcement: true
+  self_healing: true
+  automated_reporting: true
+  transparency_reporting: true
+  donor_privacy_monitoring: true
+  impact_tracking: true
+  board_reporting: true
+
+# Environment-Specific Overrides
+environments:
+  dev:
+    resources:
+      compute:
+        min_instances: 1
+        max_instances: 2
+        instance_type:
+          aws: "t3.nano"
+          azure: "Standard_A1_v2"
+          gcp: "f1-micro"
+    cost_optimization:
+      cost_alerts_threshold_usd: 50
+  
+  staging:
+    resources:
+      compute:
+        min_instances: 1
+        max_instances: 3
+        instance_type:
+          aws: "t3.micro"
+          azure: "Standard_B1s"
+          gcp: "e2-micro"
+    cost_optimization:
+      cost_alerts_threshold_usd: 100
+  
+  production:
+    resources:
+      compute:
+        min_instances: 2
+        max_instances: 8
+        instance_type:
+          aws: "t3.medium"
+          azure: "Standard_B2s"
+          gcp: "e2-medium"
+    database:
+      instance_class:
+        aws: "db.t3.small"
+        azure: "Standard"
+        gcp: "db-g1-small"
+      storage_gb: 100
+      backup_retention_days: 2555  # 7 years for compliance
+      multi_az: true
+    security:
+      enable_waf: true
+      security_scanning: "comprehensive"
+    monitoring:
+      level: "comprehensive"
+      log_retention_days: 2555  # 7 years
+      metrics_retention_days: 2555
+
+# Charity-Specific Features
+charity_features:
+  transparency_dashboard: true
+  donor_privacy_dashboard: true
+  impact_metrics_tracking: true
+  donation_tracking: true
+  volunteer_management: true
+  grant_reporting: true
+  public_accountability: true
+  tax_exemption_reporting: true
+
+# Compliance Requirements - Enhanced for Nonprofits
+compliance:
+  standards: ["SOC2-Type2", "GDPR", "CCPA", "Nonprofit-Standards"]
+  data_retention_policy: "nonprofit-extended"
+  privacy_policy: "enhanced"
+  transparency_policy: "public"
+  security_audit_frequency: "semi-annual"
+  board_oversight: true
+  public_reporting: true
+
+# Integration Points
+integrations:
+  ci_cd:
+    github_actions: true
+    automated_testing: true
+    security_scanning: true
+    transparency_checks: true
+  
+  third_party_services:
+    analytics: ["google-analytics-nonprofit"]
+    monitoring: ["free-tier-services"]
+    donation_processing: ["stripe-nonprofit", "paypal-giving"]
+    email: ["mailchimp-nonprofit"]
+    fundraising: ["donorbox", "givebutter"]
+    transparency: ["guidestar", "candid"]
+
+# Scaling Triggers - Conservative for Cost Control
+scaling_triggers:
+  cpu_threshold: 80
+  memory_threshold: 85
+  request_rate_threshold: 500
+  response_time_threshold: 1000
+  error_rate_threshold: 3
+
+# Backup Strategy - Enhanced for Accountability
+backup_strategy:
+  frequency: "daily"
+  retention_policy: "7-years"
+  cross_region_backup: true
+  automated_testing: true
+  recovery_time_objective: "8h"
+  recovery_point_objective: "4h"
+  transparency_backups: true
+
+# Feature Flags
+feature_flags:
+  enable_cdn: false
+  enable_caching: true
+  enable_compression: true
+  enable_monitoring_alerts: true
+  enable_automated_scaling: true
+  enable_cost_optimization: true
+  enable_security_hardening: true
+  enable_transparency_features: true
+  enable_donor_privacy_protection: true
+
+# Business Profile Metadata
+metadata:
+  target_organization_size: "1-100 staff + volunteers"
+  target_monthly_donors: "< 10k"
+  target_annual_budget: "$10k to $10M"
+  organization_stage: "established nonprofit"
+  funding_sources: "donations, grants, fundraising"
+  regulatory_requirements: "501c3, state nonprofit laws"
+  
+# Documentation Requirements
+documentation:
+  board_ready: true
+  donor_ready: true
+  grant_ready: true
+  technical_documentation: "standard"
+  compliance_documentation: "comprehensive"
+  transparency_reporting: true
+  impact_reporting: true
+  automated_annual_reports: true
+
+# Transparency Requirements
+transparency:
+  public_metrics: true
+  financial_transparency: true
+  impact_transparency: true
+  governance_transparency: true
+  operational_transparency: true
+  donor_recognition: true
+  volunteer_recognition: true
+
+# Donor Privacy Protection
+donor_privacy:
+  anonymization_enabled: true
+  consent_management: true
+  opt_out_mechanisms: true
+  data_minimization: true
+  purpose_limitation: true
+  retention_limits: true
+  access_controls: true
+
+# Success Metrics
+success_metrics:
+  deployment_time_target: "10 minutes"
+  uptime_target: "99.9%"
+  cost_per_donation_target: "< 3%"
+  transparency_score_target: "> 90%"
+  donor_privacy_score_target: "100%"
+  board_confidence_target: "high"
+  donor_trust_target: "high"
+  impact_measurement_accuracy: "> 95%"
+
+# Cost Management
+cost_management:
+  monthly_budget_cap: true
+  automated_cost_alerts: true
+  cost_optimization_recommendations: true
+  free_tier_monitoring: true
+  nonprofit_discount_utilization: true
+  grant_fund_tracking: true

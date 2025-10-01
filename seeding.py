@@ -1178,9 +1178,12 @@ if __name__ == "__main__":
         - Kubernetes manifests for container orchestration
         - Docker configurations for containerization
         - Environment-specific configurations (dev/staging/production)
+        - Monitoring and observability stack (Prometheus, Grafana)
+        - Business operations integration
+        - Deployment automation scripts
         """
         if not self.dry_run:
-            logger.info("📦 Creating Infrastructure as Code templates...")
+            logger.info("📦 Creating Infrastructure as Code templates for true 10-minute deployment...")
         
         infrastructure_path = self.meta_repo_path / 'infrastructure'
         if not self.dry_run:
@@ -1191,12 +1194,18 @@ if __name__ == "__main__":
         kubernetes_path = infrastructure_path / 'kubernetes'
         docker_path = infrastructure_path / 'docker'
         environments_path = infrastructure_path / 'environments'
+        monitoring_path = infrastructure_path / 'monitoring'
+        scripts_path = infrastructure_path / 'scripts'
+        business_profiles_path = infrastructure_path / 'business-profiles'
         
         if not self.dry_run:
             ensure_directory_exists(terraform_path, "Terraform configuration directory")
             ensure_directory_exists(kubernetes_path, "Kubernetes manifests directory")
             ensure_directory_exists(docker_path, "Docker configuration directory")
             ensure_directory_exists(environments_path, "Environment configurations directory")
+            ensure_directory_exists(monitoring_path, "Monitoring stack configuration directory")
+            ensure_directory_exists(scripts_path, "Deployment automation scripts directory")
+            ensure_directory_exists(business_profiles_path, "Business profile configurations directory")
         
         # Create provider-specific directories
         aws_terraform_path = terraform_path / 'aws'
@@ -1279,12 +1288,55 @@ if __name__ == "__main__":
             k8s_dest_path = environments_path / env / 'kubernetes.yaml'
             create_file_from_template(k8s_template_path, k8s_dest_path, self.replacements, f"(kubernetes config: {env})")
         
+        # Create monitoring configurations
+        monitoring_templates = [
+            'prometheus.yml',
+            'grafana-dashboard-business-operations.json'
+        ]
+        
+        for template_name in monitoring_templates:
+            template_path = self.templates_dir / 'infrastructure' / 'monitoring' / template_name
+            dest_path = monitoring_path / template_name
+            if template_path.exists():  # Only create if template exists
+                create_file_from_template(template_path, dest_path, self.replacements, f"(monitoring: {template_name})")
+        
+        # Create deployment automation scripts
+        scripts_templates = [
+            'deploy-infrastructure.sh'
+        ]
+        
+        for template_name in scripts_templates:
+            template_path = self.templates_dir / 'infrastructure' / 'scripts' / template_name
+            dest_path = scripts_path / template_name
+            if template_path.exists():  # Only create if template exists
+                create_file_from_template(template_path, dest_path, self.replacements, f"(deployment script: {template_name})")
+                # Make deployment scripts executable
+                if not self.dry_run and dest_path.exists():
+                    import os
+                    os.chmod(dest_path, 0o755)
+        
+        # Create business profile configurations
+        business_profile_templates = [
+            'startup-basic-infrastructure.yml',
+            'charity-nonprofit-infrastructure.yml'
+        ]
+        
+        for template_name in business_profile_templates:
+            template_path = self.templates_dir / 'infrastructure' / 'business-profiles' / template_name
+            dest_path = business_profiles_path / template_name
+            if template_path.exists():  # Only create if template exists
+                create_file_from_template(template_path, dest_path, self.replacements, f"(business profile: {template_name})")
+        
         if not self.dry_run:
             logger.info("✅ Infrastructure as Code templates created successfully!")
             logger.info(f"    📂 Terraform configurations: {terraform_path}")
             logger.info(f"    📂 Kubernetes manifests: {kubernetes_path}")
             logger.info(f"    📂 Docker configurations: {docker_path}")
             logger.info(f"    📂 Environment configs: {environments_path}")
+            logger.info(f"    📊 Monitoring stack: {monitoring_path}")
+            logger.info(f"    🚀 Deployment scripts: {scripts_path}")
+            logger.info(f"    🏢 Business profiles: {business_profiles_path}")
+            logger.info("🎯 True 10-minute deployment infrastructure is ready!")
 
     def setup_code_formatting(self):
         """Set up code formatting and pre-commit hooks for development workflow.

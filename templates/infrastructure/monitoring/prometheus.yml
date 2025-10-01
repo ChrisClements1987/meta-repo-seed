@@ -1,0 +1,178 @@
+# {{PROJECT_NAME}} Prometheus Configuration
+# Production-ready monitoring configuration for 10-minute deployment
+# Integrates with Business-in-a-Box automation systems
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: '{{PROJECT_NAME}}-cluster'
+    environment: '${ENVIRONMENT:-production}'
+    project: '{{PROJECT_NAME}}'
+    managed_by: 'business-operations-automation'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+  - "alert_rules.yml"
+  - "business_metrics_rules.yml"
+  - "infrastructure_rules.yml"
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    scrape_interval: 15s
+    metrics_path: /metrics
+
+  # {{PROJECT_NAME}} Application Monitoring
+  - job_name: '{{PROJECT_NAME}}-app'
+    static_configs:
+      - targets: ['{{PROJECT_NAME}}-app:8080']
+    scrape_interval: 15s
+    metrics_path: /metrics
+    scrape_timeout: 10s
+    honor_labels: true
+    params:
+      format: ['prometheus']
+
+  # Node Exporter for system metrics
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # Docker container metrics
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # Kubernetes monitoring (if using K8s)
+  - job_name: 'kubernetes-apiservers'
+    kubernetes_sd_configs:
+      - role: endpoints
+        namespaces:
+          names:
+            - default
+            - {{PROJECT_NAME}}
+    scheme: https
+    tls_config:
+      ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+        action: keep
+        regex: default;kubernetes;https
+
+  # Kubernetes nodes
+  - job_name: 'kubernetes-nodes'
+    kubernetes_sd_configs:
+      - role: node
+    scheme: https
+    tls_config:
+      ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+    relabel_configs:
+      - action: labelmap
+        regex: __meta_kubernetes_node_label_(.+)
+      - target_label: __address__
+        replacement: kubernetes.default.svc:443
+      - source_labels: [__meta_kubernetes_node_name]
+        regex: (.+)
+        target_label: __metrics_path__
+        replacement: /api/v1/nodes/${1}/proxy/metrics
+
+  # Business Operations Automation Metrics
+  - job_name: 'business-operations'
+    static_configs:
+      - targets: ['localhost:8081']
+    scrape_interval: 60s
+    metrics_path: /business-metrics
+    honor_labels: true
+    params:
+      profile: ['{{BUSINESS_PROFILE:-startup-basic}}']
+
+  # Database monitoring (PostgreSQL)
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+    scrape_interval: 30s
+    
+  # Database monitoring (MySQL)
+  - job_name: 'mysql'
+    static_configs:
+      - targets: ['mysqld-exporter:9104']
+    scrape_interval: 30s
+
+  # Redis monitoring
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    scrape_interval: 30s
+
+  # AWS CloudWatch metrics (if using AWS)
+  - job_name: 'cloudwatch'
+    ec2_sd_configs:
+      - region: us-east-1
+        port: 9100
+    relabel_configs:
+      - source_labels: [__meta_ec2_tag_Name]
+        target_label: instance
+      - source_labels: [__meta_ec2_instance_id]
+        target_label: instance_id
+
+  # Load Balancer monitoring
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['nginx-exporter:9113']
+    scrape_interval: 30s
+
+  # Application-specific business metrics
+  - job_name: '{{PROJECT_NAME}}-business-metrics'
+    static_configs:
+      - targets: ['{{PROJECT_NAME}}-app:8080']
+    scrape_interval: 60s
+    metrics_path: /business-metrics
+    params:
+      format: ['prometheus']
+      profile: ['{{BUSINESS_PROFILE:-startup-basic}}']
+
+  # Third-party service monitoring
+  - job_name: 'external-services'
+    static_configs:
+      - targets: 
+        - 'api.example.com:443'
+        - 'payment-gateway.example.com:443'
+    scrape_interval: 60s
+    metrics_path: /health
+    scheme: https
+
+# Storage configuration
+storage:
+  tsdb:
+    path: /prometheus/data
+    retention.time: 30d
+    retention.size: 10GB
+    min-block-duration: 2h
+    max-block-duration: 25h
+    wal-compression: true
+
+# Web configuration
+web:
+  console.libraries: /etc/prometheus/console_libraries
+  console.templates: /etc/prometheus/consoles
+  enable-lifecycle: true
+  enable-admin-api: true
+  page-title: "{{PROJECT_NAME}} Monitoring"
+  external-url: "https://monitoring.{{PROJECT_NAME}}.com"
