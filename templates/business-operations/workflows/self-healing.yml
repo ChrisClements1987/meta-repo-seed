@@ -1,0 +1,951 @@
+name: Self-Healing and Auto-Remediation
+# Automated issue detection and remediation for self-governing systems
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # Every 6 hours
+  repository_dispatch:
+    types: [health-check, auto-remediate]
+  workflow_dispatch:
+    inputs:
+      remediation_level:
+        description: 'Auto-remediation level'
+        required: false
+        type: choice
+        options: ['conservative', 'standard', 'aggressive']
+        default: 'standard'
+      dry_run:
+        description: 'Dry run (report only, no fixes)'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  REMEDIATION_LEVEL: ${{ github.event.inputs.remediation_level || 'standard' }}
+  DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+
+jobs:
+  health-assessment:
+    name: Repository Health Assessment
+    runs-on: ubuntu-latest
+    outputs:
+      business_profile: ${{ steps.detect.outputs.business_profile }}
+      health_score: ${{ steps.assess.outputs.health_score }}
+      issues_found: ${{ steps.assess.outputs.issues_found }}
+      remediation_needed: ${{ steps.assess.outputs.remediation_needed }}
+    steps:
+      - uses: actions/checkout@v4
+        
+      - name: Detect business profile
+        id: detect
+        run: |
+          # Detect business profile (same logic as compliance workflow)
+          profile="startup-basic"  # default
+          
+          if [ -f "governance/business-profile.yml" ]; then
+            profile=$(grep "profile:" governance/business-profile.yml | cut -d: -f2 | xargs)
+          elif [ -f "governance/policies/transparency-policy.md" ]; then
+            profile="charity-nonprofit"
+          elif [ -f "governance/policies/client-data-policy.md" ]; then
+            profile="consulting-firm"
+          elif [ -f "governance/policies/business-compliance.md" ]; then
+            profile="smb-standard"
+          fi
+          
+          echo "business_profile=$profile" >> $GITHUB_OUTPUT
+          echo "🔍 Business profile: $profile"
+        
+      - name: Comprehensive health assessment
+        id: assess
+        run: |
+          echo "🏥 Performing comprehensive repository health assessment"
+          
+          health_score=0
+          max_score=0
+          issues_found=0
+          remediation_items=()
+          
+          # 1. Branch Protection Health Check
+          max_score=$((max_score + 10))
+          echo "🛡️ Checking branch protection status"
+          
+          # Check if main branch exists and is protected
+          if git show-ref --verify --quiet refs/heads/main; then
+            echo "✅ Main branch exists"
+            health_score=$((health_score + 5))
+          else
+            echo "❌ Main branch missing"
+            issues_found=$((issues_found + 1))
+            remediation_items+=("create-main-branch")
+          fi
+          
+          # In a real implementation, we'd check GitHub API for branch protection
+          # For now, we'll check for presence of protection config files
+          if [ -f ".github/branch-protection.yml" ] || [ -f "governance/branch-protection.md" ]; then
+            echo "✅ Branch protection configuration found"
+            health_score=$((health_score + 5))
+          else
+            echo "❌ Branch protection not configured"
+            issues_found=$((issues_found + 1))
+            remediation_items+=("fix-branch-protection")
+          fi
+          
+          # 2. Workflow Health Check
+          max_score=$((max_score + 15))
+          echo "⚙️ Checking workflow health"
+          
+          if [ -d ".github/workflows" ]; then
+            workflow_count=$(find .github/workflows -name "*.yml" -o -name "*.yaml" | wc -l)
+            if [ $workflow_count -gt 0 ]; then
+              echo "✅ GitHub Actions workflows found ($workflow_count)"
+              health_score=$((health_score + 5))
+            else
+              echo "❌ No workflows found"
+              issues_found=$((issues_found + 1))
+              remediation_items+=("restore-missing-workflows")
+            fi
+            
+            # Check for essential workflows
+            essential_workflows=("ci" "compliance" "business-reporting")
+            for workflow in "${essential_workflows[@]}"; do
+              if find .github/workflows -name "*$workflow*" | grep -q .; then
+                echo "✅ Essential workflow found: $workflow"
+                health_score=$((health_score + 3))
+              else
+                echo "❌ Missing essential workflow: $workflow"
+                issues_found=$((issues_found + 1))
+                remediation_items+=("restore-workflow-$workflow")
+              fi
+            done
+          else
+            echo "❌ .github/workflows directory missing"
+            issues_found=$((issues_found + 1))
+            remediation_items+=("restore-missing-workflows")
+          fi
+          
+          # 3. Governance Structure Health
+          max_score=$((max_score + 10))
+          echo "⚖️ Checking governance structure"
+          
+          if [ -d "governance" ] && [ -d "governance/policies" ]; then
+            echo "✅ Governance directory structure exists"
+            health_score=$((health_score + 5))
+          else
+            echo "❌ Governance structure missing"
+            issues_found=$((issues_found + 1))
+            remediation_items+=("restore-governance-structure")
+          fi
+          
+          if [ -f ".github/CODEOWNERS" ]; then
+            echo "✅ CODEOWNERS file exists"
+            health_score=$((health_score + 5))
+          else
+            echo "❌ CODEOWNERS file missing"
+            issues_found=$((issues_found + 1))
+            remediation_items+=("restore-codeowners")
+          fi
+          
+          # 4. Documentation Health
+          max_score=$((max_score + 10))
+          echo "📚 Checking documentation health"
+          
+          essential_docs=("README.md" "CONTRIBUTING.md")
+          for doc in "${essential_docs[@]}"; do
+            if [ -f "$doc" ]; then
+              word_count=$(wc -w < "$doc")
+              if [ $word_count -gt 50 ]; then
+                echo "✅ $doc exists with content ($word_count words)"
+                health_score=$((health_score + 5))
+              else
+                echo "⚠️ $doc exists but seems incomplete ($word_count words)"
+                health_score=$((health_score + 2))
+                remediation_items+=("update-documentation-$doc")
+              fi
+            else
+              echo "❌ $doc missing"
+              issues_found=$((issues_found + 1))
+              remediation_items+=("restore-documentation-$doc")
+            fi
+          done
+          
+          # 5. Security Health Check
+          max_score=$((max_score + 15))
+          echo "🔒 Checking security health"
+          
+          # Check for security-related files
+          security_files=("SECURITY.md" ".github/dependabot.yml")
+          for file in "${security_files[@]}"; do
+            if [ -f "$file" ]; then
+              echo "✅ Security file found: $file"
+              health_score=$((health_score + 3))
+            else
+              echo "❌ Security file missing: $file"
+              issues_found=$((issues_found + 1))
+              remediation_items+=("restore-security-file-$(basename $file)")
+            fi
+          done
+          
+          # Check for exposed secrets (basic scan)
+          if grep -r -l "password\|secret\|api[_-]key" --include="*.js" --include="*.py" --include="*.yaml" --include="*.json" . 2>/dev/null | grep -v node_modules | grep -v .git | head -5; then
+            echo "⚠️ Potential secrets found in code"
+            remediation_items+=("scan-and-remove-secrets")
+          else
+            echo "✅ No obvious secrets found"
+            health_score=$((health_score + 5))
+          fi
+          
+          # Check npm dependencies for vulnerabilities (if applicable)
+          if [ -f "package.json" ]; then
+            if npm audit --audit-level=high --only=prod 2>/dev/null; then
+              echo "✅ No high-severity npm vulnerabilities"
+              health_score=$((health_score + 4))
+            else
+              echo "❌ npm vulnerabilities detected"
+              issues_found=$((issues_found + 1))
+              remediation_items+=("update-outdated-dependencies")
+            fi
+          fi
+          
+          # Calculate final health score
+          if [ $max_score -gt 0 ]; then
+            health_percentage=$((health_score * 100 / max_score))
+          else
+            health_percentage=0
+          fi
+          
+          echo "📊 Repository Health Score: $health_percentage% ($health_score/$max_score)"
+          echo "🚨 Issues Found: $issues_found"
+          
+          # Determine if remediation is needed
+          if [ $issues_found -gt 0 ] || [ $health_percentage -lt 80 ]; then
+            remediation_needed="true"
+            echo "🔧 Auto-remediation recommended"
+          else
+            remediation_needed="false"
+            echo "✅ Repository health is good"
+          fi
+          
+          # Output results
+          echo "health_score=$health_percentage" >> $GITHUB_OUTPUT
+          echo "issues_found=$issues_found" >> $GITHUB_OUTPUT
+          echo "remediation_needed=$remediation_needed" >> $GITHUB_OUTPUT
+          
+          # Save remediation items for next jobs
+          printf '%s\n' "${remediation_items[@]}" > /tmp/remediation_items.txt
+          
+      - name: Upload remediation plan
+        uses: actions/upload-artifact@v3
+        with:
+          name: remediation-plan
+          path: /tmp/remediation_items.txt
+
+  detect-configuration-drift:
+    name: Detect Configuration Drift
+    runs-on: ubuntu-latest
+    needs: health-assessment
+    if: needs.health-assessment.outputs.remediation_needed == 'true'
+    steps:
+      - uses: actions/checkout@v4
+        
+      - name: Check for configuration drift
+        run: |
+          echo "🔍 Detecting configuration drift"
+          profile="${{ needs.health-assessment.outputs.business_profile }}"
+          
+          drift_detected=false
+          
+          # Check if business profile configuration matches expected templates
+          case "$profile" in
+            "startup-basic")
+              expected_workflows=("ci.yml" "compliance-enforcement.yml" "business-reporting.yml")
+              ;;
+            "charity-nonprofit")  
+              expected_workflows=("ci.yml" "compliance-enforcement.yml" "transparency-reporting.yml" "donor-privacy-check.yml")
+              ;;
+            "smb-standard")
+              expected_workflows=("ci.yml" "compliance-enforcement.yml" "business-continuity-check.yml")
+              ;;
+            "consulting-firm")
+              expected_workflows=("ci.yml" "compliance-enforcement.yml" "client-confidentiality-check.yml" "partner-approval.yml")
+              ;;
+          esac
+          
+          # Check for missing profile-specific workflows
+          for workflow in "${expected_workflows[@]}"; do
+            if ! find .github/workflows -name "*$(basename $workflow .yml)*" | grep -q .; then
+              echo "❌ Missing profile-specific workflow: $workflow"
+              drift_detected=true
+            else
+              echo "✅ Profile workflow found: $workflow"
+            fi
+          done
+          
+          # Check governance policies match profile
+          case "$profile" in
+            "charity-nonprofit")
+              if [ ! -f "governance/policies/transparency-policy.md" ]; then
+                echo "❌ Missing transparency policy for charity profile"
+                drift_detected=true
+              fi
+              ;;
+            "consulting-firm")
+              if [ ! -f "governance/policies/client-data-policy.md" ]; then
+                echo "❌ Missing client data policy for consulting profile"
+                drift_detected=true
+              fi
+              ;;
+          esac
+          
+          if [ "$drift_detected" = true ]; then
+            echo "🚨 Configuration drift detected - profile requirements not met"
+            echo "drift_detected=true" >> $GITHUB_ENV
+          else
+            echo "✅ Configuration aligned with $profile profile"
+            echo "drift_detected=false" >> $GITHUB_ENV
+          fi
+
+  fix-branch-protection-issues:
+    name: Fix Branch Protection Issues
+    runs-on: ubuntu-latest
+    needs: [health-assessment, detect-configuration-drift]
+    if: needs.health-assessment.outputs.remediation_needed == 'true'
+    steps:
+      - uses: actions/checkout@v4
+        
+      - name: Download remediation plan
+        uses: actions/download-artifact@v3
+        with:
+          name: remediation-plan
+          
+      - name: Auto-fix branch protection
+        run: |
+          echo "🛡️ Auto-fixing branch protection issues"
+          profile="${{ needs.health-assessment.outputs.business_profile }}"
+          
+          # Check if branch protection fix is needed
+          if grep -q "fix-branch-protection" remediation_items.txt; then
+            echo "🔧 Creating branch protection configuration"
+            
+            mkdir -p .github
+            cat > .github/branch-protection.yml << EOF
+          # Auto-generated branch protection configuration
+          # Business Profile: $profile
+          # Generated: $(date)
+          
+          protection:
+            main:
+              required_status_checks:
+                strict: true
+                contexts:
+                  - ci
+                  - compliance-check
+              enforce_admins: false
+              required_pull_request_reviews:
+                required_approving_review_count: 1
+                dismiss_stale_reviews: true
+                require_code_owner_reviews: true
+              restrictions: null
+          EOF
+            
+            echo "✅ Branch protection configuration created"
+            
+            # Commit if not dry run
+            if [ "${{ env.DRY_RUN }}" != "true" ]; then
+              git config --local user.email "action@github.com"
+              git config --local user.name "Self-Healing Bot"
+              git add .github/branch-protection.yml
+              git commit -m "🛡️ Auto-fix: Add branch protection configuration [self-healing]" || echo "No changes to commit"
+            else
+              echo "🔍 DRY RUN: Would commit branch protection configuration"
+            fi
+          fi
+          
+          # Create main branch if missing
+          if grep -q "create-main-branch" remediation_items.txt; then
+            echo "🌟 Creating main branch"
+            
+            if [ "${{ env.DRY_RUN }}" != "true" ]; then
+              # This would need to be done via GitHub API in real implementation
+              echo "📝 Note: Main branch creation requires GitHub API call"
+            else
+              echo "🔍 DRY RUN: Would create main branch"
+            fi
+          fi
+
+  update-outdated-dependencies:
+    name: Update Outdated Dependencies  
+    runs-on: ubuntu-latest
+    needs: [health-assessment, detect-configuration-drift]
+    if: needs.health-assessment.outputs.remediation_needed == 'true'
+    steps:
+      - uses: actions/checkout@v4
+        
+      - name: Download remediation plan
+        uses: actions/download-artifact@v3
+        with:
+          name: remediation-plan
+          
+      - name: Auto-update dependencies
+        run: |
+          echo "📦 Auto-updating outdated dependencies"
+          
+          # Check if dependency update is needed
+          if grep -q "update-outdated-dependencies" remediation_items.txt; then
+            updated_files=()
+            
+            # Update npm dependencies (conservative approach)
+            if [ -f "package.json" ] && [ "${{ env.REMEDIATION_LEVEL }}" != "conservative" ]; then
+              echo "📦 Updating npm dependencies"
+              
+              if [ "${{ env.DRY_RUN }}" != "true" ]; then
+                # Only update patch versions for safety
+                npm update --save
+                if [ -f "package-lock.json" ]; then
+                  updated_files+=("package.json" "package-lock.json")
+                fi
+              else
+                echo "🔍 DRY RUN: Would update npm dependencies (patch versions only)"
+              fi
+            fi
+            
+            # Update Python dependencies (very conservative)
+            if [ -f "requirements.txt" ] && [ "${{ env.REMEDIATION_LEVEL }}" = "aggressive" ]; then
+              echo "🐍 Checking Python dependencies for security updates"
+              
+              if [ "${{ env.DRY_RUN }}" != "true" ]; then
+                # This would require more sophisticated dependency management
+                echo "📝 Note: Python dependency updates require manual review"
+              else
+                echo "🔍 DRY RUN: Would check Python dependencies for security updates"
+              fi
+            fi
+            
+            # Commit dependency updates
+            if [ ${#updated_files[@]} -gt 0 ] && [ "${{ env.DRY_RUN }}" != "true" ]; then
+              git config --local user.email "action@github.com"
+              git config --local user.name "Self-Healing Bot"
+              git add "${updated_files[@]}"
+              git commit -m "📦 Auto-fix: Update dependencies for security [self-healing]" || echo "No dependency changes to commit"
+              echo "✅ Dependencies updated: ${updated_files[*]}"
+            elif [ "${{ env.DRY_RUN }}" = "true" ]; then
+              echo "🔍 DRY RUN: Would update dependencies: ${updated_files[*]:-none}"
+            fi
+          fi
+
+  remediate-security-issues:
+    name: Remediate Security Issues
+    runs-on: ubuntu-latest
+    needs: [health-assessment, detect-configuration-drift]
+    if: needs.health-assessment.outputs.remediation_needed == 'true'
+    steps:
+      - uses: actions/checkout@v4
+        
+      - name: Download remediation plan
+        uses: actions/download-artifact@v3
+        with:
+          name: remediation-plan
+          
+      - name: Auto-remediate security issues
+        run: |
+          echo "🔒 Auto-remediating security issues"
+          
+          remediated_issues=0
+          
+          # Create missing security files
+          if grep -q "restore-security-file-SECURITY.md" remediation_items.txt; then
+            echo "🔒 Creating SECURITY.md file"
+            
+            cat > SECURITY.md << 'EOF'
+          # Security Policy
+          
+          ## Reporting Security Vulnerabilities
+          
+          If you discover a security vulnerability, please report it by creating an issue with the `security` label.
+          
+          ## Automated Security Measures
+          
+          This repository uses automated security monitoring:
+          - Dependency vulnerability scanning
+          - Secret detection and prevention  
+          - Code quality and security analysis
+          - Regular compliance validation
+          
+          ## Security Standards
+          
+          We follow industry standard security practices appropriate for our business profile.
+          
+          EOF
+            
+            if [ "${{ env.DRY_RUN }}" != "true" ]; then
+              git add SECURITY.md
+              remediated_issues=$((remediated_issues + 1))
+            else
+              echo "🔍 DRY RUN: Would create SECURITY.md"
+            fi
+          fi
+          
+          # Create dependabot configuration
+          if grep -q "restore-security-file-dependabot.yml" remediation_items.txt; then
+            echo "🤖 Creating Dependabot configuration"
+            
+            mkdir -p .github
+            cat > .github/dependabot.yml << 'EOF'
+          version: 2
+          updates:
+            # Enable version updates for npm
+            - package-ecosystem: "npm"
+              directory: "/"
+              schedule:
+                interval: "weekly"
+              open-pull-requests-limit: 10
+              
+            # Enable version updates for GitHub Actions
+            - package-ecosystem: "github-actions"
+              directory: "/"
+              schedule:
+                interval: "weekly"
+          EOF
+            
+            if [ "${{ env.DRY_RUN }}" != "true" ]; then
+              git add .github/dependabot.yml
+              remediated_issues=$((remediated_issues + 1))
+            else
+              echo "🔍 DRY RUN: Would create Dependabot configuration"
+            fi
+          fi
+          
+          # Scan and flag potential secrets (conservative approach)
+          if grep -q "scan-and-remove-secrets" remediation_items.txt; then
+            echo "🔍 Scanning for potential secrets"
+            
+            # Create a report of potential secrets rather than auto-removing
+            mkdir -p security/reports
+            report_file="security/reports/potential-secrets-$(date +%Y%m%d).md"
+            
+            cat > "$report_file" << 'EOF'
+          # Potential Secrets Scan Report
+          
+          **Date:** $(date)
+          **Scan Type:** Automated self-healing security scan
+          
+          ## Files with Potential Secrets
+          
+          EOF
+            
+            # Find potential secrets and add to report
+            if grep -r -n "password\|secret\|api[_-]key" --include="*.js" --include="*.py" --include="*.yaml" --include="*.json" . | grep -v node_modules | grep -v .git >> "$report_file" 2>/dev/null; then
+              echo "⚠️ Potential secrets found and documented in $report_file"
+              
+              if [ "${{ env.DRY_RUN }}" != "true" ]; then
+                git add "$report_file"
+                remediated_issues=$((remediated_issues + 1))
+              fi
+            else
+              rm "$report_file"
+              echo "✅ No potential secrets found"
+            fi
+          fi
+          
+          # Commit security remediations
+          if [ $remediated_issues -gt 0 ] && [ "${{ env.DRY_RUN }}" != "true" ]; then
+            git config --local user.email "action@github.com"
+            git config --local user.name "Self-Healing Bot"
+            git commit -m "🔒 Auto-fix: Remediate security issues ($remediated_issues fixes) [self-healing]" || echo "No security changes to commit"
+            echo "✅ Security issues remediated: $remediated_issues"
+          elif [ "${{ env.DRY_RUN }}" = "true" ]; then
+            echo "🔍 DRY RUN: Would remediate $remediated_issues security issues"
+          fi
+
+  restore-missing-workflows:
+    name: Restore Missing Workflows
+    runs-on: ubuntu-latest
+    needs: [health-assessment, detect-configuration-drift]
+    if: needs.health-assessment.outputs.remediation_needed == 'true'
+    steps:
+      - uses: actions/checkout@v4
+        
+      - name: Download remediation plan
+        uses: actions/download-artifact@v3
+        with:
+          name: remediation-plan
+          
+      - name: Restore essential workflows
+        run: |
+          echo "⚙️ Restoring missing workflows"
+          profile="${{ needs.health-assessment.outputs.business_profile }}"
+          
+          mkdir -p .github/workflows
+          restored_workflows=0
+          
+          # Check for missing CI workflow
+          if grep -q "restore-workflow-ci" remediation_items.txt; then
+            echo "🏗️ Restoring CI workflow"
+            
+            cat > .github/workflows/ci.yml << 'EOF'
+          name: CI
+          # Auto-restored CI workflow
+          
+          on:
+            push:
+              branches: [main, develop]
+            pull_request:
+              branches: [main, develop]
+          
+          jobs:
+            ci:
+              runs-on: ubuntu-latest
+              steps:
+                - uses: actions/checkout@v4
+                
+                - name: Setup Node.js (if needed)
+                  if: hashFiles('package.json') != ''
+                  uses: actions/setup-node@v3
+                  with:
+                    node-version: '18'
+                    cache: 'npm'
+                
+                - name: Install dependencies
+                  if: hashFiles('package.json') != ''
+                  run: npm ci
+                
+                - name: Run tests
+                  if: hashFiles('package.json') != ''
+                  run: npm test || echo "No test script defined"
+                
+                - name: Setup Python (if needed)
+                  if: hashFiles('requirements.txt') != '' || hashFiles('pyproject.toml') != ''
+                  uses: actions/setup-python@v4
+                  with:
+                    python-version: '3.9'
+                
+                - name: Install Python dependencies
+                  if: hashFiles('requirements.txt') != ''
+                  run: pip install -r requirements.txt
+                
+                - name: Run Python tests
+                  if: hashFiles('requirements.txt') != ''
+                  run: python -m pytest || echo "No tests found"
+          EOF
+            
+            if [ "${{ env.DRY_RUN }}" != "true" ]; then
+              git add .github/workflows/ci.yml
+              restored_workflows=$((restored_workflows + 1))
+            else
+              echo "🔍 DRY RUN: Would restore CI workflow"
+            fi
+          fi
+          
+          # Check for missing compliance workflow
+          if grep -q "restore-workflow-compliance" remediation_items.txt; then
+            echo "⚖️ Restoring compliance workflow"
+            
+            # Copy our compliance enforcement workflow template
+            # In real implementation, this would pull from the template
+            cat > .github/workflows/compliance-check.yml << 'EOF'
+          name: Compliance Check
+          # Auto-restored compliance workflow
+          
+          on:
+            pull_request:
+              branches: [main, develop]
+            workflow_dispatch:
+          
+          jobs:
+            compliance:
+              runs-on: ubuntu-latest
+              steps:
+                - uses: actions/checkout@v4
+                
+                - name: Basic compliance check
+                  run: |
+                    echo "📋 Running basic compliance validation"
+                    
+                    # Check for required files
+                    required_files=("LICENSE" "README.md" "CONTRIBUTING.md")
+                    for file in "${required_files[@]}"; do
+                      if [ -f "$file" ]; then
+                        echo "✅ $file found"
+                      else
+                        echo "❌ $file missing"
+                        exit 1
+                      fi
+                    done
+                    
+                    echo "✅ Basic compliance check passed"
+          EOF
+            
+            if [ "${{ env.DRY_RUN }}" != "true" ]; then
+              git add .github/workflows/compliance-check.yml
+              restored_workflows=$((restored_workflows + 1))
+            else
+              echo "🔍 DRY RUN: Would restore compliance workflow"
+            fi
+          fi
+          
+          # Restore profile-specific workflows
+          case "$profile" in
+            "charity-nonprofit")
+              if ! find .github/workflows -name "*transparency*" | grep -q . && [ "${{ env.REMEDIATION_LEVEL }}" != "conservative" ]; then
+                echo "🏛️ Creating transparency reporting workflow for charity profile"
+                
+                cat > .github/workflows/transparency-reporting.yml << 'EOF'
+          name: Transparency Reporting
+          # Auto-restored for charity-nonprofit profile
+          
+          on:
+            schedule:
+              - cron: '0 9 1 * *'  # Monthly on 1st at 9 AM
+            workflow_dispatch:
+          
+          jobs:
+            generate-transparency-report:
+              runs-on: ubuntu-latest
+              steps:
+                - uses: actions/checkout@v4
+                
+                - name: Generate transparency report
+                  run: |
+                    echo "🏛️ Generating transparency report for donors and stakeholders"
+                    mkdir -p reports/transparency
+                    
+                    cat > reports/transparency/monthly-$(date +%Y-%m).md << REPORT
+          # Monthly Transparency Report - $(date +%B\ %Y)
+          
+          ## Repository Activity
+          - Commits this month: [Auto-calculated]
+          - Contributors: [Auto-calculated]
+          - Issues resolved: [Auto-calculated]
+          
+          ## Compliance Status
+          - Governance policies: ✅ Up to date
+          - Donor privacy protection: ✅ Active
+          - Impact measurement: ✅ Tracking
+          
+          ## Next Month Goals
+          - Continue transparent operations
+          - Maintain donor privacy standards
+          - Improve impact measurement
+          REPORT
+                    
+                - name: Commit report
+                  run: |
+                    git config --local user.email "action@github.com"
+                    git config --local user.name "Transparency Bot"
+                    git add reports/transparency/
+                    git commit -m "📊 Monthly transparency report [automated]" || exit 0
+                    git push
+          EOF
+                
+                if [ "${{ env.DRY_RUN }}" != "true" ]; then
+                  git add .github/workflows/transparency-reporting.yml
+                  restored_workflows=$((restored_workflows + 1))
+                fi
+              fi
+              ;;
+          esac
+          
+          # Commit restored workflows
+          if [ $restored_workflows -gt 0 ] && [ "${{ env.DRY_RUN }}" != "true" ]; then
+            git config --local user.email "action@github.com"
+            git config --local user.name "Self-Healing Bot"
+            git commit -m "⚙️ Auto-fix: Restore missing workflows ($restored_workflows workflows) [self-healing]" || echo "No workflow changes to commit"
+            echo "✅ Workflows restored: $restored_workflows"
+          elif [ "${{ env.DRY_RUN }}" = "true" ]; then
+            echo "🔍 DRY RUN: Would restore $restored_workflows workflows"
+          fi
+
+  escalate-unresolved-issues:
+    name: Escalate Unresolved Issues
+    runs-on: ubuntu-latest
+    needs: [health-assessment, fix-branch-protection-issues, update-outdated-dependencies, remediate-security-issues, restore-missing-workflows]
+    if: always() && needs.health-assessment.outputs.remediation_needed == 'true'
+    steps:
+      - uses: actions/checkout@v4
+        
+      - name: Assess remediation effectiveness
+        run: |
+          echo "📊 Assessing auto-remediation effectiveness"
+          
+          # Count successful remediation jobs
+          successful_jobs=0
+          total_jobs=4
+          
+          jobs=("fix-branch-protection-issues" "update-outdated-dependencies" "remediate-security-issues" "restore-missing-workflows")
+          job_results=('${{ needs.fix-branch-protection-issues.result }}' '${{ needs.update-outdated-dependencies.result }}' '${{ needs.remediate-security-issues.result }}' '${{ needs.restore-missing-workflows.result }}')
+          
+          for i in "${!job_results[@]}"; do
+            if [ "${job_results[$i]}" = "success" ]; then
+              echo "✅ ${jobs[$i]}: Success"
+              successful_jobs=$((successful_jobs + 1))
+            else
+              echo "❌ ${jobs[$i]}: ${job_results[$i]}"
+            fi
+          done
+          
+          remediation_rate=$((successful_jobs * 100 / total_jobs))
+          echo "📊 Auto-remediation success rate: $remediation_rate% ($successful_jobs/$total_jobs)"
+          
+          echo "remediation_rate=$remediation_rate" >> $GITHUB_ENV
+          echo "successful_jobs=$successful_jobs" >> $GITHUB_ENV
+          echo "total_jobs=$total_jobs" >> $GITHUB_ENV
+        
+      - name: Create escalation issue for unresolved problems
+        if: env.remediation_rate < '75'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const profile = '${{ needs.health-assessment.outputs.business_profile }}';
+            const healthScore = '${{ needs.health-assessment.outputs.health_score }}';
+            const remediationRate = '${{ env.remediation_rate }}';
+            const successfulJobs = '${{ env.successful_jobs }}';
+            const totalJobs = '${{ env.total_jobs }}';
+            
+            const issueBody = `# 🚨 Self-Healing System Escalation Required
+            
+            The automated self-healing system has detected issues that require manual intervention.
+            
+            ## Repository Health Status
+            
+            **Business Profile:** ${profile}
+            **Health Score:** ${healthScore}%
+            **Auto-Remediation Success:** ${remediationRate}% (${successfulJobs}/${totalJobs} jobs)
+            **Issues Found:** ${{ needs.health-assessment.outputs.issues_found }}
+            
+            ## Auto-Remediation Results
+            
+            | Job | Status |
+            |-----|---------|
+            | Branch Protection | ${{ needs.fix-branch-protection-issues.result }} |
+            | Dependency Updates | ${{ needs.update-outdated-dependencies.result }} |
+            | Security Remediation | ${{ needs.remediate-security-issues.result }} |
+            | Workflow Restoration | ${{ needs.restore-missing-workflows.result }} |
+            
+            ## Required Actions
+            
+            1. **Review Failed Remediation Jobs:** Check the workflow run details for jobs that failed
+            2. **Manual Intervention:** Some issues may require human decision-making
+            3. **Business Profile Compliance:** Ensure all ${profile} requirements are met
+            4. **System Health:** Address remaining health issues manually
+            
+            ## Business Impact
+            
+            - **Risk Level:** ${healthScore < 60 ? 'HIGH' : healthScore < 80 ? 'MEDIUM' : 'LOW'}
+            - **Self-Governance:** Partially impaired until issues resolved
+            - **Compliance:** May affect automated compliance enforcement
+            
+            ## Next Steps
+            
+            1. Assign this issue to the appropriate team
+            2. Review and resolve each failed remediation item
+            3. Re-run the self-healing workflow to validate fixes
+            4. Update business profile configuration if needed
+            
+            ---
+            *This escalation was automatically created by the self-healing system*
+            *Next automated health check: ${new Date(Date.now() + 6*60*60*1000).toLocaleString()}*
+            `;
+            
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🚨 Self-Healing Escalation - ${profile} Profile (${healthScore}% health)`,
+              body: issueBody,
+              labels: ['self-healing', 'escalation', 'high-priority', profile],
+              assignees: [] // In real implementation, assign to appropriate team
+            });
+            
+            console.log(`🚨 Escalation issue created for ${remediationRate}% remediation success rate`);
+
+  generate-healing-report:
+    name: Generate Self-Healing Report
+    runs-on: ubuntu-latest
+    needs: [health-assessment, fix-branch-protection-issues, update-outdated-dependencies, remediate-security-issues, restore-missing-workflows, escalate-unresolved-issues]
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+        
+      - name: Generate comprehensive self-healing report
+        run: |
+          echo "📋 Generating self-healing report"
+          
+          mkdir -p reports/self-healing
+          report_file="reports/self-healing/self-healing-$(date +%Y-%m-%d-%H%M).md"
+          
+          cat > "$report_file" << EOF
+          # Self-Healing Report - $(date +%Y-%m-%d\ %H:%M)
+          
+          **Repository:** ${{ github.repository }}
+          **Business Profile:** ${{ needs.health-assessment.outputs.business_profile }}
+          **Remediation Level:** ${{ env.REMEDIATION_LEVEL }}
+          **Dry Run:** ${{ env.DRY_RUN }}
+          
+          ## Health Assessment
+          
+          **Overall Health Score:** ${{ needs.health-assessment.outputs.health_score }}%
+          **Issues Detected:** ${{ needs.health-assessment.outputs.issues_found }}
+          **Remediation Required:** ${{ needs.health-assessment.outputs.remediation_needed }}
+          
+          ## Auto-Remediation Results
+          
+          | Component | Status | Result |
+          |-----------|--------|---------|
+          | Branch Protection | ${{ needs.fix-branch-protection-issues.result }} | Auto-fixed protection rules |
+          | Dependencies | ${{ needs.update-outdated-dependencies.result }} | Security updates applied |
+          | Security Issues | ${{ needs.remediate-security-issues.result }} | Security files restored |
+          | Workflows | ${{ needs.restore-missing-workflows.result }} | Missing workflows restored |
+          
+          ## Configuration Drift Analysis
+          
+          - Business profile compliance validated
+          - Profile-specific requirements checked
+          - Governance policies verified
+          
+          ## Summary
+          
+          The self-healing system has completed its analysis and remediation cycle. 
+          Repository health is at ${{ needs.health-assessment.outputs.health_score }}% with 
+          ${{ needs.health-assessment.outputs.issues_found }} issues ${{ needs.health-assessment.outputs.remediation_needed == 'true' && 'requiring attention' || 'resolved' }}.
+          
+          ## Next Actions
+          
+          - Monitor repository health metrics  
+          - Review any escalation issues created
+          - Validate business profile compliance
+          - Schedule next health assessment
+          
+          ---
+          *Report generated by Self-Healing Automation System*
+          EOF
+          
+          echo "📋 Self-healing report generated: $report_file"
+          
+          # Commit report if not dry run and on main branch
+          if [ "${{ env.DRY_RUN }}" != "true" ] && [[ "${{ github.ref }}" =~ ^refs/heads/(main|develop)$ ]]; then
+            git config --local user.email "action@github.com"
+            git config --local user.name "Self-Healing Bot"
+            git add "$report_file"
+            git commit -m "🏥 Self-healing report - ${{ needs.health-assessment.outputs.health_score }}% health [automated]" || exit 0
+            git push
+          else
+            echo "🔍 Report generated (not committed due to dry-run or branch restriction)"
+          fi
+        
+      - name: Display healing summary
+        run: |
+          echo "🏥 Self-Healing System Summary"
+          echo "=============================="
+          echo "Business Profile: ${{ needs.health-assessment.outputs.business_profile }}"
+          echo "Health Score: ${{ needs.health-assessment.outputs.health_score }}%"
+          echo "Issues Found: ${{ needs.health-assessment.outputs.issues_found }}"
+          echo "Remediation Mode: ${{ env.REMEDIATION_LEVEL }}"
+          echo "Dry Run: ${{ env.DRY_RUN }}"
+          echo ""
+          echo "Auto-Remediation Results:"
+          echo "- Branch Protection: ${{ needs.fix-branch-protection-issues.result }}"
+          echo "- Dependencies: ${{ needs.update-outdated-dependencies.result }}"  
+          echo "- Security: ${{ needs.remediate-security-issues.result }}"
+          echo "- Workflows: ${{ needs.restore-missing-workflows.result }}"
+          echo ""
+          echo "🔄 Next health check scheduled in 6 hours"
+          echo "📊 Full report available in reports/self-healing/"

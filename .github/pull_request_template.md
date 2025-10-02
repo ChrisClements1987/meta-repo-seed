@@ -12,8 +12,13 @@
 - [ ] 🧪 Tests (adding missing tests or correcting existing tests)
 - [ ] 🎨 Style (formatting, missing semicolons, etc; no code change)
 
-**Related Issues:** 
-<!-- Link related issues: Fixes #123, Closes #456, Related to #789 -->
+**Related Issues (REQUIRED):** 
+<!-- MANDATORY: Use auto-close keywords to link issues. Issues will auto-close when PR merges. -->
+<!-- Auto-close syntax: Closes #123, Fixes #456, Resolves #789 -->
+<!-- If no issues to close, use: Related to #123 (for reference only) -->
+<!-- If no related issues exist, explain why this work doesn't address existing backlog -->
+
+Closes #___
 
 ---
 

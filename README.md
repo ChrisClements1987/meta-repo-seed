@@ -34,6 +34,7 @@ your-project/
 ```
 
 ### Generated Content
+- **Business Operations Automation**: Self-governing systems with automated onboarding, compliance enforcement, self-healing, and governance integration
 - **Infrastructure as Code**: Terraform, Kubernetes, Docker configurations for 10-minute deployment
 - **Audit Management System**: AI agent coordination and audit-to-implementation tracking for continuous improvement  
 - **Repository Governance Automation**: GitHub settings, branch protection, and label management as code
@@ -98,6 +99,37 @@ python seeding.py --list-configs
    python seeding.py --project myproject --username myusername
    ```
 
+### 🏢 Business Operations Automation (NEW)
+
+Deploy complete self-governing business operations with minimal ongoing management:
+
+```bash
+# Deploy business automation for a startup
+python -m src.cli.business_commands start-onboarding \
+    --profile startup-basic \
+    --automation-level standard \
+    --org-name my-startup
+
+# Deploy for a charity with transparency requirements
+python -m src.cli.business_commands start-onboarding \
+    --profile charity-nonprofit \
+    --automation-level standard
+
+# Test automation deployment first (recommended)
+python -m src.cli.business_commands start-onboarding \
+    --profile smb-standard \
+    --automation-level conservative \
+    --dry-run --verbose
+```
+
+**Business Profiles Available:**
+- `startup-basic` - Growth-ready infrastructure with investor focus
+- `charity-nonprofit` - Transparency-focused with donor privacy protection  
+- `smb-standard` - Professional operations with business continuity
+- `consulting-firm` - Client confidentiality with partner approval workflows
+
+> **📖 Full Documentation:** [Business Operations Automation Guide](docs/business-operations-automation.md)
+
 ### Command Options
 
 | Option | Description |
@@ -149,6 +181,13 @@ python seeding.py --dry-run
 - **Repository management scripts** - initialization, enforcement
 - **Documentation generation** - automatic README creation
 - **Structure validation** - ensures compliance
+
+### 🏢 Business Operations Automation ✨ NEW
+- **Self-governing repositories** - automated onboarding, compliance, and maintenance
+- **Business profile support** - startup, charity, SMB, consulting firm configurations
+- **Automated compliance enforcement** - weekly validation with issue creation
+- **Self-healing systems** - 6-hour health cycles with auto-remediation
+- **Governance integration** - CODEOWNERS, branch protection, PR review automation
 
 ### 🔒 Security Features
 - **Path traversal protection** - Project names are sanitized to prevent directory traversal attacks

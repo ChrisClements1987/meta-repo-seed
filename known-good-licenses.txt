@@ -1,0 +1,8 @@
+# Known Good Licenses for Meta-Repo Seed
+# These licenses are confirmed MIT-compatible and approved for use
+
+# pytest-asyncio: Actually Apache-2.0 but pip-licenses reports as UNKNOWN
+pytest-asyncio==1.2.0,Apache-2.0,https://github.com/pytest-dev/pytest-asyncio/blob/main/LICENSE
+
+# Other packages with known licenses that may report as UNKNOWN
+# Add here as needed with: package==version,actual-license,verification-url

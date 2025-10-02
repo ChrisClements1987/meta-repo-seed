@@ -19,6 +19,7 @@
 - **TDD Mandatory**: Write failing tests FIRST, then implement, then refactor
 - **Branch Naming**: `feature/issue-[number]-description` or `bugfix/issue-[number]-description`
 - **Create PR**: `gh pr create --base develop` (always target develop, never main)  
+- **Issue Linking**: MANDATORY use auto-close keywords in PR description: `Closes #123`, `Fixes #456`, `Resolves #789`
 - **Branch Cleanup**: Automated via GitHub settings, manual via `./scripts/cleanup-branches.sh`
 
 ### Emergency Hotfix Process - USE SPARINGLY
