@@ -1,6 +1,6 @@
 [flake8]
 max-line-length = 120
-extend-ignore = E203,F541
+extend-ignore = E203,F541,W291,W292,W293
 exclude =
     .git,
     __pycache__,
@@ -9,6 +9,9 @@ exclude =
     dist,
     templates,
     templates/**/*,
+    examples,
+    examples/**/*,
+    demo_parser.py,
     scripts,
     scripts/**/*
 
