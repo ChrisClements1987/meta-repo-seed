@@ -1,0 +1,23 @@
+[flake8]
+max-line-length = 120
+extend-ignore = E203,F541,W291,W292,W293
+exclude =
+    .git,
+    __pycache__,
+    .venv,
+    build,
+    dist,
+    templates,
+    templates/**/*,
+    examples,
+    examples/**/*,
+    demo_parser.py,
+    scripts,
+    scripts/**/*
+
+per-file-ignores =
+    tests/**/*: E501,W293,F401,F841,W291,W292,E402,E712
+    **/__init__.py: F401,W292
+    seeding.py: E501,W293,W291
+    src/blueprints/orchestrator.py: E402,E501,W293,F541
+    src/templates/generator.py: E501,W293,F541,F841
