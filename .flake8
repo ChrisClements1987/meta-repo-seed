@@ -1,0 +1,15 @@
+[flake8]
+max-line-length = 100
+extend-ignore = E203
+exclude =
+    .git,
+    __pycache__,
+    .venv,
+    build,
+    dist
+
+# Relax linting for tests while keeping production strictness
+per-file-ignores =
+    tests/**/*: E501,W293,F401,F841,W291,W292
+
+
