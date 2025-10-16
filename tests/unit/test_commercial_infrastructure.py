@@ -31,7 +31,11 @@ class TestDatabaseManager:
 
     def test_database_manager_initialization_with_url(self):
         """Test DatabaseManager initialization with database URL."""
-        with patch("src.commercial.database.SimpleConnectionPool") as mock_pool:
+        with patch("src.commercial.database.SimpleConnectionPool") as mock_pool_class, \
+             patch("src.commercial.database.DatabaseManager._create_tables"):
+            mock_pool_instance = MagicMock()
+            mock_pool_class.return_value = mock_pool_instance
+            
             db_manager = DatabaseManager("postgresql://test:test@localhost/test")
             assert db_manager.database_url == "postgresql://test:test@localhost/test"
             assert db_manager.pool is not None
@@ -47,7 +51,7 @@ class TestDatabaseManager:
         with patch.dict(
             "os.environ", {"DATABASE_URL": "postgresql://env:test@localhost/test"}
         ):
-            with patch("src.commercial.database.SimpleConnectionPool") as mock_pool:
+            with patch("psycopg2.pool.SimpleConnectionPool") as mock_pool:
                 db_manager = DatabaseManager()
                 assert db_manager.database_url == "postgresql://env:test@localhost/test"
 
