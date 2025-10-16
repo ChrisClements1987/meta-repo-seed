@@ -5,19 +5,14 @@ This module provides the core OrganizationSeeder class that replaces the single-
 RepoSeeder with multi-tenant, organization-scoped deployment capabilities.
 """
 
-import os
-import sys
-import json
-import shutil
 import subprocess
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union, Any
+from typing import Dict, Optional, Union, Any
 from datetime import datetime
 
 # Import existing utilities from seeding.py
 from seeding import (
-    setup_logging,
     sanitize_project_name,
     ensure_directory_exists,
     safe_open_for_write,
@@ -25,14 +20,12 @@ from seeding import (
     copy_template_file,
     process_template_content,
     create_file_from_template,
-    Configuration,
 )
 
 # Import commercial models
 from ..models import (
     Organization,
     Customer,
-    CustomerSettings,
     SubscriptionPlan,
     OrganizationStatus,
 )

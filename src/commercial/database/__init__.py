@@ -22,6 +22,27 @@ try:
     DATABASE_AVAILABLE = True
 except ImportError:
     DATABASE_AVAILABLE = False
+    # Create mock classes for testing when psycopg2 is not available
+    class SimpleConnectionPool:
+        """Mock SimpleConnectionPool for testing when psycopg2 is not available."""
+
+        def __init__(self, minconn, maxconn, dsn):
+            pass
+
+        def getconn(self):
+            return None
+
+        def putconn(self, conn):
+            pass
+
+        def closeall(self):
+            pass
+
+    class RealDictCursor:
+        """Mock RealDictCursor for testing when psycopg2 is not available."""
+
+        pass
+
     logging.warning("PostgreSQL not available. Install psycopg2 for database support.")
 
 from ..models import (

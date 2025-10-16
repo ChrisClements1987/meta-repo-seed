@@ -134,7 +134,7 @@ async def get_current_customer(
     return the authenticated customer.
     """
     # Placeholder implementation - in reality would validate JWT
-    token = credentials.credentials
+    # token = credentials.credentials  # Will be used in production
 
     # For now, return a mock customer for testing
     # In production, this would decode the JWT and fetch the customer

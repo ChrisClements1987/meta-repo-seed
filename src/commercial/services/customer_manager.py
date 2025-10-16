@@ -8,7 +8,6 @@ subscription management, and customer support functionality.
 import logging
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any
-from pathlib import Path
 import json
 
 from ..models import (
