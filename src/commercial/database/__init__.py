@@ -22,6 +22,7 @@ try:
     DATABASE_AVAILABLE = True
 except ImportError:
     DATABASE_AVAILABLE = False
+
     # Create mock classes for testing when psycopg2 is not available
     class SimpleConnectionPool:
         """Mock SimpleConnectionPool for testing when psycopg2 is not available."""
