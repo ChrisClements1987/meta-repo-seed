@@ -19,8 +19,8 @@ export async function GET() {
     return NextResponse.json(healthCheck, { status: 200 })
   } catch (error) {
     return NextResponse.json(
-      { 
-        status: 'unhealthy', 
+      {
+        status: 'unhealthy',
         error: 'Health check failed',
         timestamp: new Date().toISOString()
       },

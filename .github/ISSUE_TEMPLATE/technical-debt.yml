@@ -45,7 +45,7 @@ body:
       description: How this debt affects development, performance, or maintainability
       placeholder: |
         - Development impact: How it affects future development
-        - Performance impact: Any performance implications  
+        - Performance impact: Any performance implications
         - Maintainability impact: How it affects code maintenance
         - User impact: Any user-facing effects
     validations:
@@ -104,12 +104,12 @@ body:
         - [ ] **Test coverage maintained** - No reduction in overall test coverage
         - [ ] **Regression prevention** - All existing tests continue passing
         - [ ] **New test coverage** - Additional tests for improved code paths
-        
+
         ## 📝 Implementation Requirements:
         - [ ] Technical debt addressed according to proposed solution
         - [ ] Code quality improved (linting, structure, readability)
         - [ ] No functional regressions introduced
-        
+
         ## 📚 Documentation Requirements:
         - [ ] Documentation updated if needed
         - [ ] AI context updated if patterns change

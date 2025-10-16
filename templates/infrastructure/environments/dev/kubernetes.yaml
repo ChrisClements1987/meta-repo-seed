@@ -25,18 +25,18 @@ data:
   METRICS_PORT: "8080"
   LOG_LEVEL: "debug"
   DEBUG: "true"
-  
+
   # Database Configuration
   DB_HOST: "mysql-dev"
   DB_PORT: "3306"
   DB_NAME: "{{PROJECT_NAME}}_dev"
   DB_POOL_SIZE: "5"
-  
+
   # Cache Configuration
   REDIS_HOST: "redis-dev"
   REDIS_PORT: "6379"
   REDIS_DB: "0"
-  
+
   # Development Features
   ENABLE_HOT_RELOAD: "true"
   ENABLE_DEBUG_ROUTES: "true"

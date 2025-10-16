@@ -9,7 +9,7 @@ code formatting and quality checks.
 
 Usage:
     python setup-formatting.py [options]
-    
+
 Options:
     --install-only    Install packages but don't configure pre-commit
     --configure-only  Configure pre-commit but don't install packages
@@ -28,24 +28,22 @@ def run_command(cmd, dry_run=False, verbose=False):
     """Run a shell command with error handling."""
     if verbose:
         print(f"Running: {cmd}")
-    
+
     if dry_run:
         print(f"[DRY RUN] Would run: {cmd}")
         return True
-        
+
     try:
         # Split command for security (avoid shell=True)
         if isinstance(cmd, str):
             import shlex
+
             cmd_list = shlex.split(cmd)
         else:
             cmd_list = cmd
-            
+
         result = subprocess.run(
-            cmd_list, 
-            check=True, 
-            capture_output=not verbose,
-            text=True
+            cmd_list, check=True, capture_output=not verbose, text=True
         )
         if verbose and result.stdout:
             print(result.stdout)
@@ -70,25 +68,25 @@ def check_python_version():
 def install_formatting_dependencies(dry_run=False, verbose=False):
     """Install code formatting and quality tools."""
     print("\n[INSTALL] Installing code formatting dependencies...")
-    
+
     # Get the directory of this script
     script_dir = Path(__file__).parent
     requirements_file = script_dir / "requirements-formatting.txt"
-    
+
     if requirements_file.exists():
         cmd = f'"{sys.executable}" -m pip install -r "{requirements_file}"'
     else:
         # Fallback to individual packages if requirements file not found
         packages = [
             "black>=24.10.0",
-            "isort>=5.13.0", 
+            "isort>=5.13.0",
             "flake8>=7.1.0",
             "pre-commit>=3.8.0",
             "pydocstyle>=6.3.0",
-            "bandit>=1.7.10"
+            "bandit>=1.7.10",
         ]
         cmd = f'"{sys.executable}" -m pip install {" ".join(packages)}'
-    
+
     success = run_command(cmd, dry_run, verbose)
     if success and not dry_run:
         print("[SUCCESS] Code formatting dependencies installed")
@@ -98,41 +96,41 @@ def install_formatting_dependencies(dry_run=False, verbose=False):
 def setup_precommit_hooks(dry_run=False, verbose=False):
     """Configure and install pre-commit hooks."""
     print("\n[SETUP] Setting up pre-commit hooks...")
-    
+
     # Install pre-commit hooks
     cmd = "pre-commit install"
     success = run_command(cmd, dry_run, verbose)
     if not success:
         return False
-        
+
     # Install commit message hooks
     cmd = "pre-commit install --hook-type commit-msg"
     run_command(cmd, dry_run, verbose)  # Optional, don't fail if this doesn't work
-    
+
     # Update hooks to latest versions
     cmd = "pre-commit autoupdate"
     run_command(cmd, dry_run, verbose)  # Optional
-    
+
     if not dry_run:
         print("[SUCCESS] Pre-commit hooks configured")
-    
+
     return True
 
 
 def validate_setup(dry_run=False, verbose=False):
     """Validate that the setup is working correctly."""
     print("\n[VALIDATE] Validating setup...")
-    
+
     if dry_run:
         print("[DRY RUN] Would validate formatting tools")
         return True
-    
+
     # Check if pre-commit is installed
     cmd = "pre-commit --version"
     if not run_command(cmd, dry_run, verbose):
         print("[ERROR] Pre-commit not properly installed")
         return False
-        
+
     # Check if formatting tools are available
     tools_to_check = ["black", "isort", "flake8"]
     for tool in tools_to_check:
@@ -140,7 +138,7 @@ def validate_setup(dry_run=False, verbose=False):
         if not run_command(cmd, dry_run, verbose):
             print(f"[ERROR] {tool} not properly installed")
             return False
-    
+
     print("[SUCCESS] All formatting tools validated")
     return True
 
@@ -148,21 +146,21 @@ def validate_setup(dry_run=False, verbose=False):
 def run_initial_formatting(dry_run=False, verbose=False):
     """Run formatting tools on the entire codebase."""
     print("\n[FORMAT] Running initial code formatting...")
-    
+
     if dry_run:
         print("[DRY RUN] Would run pre-commit on all files")
         return True
-    
+
     # Run pre-commit on all files
     cmd = "pre-commit run --all-files"
     success = run_command(cmd, dry_run, verbose)
-    
+
     if success:
         print("[SUCCESS] Initial formatting complete")
     else:
         print("[WARNING] Some formatting issues found - this is normal for first run")
         print("   Files have been automatically formatted. Review and commit changes.")
-    
+
     return True
 
 
@@ -171,41 +169,51 @@ def main():
     parser = argparse.ArgumentParser(
         description="Set up code formatting and pre-commit hooks for {{PROJECT_NAME}}"
     )
-    parser.add_argument("--install-only", action="store_true", 
-                       help="Install packages but don't configure pre-commit")
-    parser.add_argument("--configure-only", action="store_true",
-                       help="Configure pre-commit but don't install packages") 
-    parser.add_argument("--dry-run", action="store_true",
-                       help="Show what would be done without making changes")
-    parser.add_argument("--verbose", action="store_true",
-                       help="Show detailed output")
-    
+    parser.add_argument(
+        "--install-only",
+        action="store_true",
+        help="Install packages but don't configure pre-commit",
+    )
+    parser.add_argument(
+        "--configure-only",
+        action="store_true",
+        help="Configure pre-commit but don't install packages",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be done without making changes",
+    )
+    parser.add_argument("--verbose", action="store_true", help="Show detailed output")
+
     args = parser.parse_args()
-    
+
     print("[SETUP] Code Formatting Setup for {{PROJECT_NAME}}")
     print("=" * 50)
-    
+
     # Check Python version
     check_python_version()
-    
+
     success = True
-    
+
     # Install dependencies (unless configure-only)
     if not args.configure_only:
-        success = success and install_formatting_dependencies(args.dry_run, args.verbose)
-    
+        success = success and install_formatting_dependencies(
+            args.dry_run, args.verbose
+        )
+
     # Configure pre-commit (unless install-only)
     if not args.install_only and success:
         success = success and setup_precommit_hooks(args.dry_run, args.verbose)
-    
+
     # Validate setup
     if success:
         success = success and validate_setup(args.dry_run, args.verbose)
-    
+
     # Run initial formatting (unless install-only or configure-only)
     if not args.install_only and not args.configure_only and success:
         success = success and run_initial_formatting(args.dry_run, args.verbose)
-    
+
     print("\n" + "=" * 50)
     if success:
         print("[SUCCESS] Code formatting setup completed successfully!")

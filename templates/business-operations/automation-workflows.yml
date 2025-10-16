@@ -6,7 +6,7 @@ kind: BusinessAutomationWorkflows
 metadata:
   name: business-operations-automation
   description: Self-governing business operations automation workflows
-  
+
 workflows:
   # Automated Onboarding Workflow
   - name: automated-onboarding
@@ -32,8 +32,8 @@ workflows:
       - initialize-governance-policies
       - create-compliance-checklist
       - setup-automated-reporting
-    
-  # Compliance Enforcement Workflow  
+
+  # Compliance Enforcement Workflow
   - name: compliance-enforcement
     file: compliance-enforcement.yml
     description: Automated compliance and policy enforcement
@@ -51,10 +51,10 @@ workflows:
       - security-vulnerability-scan
       - governance-policy-validation
       - compliance-report-generation
-      
+
   # Automated Reporting Workflow
   - name: automated-reporting
-    file: automated-reporting.yml  
+    file: automated-reporting.yml
     description: Generate status dashboards and audit reports
     triggers:
       - schedule:
@@ -68,7 +68,7 @@ workflows:
       - create-audit-log-summary
       - update-status-badges
       - notify-stakeholders
-      
+
   # Self-Healing and Auto-Remediation
   - name: self-healing
     file: self-healing.yml
@@ -85,14 +85,14 @@ workflows:
       - remediate-security-issues
       - restore-missing-workflows
       - escalate-unresolved-issues
-      
+
   # Governance Integration
-  - name: governance-integration  
+  - name: governance-integration
     file: governance-integration.yml
     description: Integrate governance policies and controls
     triggers:
       - push:
-          paths: 
+          paths:
             - '.github/CODEOWNERS'
             - '.github/branch-protection.yml'
             - 'governance/**'
@@ -114,23 +114,23 @@ configurations:
       automation_level: "high"
       reporting_frequency: "weekly"
       self_healing: true
-      
+
     charity-nonprofit:
       compliance_level: "enhanced"
       automation_level: "standard"
       reporting_frequency: "monthly"
       self_healing: true
       donor_transparency: true
-      
+
     smb-standard:
       compliance_level: "business"
       automation_level: "standard"
       reporting_frequency: "weekly"
       self_healing: true
-      
+
     consulting-firm:
       compliance_level: "professional"
-      automation_level: "high"  
+      automation_level: "high"
       reporting_frequency: "weekly"
       self_healing: true
       client_isolation: true

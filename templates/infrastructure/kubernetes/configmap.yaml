@@ -23,14 +23,14 @@ data:
   APP_DEBUG: "false"
   APP_LOG_LEVEL: "info"
   APP_TIMEZONE: "UTC"
-  
+
   # Server Configuration
   SERVER_HOST: "0.0.0.0"
   SERVER_PORT: "8000"
   SERVER_WORKERS: "4"
   SERVER_TIMEOUT: "30"
   SERVER_KEEPALIVE: "2"
-  
+
   # Database Configuration (non-sensitive)
   DB_HOST: "{{PROJECT_NAME}}-database"
   DB_PORT: "3306"
@@ -40,7 +40,7 @@ data:
   DB_MAX_OVERFLOW: "10"
   DB_POOL_TIMEOUT: "30"
   DB_POOL_RECYCLE: "3600"
-  
+
   # Cache Configuration
   CACHE_TYPE: "redis"
   CACHE_HOST: "{{PROJECT_NAME}}-redis"
@@ -48,14 +48,14 @@ data:
   CACHE_DB: "0"
   CACHE_TTL: "3600"
   CACHE_KEY_PREFIX: "{{PROJECT_NAME}}:"
-  
+
   # API Configuration
   API_VERSION: "v1"
   API_PREFIX: "/api/v1"
   API_CORS_ORIGINS: "https://{{PROJECT_NAME}}.com,https://www.{{PROJECT_NAME}}.com"
   API_RATE_LIMIT: "1000"
   API_RATE_LIMIT_WINDOW: "3600"
-  
+
   # Security Configuration
   SECURITY_CORS_ENABLED: "true"
   SECURITY_CSRF_ENABLED: "true"
@@ -63,7 +63,7 @@ data:
   SECURITY_CONTENT_TYPE_OPTIONS: "nosniff"
   SECURITY_FRAME_OPTIONS: "DENY"
   SECURITY_XSS_PROTECTION: "1; mode=block"
-  
+
   # Monitoring Configuration
   MONITORING_ENABLED: "true"
   METRICS_ENABLED: "true"
@@ -71,14 +71,14 @@ data:
   METRICS_PATH: "/metrics"
   HEALTH_CHECK_PATH: "/health"
   READINESS_CHECK_PATH: "/ready"
-  
+
   # Logging Configuration
   LOG_FORMAT: "json"
   LOG_LEVEL: "info"
   LOG_OUTPUT: "stdout"
   ACCESS_LOG_ENABLED: "true"
   ERROR_LOG_ENABLED: "true"
-  
+
   # Feature Flags
   FEATURE_NEW_UI: "true"
   FEATURE_ANALYTICS: "true"
@@ -110,15 +110,15 @@ data:
     datadir = /var/lib/mysql
     tmpdir = /tmp
     lc-messages-dir = /usr/share/mysql
-    
+
     # Security
     bind-address = 0.0.0.0
     skip-name-resolve
-    
+
     # Character Set
     character-set-server = utf8mb4
     collation-server = utf8mb4_unicode_ci
-    
+
     # Performance
     max_connections = 200
     connect_timeout = 60
@@ -129,7 +129,7 @@ data:
     bulk_insert_buffer_size = 16M
     tmp_table_size = 32M
     max_heap_table_size = 32M
-    
+
     # InnoDB Settings
     innodb_buffer_pool_size = 256M
     innodb_log_buffer_size = 8M
@@ -137,7 +137,7 @@ data:
     innodb_open_files = 400
     innodb_io_capacity = 400
     innodb_flush_method = O_DIRECT
-    
+
     # Logging
     general_log = 1
     general_log_file = /var/log/mysql/mysql.log
@@ -145,10 +145,10 @@ data:
     slow_query_log = 1
     slow_query_log_file = /var/log/mysql/mysql-slow.log
     long_query_time = 2
-    
+
     [mysql]
     default-character-set = utf8mb4
-    
+
     [client]
     default-character-set = utf8mb4
 ---
@@ -167,14 +167,14 @@ metadata:
 data:
   redis.conf: |
     # Redis Configuration for {{PROJECT_NAME}}
-    
+
     # Network
     bind 0.0.0.0
     port 6379
     tcp-backlog 511
     timeout 0
     tcp-keepalive 300
-    
+
     # General
     daemonize no
     supervised no
@@ -182,25 +182,25 @@ data:
     loglevel notice
     logfile ""
     databases 16
-    
+
     # Memory Management
     maxmemory 256mb
     maxmemory-policy allkeys-lru
-    
+
     # Persistence
     save 900 1
     save 300 10
     save 60 10000
-    
+
     stop-writes-on-bgsave-error yes
     rdbcompression yes
     rdbchecksum yes
     dbfilename dump.rdb
     dir /data
-    
+
     # Security
     requirepass "redis-password-change-in-production"
-    
+
     # Performance
     tcp-keepalive 300
     timeout 0
@@ -223,24 +223,24 @@ data:
     worker_processes auto;
     error_log /var/log/nginx/error.log warn;
     pid /var/run/nginx.pid;
-    
+
     events {
         worker_connections 1024;
         use epoll;
         multi_accept on;
     }
-    
+
     http {
         include /etc/nginx/mime.types;
         default_type application/octet-stream;
-        
+
         # Logging
         log_format main '$remote_addr - $remote_user [$time_local] "$request" '
                         '$status $body_bytes_sent "$http_referer" '
                         '"$http_user_agent" "$http_x_forwarded_for"';
-        
+
         access_log /var/log/nginx/access.log main;
-        
+
         # Performance
         sendfile on;
         tcp_nopush on;
@@ -248,7 +248,7 @@ data:
         keepalive_timeout 65;
         types_hash_max_size 2048;
         client_max_body_size 50M;
-        
+
         # Compression
         gzip on;
         gzip_vary on;
@@ -264,30 +264,30 @@ data:
             application/xml+rss
             application/atom+xml
             image/svg+xml;
-        
+
         # Security Headers
         add_header X-Frame-Options DENY always;
         add_header X-Content-Type-Options nosniff always;
         add_header X-XSS-Protection "1; mode=block" always;
         add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-        
+
         # Upstream
         upstream {{PROJECT_NAME}}_backend {
             server localhost:8000;
             keepalive 32;
         }
-        
+
         server {
             listen 80;
             server_name _;
-            
+
             # Health Check
             location /health {
                 access_log off;
                 return 200 "healthy\n";
                 add_header Content-Type text/plain;
             }
-            
+
             # Main Application
             location / {
                 proxy_pass http://{{PROJECT_NAME}}_backend;
@@ -299,7 +299,7 @@ data:
                 proxy_send_timeout 60s;
                 proxy_read_timeout 60s;
             }
-            
+
             # Static Files (if any)
             location /static/ {
                 alias /app/static/;
@@ -334,7 +334,7 @@ data:
       ttl: 300
     monitoring:
       sample_rate: 1.0
-  
+
   # Staging Environment
   staging.yaml: |
     environment: staging
@@ -347,7 +347,7 @@ data:
       ttl: 1800
     monitoring:
       sample_rate: 0.5
-  
+
   # Production Environment
   production.yaml: |
     environment: production

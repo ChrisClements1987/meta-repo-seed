@@ -91,7 +91,7 @@ resource "azurerm_linux_web_app" "main" {
 
   site_config {
     always_on = var.environment != "dev"
-    
+
     application_stack {
       docker_image     = "{{GITHUB_USERNAME}}/{{PROJECT_NAME}}"
       docker_image_tag = "latest"

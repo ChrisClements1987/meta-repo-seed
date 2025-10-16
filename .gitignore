@@ -62,7 +62,7 @@ htmlcov/
 
 # Project specific
 # Exclude generated test projects (but allow core directories)
-/*/ 
+/*/
 !/quantum/
 !/templates/
 !/docs/

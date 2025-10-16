@@ -3,7 +3,7 @@
 ## 📋 Change Summary
 <!-- Provide a clear, concise description of what this PR accomplishes -->
 
-**Type of Change:** 
+**Type of Change:**
 - [ ] 🐛 Bug fix (non-breaking change that fixes an issue)
 - [ ] ✨ New feature (non-breaking change that adds functionality)
 - [ ] 💥 Breaking change (fix or feature that causes existing functionality to change)
@@ -12,7 +12,7 @@
 - [ ] 🧪 Tests (adding missing tests or correcting existing tests)
 - [ ] 🎨 Style (formatting, missing semicolons, etc; no code change)
 
-**Related Issues (REQUIRED):** 
+**Related Issues (REQUIRED):**
 <!-- MANDATORY: Use auto-close keywords to link issues. Issues will auto-close when PR merges. -->
 <!-- Auto-close syntax: Closes #123, Fixes #456, Resolves #789 -->
 <!-- If no issues to close, use: Related to #123 (for reference only) -->
@@ -25,7 +25,7 @@ Closes #___
 ## 🧪 Test-Driven Development Compliance
 
 ### ✅ **Test Coverage Requirements**
-- [ ] **Tests written first (TDD)** OR **comprehensive diff coverage provided** 
+- [ ] **Tests written first (TDD)** OR **comprehensive diff coverage provided**
 - [ ] **All new/changed functionality is covered by tests** (unit and/or integration)
 - [ ] **All existing tests pass** OR **failing tests are marked xfail/skip with linked issues**
 - [ ] **Diff coverage on changed lines >= 80%** (paste coverage report below)
@@ -59,7 +59,7 @@ If TDD or full test coverage isn't feasible:
 **Select the type of change to determine documentation requirements:**
 
 - [ ] **🚀 User-Facing Changes** - New features, UI changes, API changes, configuration changes
-- [ ] **🛠️ Technical Changes** - Internal refactoring, architecture changes, development process changes  
+- [ ] **🛠️ Technical Changes** - Internal refactoring, architecture changes, development process changes
 - [ ] **📋 Process/Research** - Analysis documents, research, audits, internal documentation
 - [ ] **🐛 Bug Fixes** - Fixes that don't change user experience significantly
 
@@ -72,7 +72,7 @@ If TDD or full test coverage isn't feasible:
   - [ ] `docs/guides/user/` - User-facing functionality documented
   - [ ] Getting Started guides updated for new features
   - [ ] Usage examples provided for new functionality
-- [ ] **FAQ Updated** 
+- [ ] **FAQ Updated**
   - [ ] Common scenarios documented in `docs/guides/faq.md`
   - [ ] Troubleshooting steps added for new features
 - [ ] **Release Notes Drafted**
@@ -88,7 +88,7 @@ If TDD or full test coverage isn't feasible:
   - [ ] API endpoints documented in `docs/api/`
   - [ ] Request/response examples provided
   - [ ] Error codes and responses documented
-- [ ] **Architecture Documentation Updated**  
+- [ ] **Architecture Documentation Updated**
   - [ ] `docs/architecture/` - ADRs added for design decisions
   - [ ] System diagrams updated if architecture changed
   - [ ] Component relationships documented
@@ -266,7 +266,7 @@ If TDD or full test coverage isn't feasible:
 
 **Legacy Debt Items:**
 - [ ] **N/A** - All standard requirements met
-- [ ] **Linked tech debt issue(s)**: #[issue-number] 
+- [ ] **Linked tech debt issue(s)**: #[issue-number]
 - [ ] **Risk assessment**: [describe impact of any unmet requirements]
 - [ ] **Follow-up timeline**: [milestone/target date for addressing debt]
 

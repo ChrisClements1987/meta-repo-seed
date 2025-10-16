@@ -3,7 +3,7 @@
 ## 🐛 Bug Fix Summary
 <!-- Clear description of the bug being fixed -->
 
-**Bug Description:** 
+**Bug Description:**
 **GitHub Issue:** #[issue-number]
 **Impact:** <!-- Who/what was affected by this bug? -->
 **Root Cause:** <!-- What caused the bug? -->

@@ -28,9 +28,9 @@ body:
         3. Scroll down to '....'
         4. See error
       value: |
-        1. 
-        2. 
-        3. 
+        1.
+        2.
+        3.
         4. See error
     validations:
       required: true
@@ -44,9 +44,9 @@ body:
         **Expected:** A clear description of what you expected to happen
         **Actual:** A clear description of what actually happened
       value: |
-        **Expected:** 
-        
-        **Actual:** 
+        **Expected:**
+
+        **Actual:**
     validations:
       required: true
 
@@ -61,10 +61,10 @@ body:
         - Branch/commit: [e.g. develop, v1.0.0, commit hash]
         - Terminal: [e.g. PowerShell, bash, zsh]
       value: |
-        - OS: 
-        - Python version: 
-        - Branch/commit: 
-        - Terminal: 
+        - OS:
+        - Python version:
+        - Branch/commit:
+        - Terminal:
     validations:
       required: true
 
@@ -116,7 +116,7 @@ body:
       description: Test-driven development requirements for bug fix
       placeholder: |
         - [ ] Bug reproduced with failing test
-        - [ ] Fix implemented 
+        - [ ] Fix implemented
         - [ ] All tests passing
       value: |
         ## 🧪 Test-Driven Development (TDD) Requirements:
@@ -124,7 +124,7 @@ body:
         - [ ] **Fix implemented** - Minimal code change to make test pass
         - [ ] **Regression test coverage** - Ensure bug doesn't reoccur
         - [ ] **All tests passing** - No new failures introduced
-        
+
         ## 📚 Documentation Requirements:
         - [ ] **Bug documented** - Add to changelog if user-facing
         - [ ] **Test documentation** - Comment complex test scenarios

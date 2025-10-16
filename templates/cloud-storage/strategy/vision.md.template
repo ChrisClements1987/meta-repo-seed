@@ -11,7 +11,7 @@
 ### Value 1: [INSERT VALUE]
 Description of what this value means to our organization and how it guides our decisions.
 
-### Value 2: [INSERT VALUE] 
+### Value 2: [INSERT VALUE]
 Description of what this value means to our organization and how it guides our decisions.
 
 ### Value 3: [INSERT VALUE]
@@ -24,7 +24,7 @@ Description of what this value means to our organization and how it guides our d
 
 **Key Focus Areas:**
 - Focus area 1
-- Focus area 2  
+- Focus area 2
 - Focus area 3
 
 **Success Metrics:**
@@ -105,9 +105,9 @@ How we organize ourselves to achieve our vision.
 
 ---
 
-**Created:** {{CURRENT_DATE}}  
-**Last Reviewed:** {{CURRENT_DATE}}  
-**Next Review:** [INSERT DATE]  
+**Created:** {{CURRENT_DATE}}
+**Last Reviewed:** {{CURRENT_DATE}}
+**Next Review:** [INSERT DATE]
 **Owner:** [INSERT OWNER/TEAM]
 
 *This vision document guides all strategic decisions and initiatives within {{PROJECT_NAME}}.*

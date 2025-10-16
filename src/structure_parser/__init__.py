@@ -8,20 +8,25 @@ Based on the architecture analysis in docs/architecture/structure-parser-interfa
 """
 
 from .exceptions import FileNotFoundError as StructureFileNotFoundError
-from .exceptions import (MigrationError, ParseError, SchemaError,
-                         StructureParserError, ValidationError)
+from .exceptions import (
+    MigrationError,
+    ParseError,
+    SchemaError,
+    StructureParserError,
+    ValidationError,
+)
 from .models import StructureData, ValidationResult
 from .parser import StructureParser
 
 __version__ = "1.0.0"
 __all__ = [
     "StructureParser",
-    "StructureData", 
+    "StructureData",
     "ValidationResult",
     "StructureParserError",
     "ValidationError",
     "SchemaError",
     "StructureFileNotFoundError",
     "ParseError",
-    "MigrationError"
+    "MigrationError",
 ]

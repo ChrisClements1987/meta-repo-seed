@@ -35,17 +35,17 @@ spec:
     requests.memory: 4Gi
     limits.cpu: "4"
     limits.memory: 8Gi
-    
+
     # Storage resources
     requests.storage: 10Gi
-    
+
     # Object counts
     pods: "10"
     services: "5"
     secrets: "10"
     configmaps: "10"
     persistentvolumeclaims: "5"
-    
+
     # Network resources
     services.loadbalancers: "2"
     services.nodeports: "0"

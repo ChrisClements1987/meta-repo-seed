@@ -22,39 +22,39 @@ def read_roadmap():
     """Read the current ROADMAP.md file"""
     roadmap_path = Path("ROADMAP.md")
     if roadmap_path.exists():
-        return roadmap_path.read_text(encoding='utf-8')
+        return roadmap_path.read_text(encoding="utf-8")
     return ""
+
 
 def read_changelog():
     """Read the current CHANGELOG.md file"""
     changelog_path = Path("CHANGELOG.md")
     if changelog_path.exists():
-        return changelog_path.read_text(encoding='utf-8')
+        return changelog_path.read_text(encoding="utf-8")
     return ""
+
 
 def move_to_changelog(feature_name, version, feature_description, issue_number=None):
     """Move a completed feature from roadmap to changelog"""
     print(f"Moving '{feature_name}' to CHANGELOG.md under version {version}")
-    
+
     # Read current changelog
     changelog_content = read_changelog()
-    
+
     # Create entry with optional issue reference
     if issue_number:
         new_entry = f"- **{feature_name}** ([#{issue_number}](https://github.com/ChrisClements1987/meta-repo-seed/issues/{issue_number})) - {feature_description}\n"
     else:
         new_entry = f"- **{feature_name}** - {feature_description}\n"
-    
+
     # Find the unreleased section
-    unreleased_pattern = r'## \[Unreleased\]\s*\n\s*\n### Added\s*\n'
-    
+    unreleased_pattern = r"## \[Unreleased\]\s*\n\s*\n### Added\s*\n"
+
     # Add the feature to the unreleased section
-    if '## [Unreleased]' in changelog_content:
+    if "## [Unreleased]" in changelog_content:
         # Insert after "### Added"
         updated_content = re.sub(
-            r'(### Added\s*\n)',
-            f'\\1{new_entry}',
-            changelog_content
+            r"(### Added\s*\n)", f"\\1{new_entry}", changelog_content
         )
     else:
         # Create unreleased section if it doesn't exist
@@ -65,63 +65,62 @@ def move_to_changelog(feature_name, version, feature_description, issue_number=N
 """
         # Insert after the main header
         updated_content = re.sub(
-            r'(# Changelog.*?\n\n)',
-            f'\\1{unreleased_section}\n',
+            r"(# Changelog.*?\n\n)",
+            f"\\1{unreleased_section}\n",
             changelog_content,
-            flags=re.DOTALL
+            flags=re.DOTALL,
         )
-    
+
     # Write back to file
-    Path("CHANGELOG.md").write_text(updated_content, encoding='utf-8')
+    Path("CHANGELOG.md").write_text(updated_content, encoding="utf-8")
     print("✅ Feature added to CHANGELOG.md")
+
 
 def remove_from_roadmap(feature_name):
     """Remove a completed feature from the roadmap"""
     print(f"Removing '{feature_name}' from ROADMAP.md")
-    
+
     roadmap_content = read_roadmap()
-    
+
     # Pattern to match feature items (lines starting with - [ ]) with optional issue references
-    pattern = rf'- \[ \] \*\*{re.escape(feature_name)}\*\*(?:\s*\(\[#\d+\].*?\))? - .*?\n(?:  .*?\n)*'
-    updated_content = re.sub(pattern, '', roadmap_content, flags=re.MULTILINE)
-    
-    Path("ROADMAP.md").write_text(updated_content, encoding='utf-8')
+    pattern = rf"- \[ \] \*\*{re.escape(feature_name)}\*\*(?:\s*\(\[#\d+\].*?\))? - .*?\n(?:  .*?\n)*"
+    updated_content = re.sub(pattern, "", roadmap_content, flags=re.MULTILINE)
+
+    Path("ROADMAP.md").write_text(updated_content, encoding="utf-8")
     print("✅ Feature removed from ROADMAP.md")
+
 
 def add_to_roadmap(feature_name, feature_description, section="Next Release"):
     """Add a new feature to the roadmap"""
     print(f"Adding '{feature_name}' to ROADMAP.md in {section} section")
-    
+
     roadmap_content = read_roadmap()
-    
+
     # Create the feature entry
     feature_entry = f"- [ ] **{feature_name}** - {feature_description}\n"
-    
+
     # Find the appropriate section and add the feature
     if section == "Next Release":
-        section_pattern = r'(### High Priority\s*\n)'
+        section_pattern = r"(### High Priority\s*\n)"
     elif section == "Future Releases":
-        section_pattern = r'(### Advanced Features\s*\n)'
+        section_pattern = r"(### Advanced Features\s*\n)"
     else:
-        section_pattern = rf'(### {section}\s*\n)'
-    
-    updated_content = re.sub(
-        section_pattern,
-        f'\\1{feature_entry}',
-        roadmap_content
-    )
-    
-    Path("ROADMAP.md").write_text(updated_content, encoding='utf-8')
+        section_pattern = rf"(### {section}\s*\n)"
+
+    updated_content = re.sub(section_pattern, f"\\1{feature_entry}", roadmap_content)
+
+    Path("ROADMAP.md").write_text(updated_content, encoding="utf-8")
     print("✅ Feature added to ROADMAP.md")
+
 
 def list_roadmap_features():
     """List all features currently in the roadmap"""
     roadmap_content = read_roadmap()
-    
+
     # Extract all feature items with optional issue references
-    pattern = r'- \[ \] \*\*(.*?)\*\*(?:\s*\(\[#(\d+)\].*?\))? - (.*?)(?:\n|$)'
+    pattern = r"- \[ \] \*\*(.*?)\*\*(?:\s*\(\[#(\d+)\].*?\))? - (.*?)(?:\n|$)"
     features = re.findall(pattern, roadmap_content)
-    
+
     if features:
         print("\n📋 Current Roadmap Features:")
         print("-" * 50)
@@ -133,75 +132,81 @@ def list_roadmap_features():
     else:
         print("No features found in roadmap")
 
+
 def generate_roadmap_report():
     """Generate a summary report of the roadmap"""
     roadmap_content = read_roadmap()
-    
+
     # Count features in each section
     sections = {
         "High Priority": 0,
         "Medium Priority": 0,
         "Advanced Features": 0,
         "Developer Experience": 0,
-        "Integration & Automation": 0
+        "Integration & Automation": 0,
     }
-    
+
     for section in sections.keys():
-        pattern = rf'### {section}.*?(?=###|\Z)'
+        pattern = rf"### {section}.*?(?=###|\Z)"
         section_content = re.search(pattern, roadmap_content, re.DOTALL)
         if section_content:
-            feature_count = len(re.findall(r'- \[ \]', section_content.group()))
+            feature_count = len(re.findall(r"- \[ \]", section_content.group()))
             sections[section] = feature_count
-    
+
     print("\n📊 Roadmap Summary Report")
     print("=" * 30)
     total_features = sum(sections.values())
     print(f"Total Features: {total_features}")
     print("-" * 30)
-    
+
     for section, count in sections.items():
         if count > 0:
             print(f"{section:<25} {count:3d} features")
-    
+
     print(f"\nReport generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
+
 def main():
-    parser = argparse.ArgumentParser(description='Roadmap Management Helper')
-    subparsers = parser.add_subparsers(dest='command', help='Available commands')
-    
+    parser = argparse.ArgumentParser(description="Roadmap Management Helper")
+    subparsers = parser.add_subparsers(dest="command", help="Available commands")
+
     # Add feature to roadmap
-    add_parser = subparsers.add_parser('add', help='Add feature to roadmap')
-    add_parser.add_argument('name', help='Feature name')
-    add_parser.add_argument('description', help='Feature description')
-    add_parser.add_argument('--section', default='Next Release', 
-                          help='Roadmap section (default: Next Release)')
-    
+    add_parser = subparsers.add_parser("add", help="Add feature to roadmap")
+    add_parser.add_argument("name", help="Feature name")
+    add_parser.add_argument("description", help="Feature description")
+    add_parser.add_argument(
+        "--section",
+        default="Next Release",
+        help="Roadmap section (default: Next Release)",
+    )
+
     # Move feature to changelog
-    move_parser = subparsers.add_parser('complete', help='Move feature to changelog')
-    move_parser.add_argument('name', help='Feature name')
-    move_parser.add_argument('version', help='Version number (e.g., 1.1.0)')
-    move_parser.add_argument('description', help='Feature description for changelog')
-    move_parser.add_argument('--issue', type=int, help='GitHub issue number')
-    
+    move_parser = subparsers.add_parser("complete", help="Move feature to changelog")
+    move_parser.add_argument("name", help="Feature name")
+    move_parser.add_argument("version", help="Version number (e.g., 1.1.0)")
+    move_parser.add_argument("description", help="Feature description for changelog")
+    move_parser.add_argument("--issue", type=int, help="GitHub issue number")
+
     # List features
-    subparsers.add_parser('list', help='List all roadmap features')
-    
+    subparsers.add_parser("list", help="List all roadmap features")
+
     # Generate report
-    subparsers.add_parser('report', help='Generate roadmap summary report')
-    
+    subparsers.add_parser("report", help="Generate roadmap summary report")
+
     args = parser.parse_args()
-    
-    if args.command == 'add':
+
+    if args.command == "add":
         add_to_roadmap(args.name, args.description, args.section)
-    elif args.command == 'complete':
+    elif args.command == "complete":
         move_to_changelog(args.name, args.version, args.description, args.issue)
         remove_from_roadmap(args.name)
-    elif args.command == 'list':
+    elif args.command == "list":
         list_roadmap_features()
-    elif args.command == 'report':
+    elif args.command == "report":
         generate_roadmap_report()
     else:
         parser.print_help()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

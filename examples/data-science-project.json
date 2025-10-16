@@ -10,7 +10,7 @@
     "CURRENT_DATE": "2025-09-24",
     "DECISION_NUMBER": "002",
     "DECISION_TITLE": "Choose ML Framework",
-    "STATUS": "Proposed", 
+    "STATUS": "Proposed",
     "ALTERNATIVE_NAME": "TensorFlow Alternative"
   }
 }

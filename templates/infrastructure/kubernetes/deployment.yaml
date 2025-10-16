@@ -47,10 +47,10 @@ spec:
         fsGroup: 1000
         seccompProfile:
           type: RuntimeDefault
-      
+
       # Service Account
       serviceAccountName: {{PROJECT_NAME}}-service-account
-      
+
       # Init Container (optional - for database migrations, etc.)
       initContainers:
       - name: init-db
@@ -64,12 +64,12 @@ spec:
           capabilities:
             drop:
             - ALL
-      
+
       containers:
       - name: {{PROJECT_NAME}}
         image: {{GITHUB_USERNAME}}/{{PROJECT_NAME}}:latest
         imagePullPolicy: Always
-        
+
         # Ports
         ports:
         - name: http
@@ -78,7 +78,7 @@ spec:
         - name: metrics
           containerPort: 8080
           protocol: TCP
-        
+
         # Environment Variables
         env:
         - name: PROJECT_NAME
@@ -99,12 +99,12 @@ spec:
             secretKeyRef:
               name: {{PROJECT_NAME}}-secrets
               key: api-key
-        
+
         # Environment from ConfigMap
         envFrom:
         - configMapRef:
             name: {{PROJECT_NAME}}-config
-        
+
         # Resource Limits and Requests
         resources:
           requests:
@@ -113,7 +113,7 @@ spec:
           limits:
             cpu: 500m
             memory: 512Mi
-        
+
         # Health Checks
         livenessProbe:
           httpGet:
@@ -125,7 +125,7 @@ spec:
           timeoutSeconds: 10
           failureThreshold: 3
           successThreshold: 1
-        
+
         readinessProbe:
           httpGet:
             path: /ready
@@ -136,7 +136,7 @@ spec:
           timeoutSeconds: 5
           failureThreshold: 3
           successThreshold: 1
-        
+
         startupProbe:
           httpGet:
             path: /health
@@ -147,7 +147,7 @@ spec:
           timeoutSeconds: 5
           failureThreshold: 30
           successThreshold: 1
-        
+
         # Security Context
         securityContext:
           allowPrivilegeEscalation: false
@@ -157,7 +157,7 @@ spec:
           capabilities:
             drop:
             - ALL
-        
+
         # Volume Mounts
         volumeMounts:
         - name: tmp
@@ -169,7 +169,7 @@ spec:
         - name: config-volume
           mountPath: /app/config
           readOnly: true
-      
+
       # Volumes
       volumes:
       - name: tmp
@@ -182,11 +182,11 @@ spec:
         configMap:
           name: {{PROJECT_NAME}}-config
           defaultMode: 0644
-      
+
       # Node Selection and Affinity
       nodeSelector:
         kubernetes.io/os: linux
-      
+
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -199,10 +199,10 @@ spec:
                   values:
                   - {{PROJECT_NAME}}
               topologyKey: kubernetes.io/hostname
-      
+
       # Tolerations (if needed for specific nodes)
       tolerations: []
-      
+
       # DNS Configuration
       dnsPolicy: ClusterFirst
       restartPolicy: Always

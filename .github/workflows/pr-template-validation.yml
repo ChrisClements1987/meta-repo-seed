@@ -8,7 +8,7 @@ jobs:
   validate-pr-template:
     runs-on: ubuntu-latest
     name: Validate PR Template Compliance
-    
+
     steps:
     - name: Validate PR Template
       uses: actions/github-script@v6
@@ -16,15 +16,15 @@ jobs:
         script: |
           const prBody = context.payload.pull_request.body || '';
           const prNumber = context.payload.pull_request.number;
-          
+
           console.log('🔍 Validating PR Template for PR #' + prNumber);
-          
+
           // Check if PR template is present
           if (!prBody || prBody.trim().length < 100) {
             core.setFailed('❌ PR description is too short or missing. Please use the PR template.');
             return;
           }
-          
+
           // Required sections that must be present
           const requiredSections = [
             '## 📋 Change Summary',
@@ -32,31 +32,31 @@ jobs:
             '## 📚 Documentation Updates',
             '### 🎯 **Documentation Category Assessment**'
           ];
-          
+
           const missingSections = requiredSections.filter(section => !prBody.includes(section));
           if (missingSections.length > 0) {
             const error = `❌ PR template missing required sections:\n${missingSections.map(s => '- ' + s).join('\n')}`;
             core.setFailed(error);
             return;
           }
-          
+
           // Check that at least one change type is selected
           const changeTypes = [
             '- [x] 🐛 Bug fix',
-            '- [x] ✨ New feature', 
+            '- [x] ✨ New feature',
             '- [x] 💥 Breaking change',
             '- [x] 🔧 Refactoring',
             '- [x] 📚 Documentation',
             '- [x] 🧪 Tests',
             '- [x] 🎨 Style'
           ];
-          
+
           const hasSelectedChangeType = changeTypes.some(type => prBody.includes(type));
           if (!hasSelectedChangeType) {
             core.setFailed('❌ No change type selected. Please check at least one box in the "Type of Change" section.');
             return;
           }
-          
+
           // Check that documentation category is selected
           const docCategories = [
             '- [x] **🚀 User-Facing Changes**',
@@ -64,36 +64,36 @@ jobs:
             '- [x] **📋 Process/Research**',
             '- [x] **🐛 Bug Fixes**'
           ];
-          
+
           const hasSelectedDocCategory = docCategories.some(category => prBody.includes(category));
           if (!hasSelectedDocCategory) {
             core.setFailed('❌ No documentation category selected. Please check exactly one box in the "Documentation Category Assessment" section.');
             return;
           }
-          
+
           // Check for multiple documentation categories (should only select one)
           const selectedDocCategories = docCategories.filter(category => prBody.includes(category));
           if (selectedDocCategories.length > 1) {
             core.setFailed('❌ Multiple documentation categories selected. Please select exactly one category that best describes your changes.');
             return;
           }
-          
+
           // Validate category-specific requirements
           const isUserFacing = prBody.includes('- [x] **🚀 User-Facing Changes**');
           const isTechnical = prBody.includes('- [x] **🛠️ Technical Changes**');
           const isProcessResearch = prBody.includes('- [x] **📋 Process/Research**');
           const isBugFix = prBody.includes('- [x] **🐛 Bug Fixes**');
-          
+
           // For User-Facing changes, check that user documentation section is completed
           if (isUserFacing) {
-            if (!prBody.includes('### 👤 **User Documentation**') || 
+            if (!prBody.includes('### 👤 **User Documentation**') ||
                 (!prBody.includes('- [x]') && !prBody.includes('- [x] **N/A**'))) {
               core.setFailed('❌ User-Facing changes require completion of User Documentation section. Please check appropriate boxes or mark as N/A with justification.');
               return;
             }
           }
-          
-          // For Technical changes, check that developer documentation section is completed  
+
+          // For Technical changes, check that developer documentation section is completed
           if (isTechnical) {
             if (!prBody.includes('### 👨‍💻 **Developer Documentation**') ||
                 (!prBody.includes('- [x]') && !prBody.includes('- [x] **N/A**'))) {
@@ -101,7 +101,7 @@ jobs:
               return;
             }
           }
-          
+
           // For Process/Research, check that process documentation section is completed
           if (isProcessResearch) {
             if (!prBody.includes('### 📋 **Process/Research Documentation**') ||
@@ -110,32 +110,32 @@ jobs:
               return;
             }
           }
-          
+
           console.log('✅ PR Template validation passed!');
-          
+
           // Add helpful comment for first-time contributors
           const { data: comments } = await github.rest.issues.listComments({
             owner: context.repo.owner,
             repo: context.repo.repo,
             issue_number: prNumber
           });
-          
-          const hasValidationComment = comments.some(comment => 
+
+          const hasValidationComment = comments.some(comment =>
             comment.body.includes('✅ PR Template Validation Passed')
           );
-          
+
           if (!hasValidationComment) {
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: prNumber,
               body: `## ✅ PR Template Validation Passed
-              
+
 Thank you for properly completing the PR template! 🎉
 
 **Validation Summary:**
 - ✅ Change type selected
-- ✅ Documentation category selected  
+- ✅ Documentation category selected
 - ✅ Required sections completed
 - ✅ Category-specific requirements met
 
@@ -147,14 +147,14 @@ For more information about our development process, see:
 - [Development Workflow](AGENTS.md)`
             });
           }
-          
+
     - name: Validation Failed Guidance
       if: failure()
-      uses: actions/github-script@v6  
+      uses: actions/github-script@v6
       with:
         script: |
           const prNumber = context.payload.pull_request.number;
-          
+
           // Add helpful guidance comment when validation fails
           await github.rest.issues.createComment({
             owner: context.repo.owner,
@@ -174,7 +174,7 @@ The PR template validation check failed. Please review the error message above a
 - Check exactly one box in "**Documentation Category Assessment**"
 - Choose the category that best fits your changes:
   - 🚀 User-Facing Changes - New features, API changes, config changes
-  - 🛠️ Technical Changes - Refactoring, architecture changes, dev process  
+  - 🛠️ Technical Changes - Refactoring, architecture changes, dev process
   - 📋 Process/Research - Analysis, research, audits, internal docs
   - 🐛 Bug Fixes - Simple fixes with minimal documentation needs
 
@@ -191,7 +191,7 @@ The PR template validation check failed. Please review the error message above a
 ## 📖 Need Help?
 
 - [PR Template Guide](docs/development/documentation-standards.md)
-- [Contributing Guidelines](docs/development/contributing.md) 
+- [Contributing Guidelines](docs/development/contributing.md)
 - [Development Workflow](AGENTS.md)
 
 The validation will re-run automatically when you update the PR description. Thank you for helping maintain our code quality standards! 🚀`

@@ -1,82 +1,183 @@
-# Meta-Repo Seed Documentation
+# Meta-Repo-Seed Documentation
 
-Welcome to the comprehensive documentation for Meta-Repo Seed! This documentation is organized to help you quickly find the information you need.
-
-## 📚 Documentation Structure
-
-> **📋 Documentation Strategy**: All documentation lives in the `docs/` directory with organized subdirectories. Only `README.md` files remain at the root level for quick project overview. This keeps the repository clean and documentation well-structured.
-
-### 🚀 [Getting Started](../README.md)
-- Quick setup and basic usage
-- Initial repository creation
-- Core concepts overview
-
-### 🎯 [Project Vision](./PROJECT_NORTH_STAR.md)
-- Business-in-a-Box vision and strategy
-- Target market and success metrics
-- Decision framework and principles
-
-### 📖 [User Guides](./guides/)
-- **[Configuration Guide](./guides/configuration.md)** - Complete configuration system documentation
-- **[Template System Guide](./guides/templates.md)** - Working with repository templates
-- **[GitHub Integration Guide](./guides/github-integration.md)** - Leveraging GitHub features
-- **[Workflow Guide](./guides/workflow.md)** - Development workflows and best practices
-
-### 📋 [Reference](./reference/)
-- **[API Reference](./reference/api.md)** - Complete seeding.py API documentation
-- **[CLI Reference](./reference/cli.md)** - Command-line interface documentation
-- **[Template Reference](./reference/templates.md)** - Available templates and customization
-- **[Configuration Schema](./reference/config-schema.md)** - Configuration file format specification
-
-### 💡 [Examples](./examples/)
-- **[Configuration Examples](./examples/configurations.md)** - Sample configuration files
-- **[Project Templates](./examples/project-templates.md)** - Example project setups
-- **[Use Cases](./examples/use-cases.md)** - Common scenarios and solutions
-
-### 🔧 [Development](./development/)
-- **[Developer Onboarding](./development/onboarding.md)** - 5-minute quick start for new developers
-- **[Development Workflow](./development/DEVELOPMENT_WORKFLOW.md)** - Git branching strategy and process
-- **[Contributing Guide](./development/contributing.md)** - How to contribute to the project
-- **[Issue Management Guide](./development/issue-management.md)** - Issue types, labels, and workflow
-- **[Workflow Standards](./development/workflow-standards.md)** - Development process and standards
-- **[Backlog Grooming](./development/BACKLOG_GROOMING_SUMMARY.md)** - Sprint planning and backlog management
-- **[Implementation Summaries](./development/ISSUE_33_IMPLEMENTATION_SUMMARY.md)** - Feature implementation details
-- **[Development Setup](./development/setup.md)** - Setting up development environment
-- **[Architecture](./development/architecture.md)** - System design and architecture
-- **[Release Process](./development/releases.md)** - Release workflow and versioning
-- **[Changelog](./development/changelog.md)** - Version history and changes
-
-### 🏗️ [Architecture](./architecture/)
-- **[Structure.json Processing](./architecture/structure-json-processing.md)** - Architecture analysis for structure.json parsing
-- **[Structure Parser Interface](./architecture/structure-parser-interface.md)** - Detailed API specification for structure parsing
-- **[Structure Migration Guide](./architecture/structure-migration-guide.md)** - Guide for migrating structure.json files
-
-## 🔍 Quick Navigation
-
-| Task | Documentation |
-|------|---------------|
-| First time setup | [Getting Started](../README.md) |
-| **New developer setup** | **[Developer Onboarding](./development/onboarding.md)** |
-| Configure a project | [Configuration Guide](./guides/configuration.md) |
-| Understand templates | [Template System Guide](./guides/templates.md) |
-| Set up GitHub features | [GitHub Integration Guide](./guides/github-integration.md) |
-| Find CLI commands | [CLI Reference](./reference/cli.md) |
-| See config examples | [Configuration Examples](./examples/configurations.md) |
-| Create an issue | [GitHub Issue Templates](../.github/ISSUE_TEMPLATE/) |
-| Understand workflow | [Issue Management](./development/issue-management.md) |
-| Review architecture | [Structure.json Processing](./architecture/structure-json-processing.md) |
-| Contribute code | [Contributing Guide](./development/contributing.md) |
-| Report issues | [GitHub Issues](https://github.com/ChrisClements1987/meta-repo-seed/issues) |
-
-## 🏷️ Documentation Tags
-
-- 🚀 **Getting Started** - New user oriented
-- ⚙️ **Configuration** - Setup and customization
-- 📋 **Reference** - Technical specifications
-- 💡 **Examples** - Practical implementations
-- 🏗️ **Architecture** - System design and technical analysis
-- 🔧 **Development** - Contributor focused
+**Version**: 2.0
+**Last Updated**: 2025-10-16
+**Structure**: Hierarchical organization with decision record families
 
 ---
 
-> **Note:** This documentation is automatically updated with each release. If you find any outdated information, please [open an issue](https://github.com/your-org/meta-repo-seed/issues).
+## 🎯 Quick Start
+
+### **For New Users**
+1. **[Onboarding Paths](00-Foundation/onboarding-paths.md)** - Choose your role-specific path
+2. **[Vision](00-Foundation/vision.md)** - Understand the project goals
+3. **[Contributing Guide](00-Foundation/contributing-guide.md)** - Learn how to contribute
+
+### **For Developers**
+1. **[Development Workflow](40-Operations/development-workflow.md)** - Development process
+2. **[TDD Workflow](40-Operations/tdd-workflow.md)** - Test-driven development
+3. **[System Architecture](20-Architecture/system-architecture.md)** - Technical overview
+
+### **For Decision Makers**
+1. **[Decision Indexes](80-Meta/decision-indexes.md)** - Master index of all decisions
+2. **[Strategy Decisions](10-Strategy/SDR-index.md)** - Strategic direction
+3. **[Architecture Decisions](20-Architecture/ADR-index.md)** - Technical decisions
+
+---
+
+## 📁 Documentation Structure
+
+| Folder | Purpose | Key Contents | Decision Records |
+|--------|---------|--------------|------------------|
+| **[00-Foundation](00-Foundation/)** | Core principles and onboarding | Vision, principles, onboarding paths | - |
+| **[10-Strategy](10-Strategy/)** | Strategic direction | Objectives, roadmaps, market analysis | **SDR** |
+| **[20-Architecture](20-Architecture/)** | Technical design | System design, standards, technical docs | **ADR** |
+| **[30-Product](30-Product/)** | User experience | UX guidelines, user guides, examples | **PDR** |
+| **[40-Operations](40-Operations/)** | Process and procedures | Workflows, runbooks, metrics | **OPR** |
+| **[50-Governance](50-Governance/)** | Compliance and ethics | Policies, risk management, standards | **GDR** |
+| **[60-AI](60-AI/)** | AI integration | Agent handbooks, safety guidelines | **AIR** |
+| **[70-Communications](70-Communications/)** | External content | Branding, presentations, public docs | - |
+| **[80-Meta](80-Meta/)** | System governance | Templates, processes, automation | **MDR** |
+
+---
+
+## 🔄 Decision Record Families
+
+### **Decision Types**
+- **SDR** - Strategy Decision Record (market focus, goals, positioning)
+- **ADR** - Architecture Decision Record (technical and system choices)
+- **PDR** - Product Decision Record (features, UX, user needs)
+- **OPR** - Operational Decision Record (process and workflow standards)
+- **GDR** - Governance Decision Record (compliance and ethical principles)
+- **AIR** - AI Decision Record (AI agent behavior and safeguards)
+- **MDR** - Meta Decision Record (rules for how decisions are made)
+
+### **Decision Process**
+1. **Identify Decision Type** - Choose appropriate decision record family
+2. **Create Decision Record** - Use consistent schema template
+3. **Review and Approve** - Follow review process
+4. **Implement and Monitor** - Execute and track outcomes
+
+---
+
+## 📚 Key Documents
+
+### **Foundation**
+- **[Vision](00-Foundation/vision.md)** - Project vision and strategic direction
+- **[Principles](00-Foundation/principles.md)** - Core principles and values
+- **[Onboarding Paths](00-Foundation/onboarding-paths.md)** - Role-specific onboarding
+- **[Contributing Guide](00-Foundation/contributing-guide.md)** - How to contribute
+
+### **Strategy**
+- **[Roadmap](10-Strategy/roadmap.md)** - Development roadmap and milestones
+- **[SDR Index](10-Strategy/SDR-index.md)** - Strategic decision records
+
+### **Architecture**
+- **[System Architecture](20-Architecture/system-architecture.md)** - Technical architecture
+- **[ADR Index](20-Architecture/ADR-index.md)** - Architecture decision records
+
+### **Operations**
+- **[Development Workflow](40-Operations/development-workflow.md)** - Development process
+- **[TDD Workflow](40-Operations/tdd-workflow.md)** - Test-driven development
+- **[OPR Index](40-Operations/OPR-index.md)** - Operational decision records
+
+### **Meta**
+- **[Decision Indexes](80-Meta/decision-indexes.md)** - Master index of all decisions
+- **[MDR Index](80-Meta/MDR-index.md)** - Meta decision records
+
+---
+
+## 🔍 Finding Information
+
+### **By Role**
+- **New Users**: Start with [Onboarding Paths](00-Foundation/onboarding-paths.md)
+- **Developers**: See [Development Workflow](40-Operations/development-workflow.md)
+- **Product Managers**: Check [Strategy](10-Strategy/) and [Product](30-Product/) sections
+- **Architects**: Review [Architecture](20-Architecture/) section
+- **Operations**: See [Operations](40-Operations/) section
+
+### **By Topic**
+- **Strategic Questions**: [10-Strategy/](10-Strategy/)
+- **Technical Architecture**: [20-Architecture/](20-Architecture/)
+- **User Experience**: [30-Product/](30-Product/)
+- **Process & Workflow**: [40-Operations/](40-Operations/)
+- **Compliance & Ethics**: [50-Governance/](50-Governance/)
+- **AI Integration**: [60-AI/](60-AI/)
+- **System Governance**: [80-Meta/](80-Meta/)
+
+### **By Decision Type**
+- **Strategic Decisions**: [SDR Index](10-Strategy/SDR-index.md)
+- **Architecture Decisions**: [ADR Index](20-Architecture/ADR-index.md)
+- **Product Decisions**: [PDR Index](30-Product/PDR-index.md)
+- **Operational Decisions**: [OPR Index](40-Operations/OPR-index.md)
+- **Governance Decisions**: [GDR Index](50-Governance/GDR-index.md)
+- **AI Decisions**: [AIR Index](60-AI/AIR-index.md)
+- **Meta Decisions**: [MDR Index](80-Meta/MDR-index.md)
+
+---
+
+## 📊 Documentation Status
+
+### **Content Coverage**
+- **Foundation**: ✅ Complete
+- **Strategy**: ✅ Complete
+- **Architecture**: ✅ Complete
+- **Operations**: ✅ Complete
+- **Product**: ⚠️ Ready for content
+- **Governance**: ⚠️ Ready for content
+- **AI**: ⚠️ Ready for content
+- **Communications**: ⚠️ Ready for content
+- **Meta**: ✅ Complete
+
+### **Decision Records**
+- **SDR**: 1 decision (Commercial SaaS Transformation)
+- **ADR**: 3 planned decisions
+- **PDR**: Ready for decisions
+- **OPR**: 1 decision (Unified Kanban Workflow)
+- **GDR**: Ready for decisions
+- **AIR**: Ready for decisions
+- **MDR**: 1 decision (Documentation Structure)
+
+---
+
+## 🔄 Maintenance
+
+### **Regular Reviews**
+- **Monthly**: Check for content updates and new decisions
+- **Quarterly**: Review all active decisions for relevance
+- **Annually**: Comprehensive review of documentation structure
+
+### **Quality Standards**
+- **Content Quality**: Clear, accurate, and up-to-date
+- **Decision Quality**: Follow consistent schema and criteria
+- **Link Accuracy**: All internal links work correctly
+- **Navigation**: Easy to find and access information
+
+---
+
+## 📞 Support
+
+### **Getting Help**
+- **Navigation Issues**: Check this README and folder guides
+- **Decision Making**: See [Decision Indexes](80-Meta/decision-indexes.md)
+- **Content Questions**: Check appropriate domain folder
+- **Process Questions**: See [Operations](40-Operations/) section
+
+### **Contributing**
+- **New Content**: Follow [Contributing Guide](00-Foundation/contributing-guide.md)
+- **Decision Records**: Use appropriate decision record template
+- **Updates**: Follow [Documentation Standards](00-Foundation/documentation-standards.md)
+
+---
+
+## 📈 Migration Information
+
+This documentation structure was migrated from the original flat structure on **2025-10-16**.
+
+- **Migration Report**: [MIGRATION_COMPLETION_REPORT.md](MIGRATION_COMPLETION_REPORT.md)
+- **Migration Plan**: [MIGRATION_PLAN.md](MIGRATION_PLAN.md)
+- **Archive**: Original documentation preserved in `docs-archive/`
+
+---
+
+**This documentation provides comprehensive coverage of the Meta-Repo-Seed platform with clear organization, consistent decision-making, and scalable growth.**

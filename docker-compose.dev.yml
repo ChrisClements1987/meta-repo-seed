@@ -28,11 +28,11 @@ services:
     command: tail -f /dev/null  # Keep container running
     networks:
       - business-dev-network
-    
+
     # Development tools and debugging
     stdin_open: true
     tty: true
-    
+
     # Resource limits for development
     deploy:
       resources:

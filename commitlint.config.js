@@ -4,14 +4,14 @@ module.exports = {
     // Custom scopes for Business-in-a-Box project
     'scope-enum': [2, 'always', [
       // Business-in-a-Box specific scopes
-      'business',     // Business profile and deployment functionality  
+      'business',     // Business profile and deployment functionality
       'cli',          // Command-line interface
       'templates',    // Template generation and processing
       'auth',         // Authentication and authorization
       'deploy',       // Deployment and infrastructure
       'api',          // API endpoints and interfaces
       'config',       // Configuration management
-      
+
       // Technical scopes
       'ci',           // Continuous integration
       'deps',         // Dependencies
@@ -20,25 +20,25 @@ module.exports = {
       'docs',         // Documentation (when used as scope)
       'test',         // Testing (when used as scope)
       'build',        // Build system
-      
+
       // Infrastructure scopes
       'docker',       // Docker and containerization
       'k8s',          // Kubernetes configurations
       'terraform',    // Infrastructure as Code
       'monitoring',   // Monitoring and observability
-      
+
       // Process scopes
       'audit',        // Audit and compliance
       'analysis',     // Analysis and research
       'workflow',     // Development workflow changes
     ]],
-    
+
     // Subject line length (GitHub shows ~50 chars in summaries)
     'subject-max-length': [2, 'always', 50],
-    
+
     // Body line length for readability
     'body-max-line-length': [2, 'always', 72],
-    
+
     // Required types for our workflow
     'type-enum': [2, 'always', [
       // Primary types
@@ -49,41 +49,41 @@ module.exports = {
       'refactor',  // Code refactoring
       'test',      // Test changes
       'chore',     // Build/tooling changes
-      
+
       // Extended types
       'perf',      // Performance improvements
       'build',     // Build system changes
       'ci',        // CI/CD changes
       'revert',    // Revert previous commit
-      
+
       // Business-in-a-Box specific types
       'hotfix',    // Emergency production fixes
       'analysis',  // Analysis and research work
       'audit',     // Audit documentation
     ]],
-    
+
     // Subject must be lowercase (conventional)
     'subject-case': [2, 'always', 'lower-case'],
-    
+
     // No period at end of subject
     'subject-full-stop': [2, 'never', '.'],
-    
+
     // Empty line between subject and body
     'body-leading-blank': [2, 'always'],
-    
+
     // Empty line between body and footer
     'footer-leading-blank': [2, 'always'],
-    
+
     // Type must be lowercase
     'type-case': [2, 'always', 'lower-case'],
-    
+
     // Scope must be lowercase
     'scope-case': [2, 'always', 'lower-case'],
-    
+
     // No empty scope (either have scope or don't)
     'scope-empty': [0], // Allow both scoped and unscoped commits
   },
-  
+
   // Custom prompt configuration for interactive commits
   prompt: {
     questions: {

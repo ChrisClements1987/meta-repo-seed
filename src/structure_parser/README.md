@@ -9,7 +9,7 @@ The Structure Parser Module provides a robust foundation for all automation scri
 ## ✨ Features
 
 - **📄 JSON Parsing** - Parse structure.json files with comprehensive error handling
-- **✅ Schema Validation** - Validate against JSON Schema with detailed error reporting  
+- **✅ Schema Validation** - Validate against JSON Schema with detailed error reporting
 - **🔧 Type Safety** - Strongly typed data models with proper Python typing
 - **🔄 Migration Support** - Handle schema version migrations automatically
 - **🚨 Error Handling** - Comprehensive exception hierarchy with detailed messages
@@ -60,7 +60,7 @@ import json
 # Parse from JSON string
 json_data = json.dumps({
     "project_name": "my-project",
-    "github_username": "myuser", 
+    "github_username": "myuser",
     "version": "2.0",
     "structure": {
         "meta-repo": {
@@ -153,7 +153,7 @@ class StructureData:
     created_date: str
     version: str
     structure: Dict[str, Any]
-    
+
     def get_top_level_directories(self) -> List[str]
     def get_directory_files(self, directory_path: str) -> List[str]
     def has_directory(self, directory_path: str) -> bool
@@ -171,7 +171,7 @@ class ValidationResult:
     is_valid: bool
     errors: List[ValidationError]
     warnings: List[ValidationError]
-    
+
     def get_summary(self) -> str
     def get_detailed_report(self) -> str
 ```
@@ -238,12 +238,12 @@ from structure_parser import StructureParser
 def initialize_repository(structure_file: Path, target_dir: Path):
     parser = StructureParser()
     structure = parser.parse_file(structure_file)
-    
+
     # Create directories
     directories = parser.get_directory_structure(structure)
     for directory in directories:
         (target_dir / directory).mkdir(parents=True, exist_ok=True)
-        
+
     print(f"Created {len(directories)} directories")
 ```
 
@@ -252,17 +252,17 @@ def initialize_repository(structure_file: Path, target_dir: Path):
 ```python
 def validate_repository_structure(structure_file: Path):
     parser = StructureParser()
-    
+
     try:
         structure = parser.parse_file(structure_file)
         result = parser.validate(structure.__dict__)
-        
+
         if result.is_valid:
             print("✅ Repository structure is valid")
         else:
             print("❌ Validation failed:")
             print(result.get_detailed_report())
-            
+
     except StructureParserError as e:
         print(f"❌ Parser error: {e}")
 ```

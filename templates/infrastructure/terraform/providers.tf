@@ -4,7 +4,7 @@
 # AWS Provider Configuration
 provider "aws" {
   region = var.region
-  
+
   default_tags {
     tags = local.common_tags
   }
@@ -16,7 +16,7 @@ provider "aws" {
 #   features {}
 # }
 
-# Google Cloud Provider Configuration  
+# Google Cloud Provider Configuration
 # Uncomment if using GCP
 # provider "google" {
 #   project = "{{PROJECT_NAME}}-gcp"

@@ -9,7 +9,7 @@
   description: "High priority items for next release"
   color: "D73A4A"
 
-- name: "priority: medium" 
+- name: "priority: medium"
   description: "Medium priority items for future releases"
   color: "FFA500"
 
@@ -47,7 +47,7 @@
   description: "Code maintenance and refactoring"
   color: "7057FF"
 
-# Domain Labels  
+# Domain Labels
 - name: "infrastructure"
   description: "Infrastructure and cloud provisioning"
   color: "1f77b4"

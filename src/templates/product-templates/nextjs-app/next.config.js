@@ -8,14 +8,14 @@ const nextConfig = {
   },
   // Enable standalone output for deployment optimization
   output: 'standalone',
-  
+
   // Image optimization
   images: {
     domains: [
       // Add your image domains here
     ],
   },
-  
+
   // Security headers
   async headers() {
     return [

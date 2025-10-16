@@ -10,30 +10,30 @@ jobs:
   commitlint:
     runs-on: ubuntu-latest
     name: Validate Commit Messages
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-        
+
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '18'
-        
+
     - name: Install commitlint
       run: |
         npm install --save-dev @commitlint/config-conventional @commitlint/cli
-        
+
     - name: Validate current commit (push)
       if: github.event_name == 'push'
       run: npx commitlint --from HEAD~1 --to HEAD --verbose
-      
+
     - name: Validate PR commits (pull_request)
       if: github.event_name == 'pull_request'
       run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to HEAD --verbose
-      
+
     - name: Show commit message format help on failure
       if: failure()
       run: |
@@ -44,7 +44,7 @@ jobs:
         echo ""
         echo "📝 Valid Types:"
         echo "   feat     - New feature for users"
-        echo "   fix      - Bug fix that affects users"  
+        echo "   fix      - Bug fix that affects users"
         echo "   docs     - Documentation changes only"
         echo "   style    - Code formatting (no logic change)"
         echo "   refactor - Code refactoring"

@@ -13,7 +13,7 @@ Our project is organized into several key areas:
 ### 📁 cloud-storage/
 Local file storage for business assets that will sync with cloud storage providers:
 - `strategy/` - High-level strategy documents and shared resources
-- `architecture/` - Architecture principles, decision records, and designs  
+- `architecture/` - Architecture principles, decision records, and designs
 - `workspace/` - Ongoing initiatives, meeting minutes, and working files
 - `documentation/` - Published content from meta-repo documentation
 
@@ -90,7 +90,7 @@ Before you begin, ensure you have the following installed:
 Our project follows strict governance guidelines:
 
 - **Policies**: Review all policies in `governance/policies/`
-- **Processes**: Follow processes defined in `governance/processes/`  
+- **Processes**: Follow processes defined in `governance/processes/`
 - **Standards**: Adhere to standards in `governance/standards/`
 - **Templates**: Use templates from `governance/shared-resources/templates/`
 

@@ -67,19 +67,19 @@ services:
       # Traefik configuration
       - "traefik.enable=true"
       - "traefik.docker.network=frontend"
-      
+
       # HTTP to HTTPS redirect
       - "traefik.http.routers.{{PROJECT_NAME}}-http.rule=Host(`{{PROJECT_NAME}}.com`) || Host(`www.{{PROJECT_NAME}}.com`)"
       - "traefik.http.routers.{{PROJECT_NAME}}-http.entrypoints=web"
       - "traefik.http.routers.{{PROJECT_NAME}}-http.middlewares=https-redirect"
-      
+
       # HTTPS configuration
       - "traefik.http.routers.{{PROJECT_NAME}}.rule=Host(`{{PROJECT_NAME}}.com`) || Host(`www.{{PROJECT_NAME}}.com`)"
       - "traefik.http.routers.{{PROJECT_NAME}}.entrypoints=websecure"
       - "traefik.http.routers.{{PROJECT_NAME}}.tls=true"
       - "traefik.http.routers.{{PROJECT_NAME}}.tls.certresolver=letsencrypt"
       - "traefik.http.routers.{{PROJECT_NAME}}.middlewares=security-headers,rate-limit"
-      
+
       # Load balancer configuration
       - "traefik.http.services.{{PROJECT_NAME}}.loadbalancer.server.port=8000"
       - "traefik.http.services.{{PROJECT_NAME}}.loadbalancer.healthcheck.path=/health"
@@ -406,7 +406,7 @@ secrets:
     external: true
 
 # Production deployment commands:
-# 
+#
 # 1. Create secrets:
 #    echo "mysql://user:pass@db:3306/{{PROJECT_NAME}}" | docker secret create database_url -
 #    echo "redis://redis:6379/0" | docker secret create redis_url -
@@ -417,24 +417,24 @@ secrets:
 #    echo "mysql-root-password" | docker secret create mysql_root_password -
 #    echo "mysql-user-password" | docker secret create mysql_user_password -
 #    echo "redis-password" | docker secret create redis_password -
-# 
+#
 # 2. Create configs:
 #    docker config create traefik-config traefik.prod.yml
 #    docker config create mysql-config mysql.prod.cnf
 #    docker config create redis-config redis.prod.conf
 #    docker config create prometheus-config prometheus.prod.yml
-# 
+#
 # 3. Label nodes:
 #    docker node update --label-add database=true node1
 #    docker node update --label-add cache=true node2
 #    docker node update --label-add monitoring=true node3
-# 
+#
 # 4. Deploy stack:
 #    docker stack deploy -c docker-compose.prod.yml {{PROJECT_NAME}}
-# 
+#
 # 5. Scale services:
 #    docker service scale {{PROJECT_NAME}}_app=5
-# 
+#
 # 6. Monitor deployment:
 #    docker stack services {{PROJECT_NAME}}
 #    docker service logs {{PROJECT_NAME}}_app

@@ -14,7 +14,7 @@ on:
         description: 'Business profile'
         required: true
         type: choice
-        options: 
+        options:
           - 'startup-basic'
           - 'charity-nonprofit'
           - 'smb-standard'
@@ -46,12 +46,12 @@ jobs:
             echo "::error::Repository name must be lowercase alphanumeric with hyphens"
             exit 1
           fi
-          
+
           if [[ ! "${{ env.BUSINESS_PROFILE }}" =~ ^(startup-basic|charity-nonprofit|smb-standard|consulting-firm)$ ]]; then
             echo "::error::Invalid business profile"
             exit 1
           fi
-          
+
           echo "repository_name=${{ env.REPOSITORY_NAME }}" >> $GITHUB_OUTPUT
           echo "business_profile=${{ env.BUSINESS_PROFILE }}" >> $GITHUB_OUTPUT
           echo "config_valid=true" >> $GITHUB_OUTPUT
@@ -63,11 +63,11 @@ jobs:
     if: needs.validate-inputs.outputs.config_valid == 'true'
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Initialize repository structure
         run: |
           echo "🏗️ Setting up repository structure for ${{ needs.validate-inputs.outputs.repository_name }}"
-          
+
           # Create essential directories
           mkdir -p .github/workflows
           mkdir -p .github/ISSUE_TEMPLATE
@@ -75,49 +75,49 @@ jobs:
           mkdir -p docs/{user,developer,operations}
           mkdir -p governance/{policies,templates}
           mkdir -p compliance/{audits,reports}
-          
+
           # Copy business profile templates
           echo "📋 Applying ${{ needs.validate-inputs.outputs.business_profile }} templates"
-          
+
       - name: Create governance files
         run: |
           # CODEOWNERS file
           cat > .github/CODEOWNERS << 'EOF'
           # Global code owners for ${{ needs.validate-inputs.outputs.repository_name }}
           * @${{ github.repository_owner }}/core-team
-          
+
           # Governance and compliance
           /governance/ @${{ github.repository_owner }}/governance-team
           /compliance/ @${{ github.repository_owner }}/compliance-team
-          
+
           # Documentation
           /docs/ @${{ github.repository_owner }}/documentation-team
-          
+
           # Infrastructure and CI/CD
           /.github/ @${{ github.repository_owner }}/infrastructure-team
           /infrastructure/ @${{ github.repository_owner }}/infrastructure-team
           EOF
-          
+
           # Contributing guidelines
           cat > CONTRIBUTING.md << 'EOF'
           # Contributing to ${{ needs.validate-inputs.outputs.repository_name }}
-          
+
           ## Business Operations Automation
-          
+
           This repository follows automated business operations with self-governing policies.
-          
+
           ### Getting Started
           1. Review governance policies in `/governance/`
           2. Follow compliance requirements in `/compliance/`
           3. Use provided issue and PR templates
           4. Ensure all automated checks pass
-          
+
           ### Automated Processes
           - Branch protection is automatically enforced
           - Code quality checks run on all PRs
           - Compliance validation occurs weekly
           - Documentation standards are enforced
-          
+
           For questions, create an issue with the `question` label.
           EOF
 
@@ -127,7 +127,7 @@ jobs:
     needs: [validate-inputs, setup-repository-structure]
     steps:
       - uses: actions/checkout@v4
-        
+
       - name: Apply branch protection rules
         uses: actions/github-script@v7
         with:
@@ -135,7 +135,7 @@ jobs:
           script: |
             const profile = '${{ needs.validate-inputs.outputs.business_profile }}';
             const repo = '${{ needs.validate-inputs.outputs.repository_name }}';
-            
+
             // Define protection rules by business profile
             const protectionRules = {
               'startup-basic': {
@@ -194,7 +194,7 @@ jobs:
                 }
               }
             };
-            
+
             try {
               await github.rest.repos.updateBranchProtection({
                 owner: context.repo.owner,
@@ -202,7 +202,7 @@ jobs:
                 branch: 'main',
                 ...protectionRules[profile]
               });
-              
+
               console.log(`✅ Branch protection applied for ${profile} profile`);
             } catch (error) {
               console.error(`❌ Failed to apply branch protection: ${error.message}`);
@@ -210,7 +210,7 @@ jobs:
             }
 
   setup-teams-and-permissions:
-    name: Setup Teams and Permissions  
+    name: Setup Teams and Permissions
     runs-on: ubuntu-latest
     needs: [validate-inputs, configure-branch-protection]
     if: github.event.inputs.skip_team_setup != 'true'
@@ -222,7 +222,7 @@ jobs:
           script: |
             const profile = '${{ needs.validate-inputs.outputs.business_profile }}';
             const repo = '${{ needs.validate-inputs.outputs.repository_name }}';
-            
+
             // Define teams by business profile
             const teamConfigs = {
               'startup-basic': [
@@ -246,7 +246,7 @@ jobs:
                 { name: 'clients', permission: 'read', description: 'Client access (limited)' }
               ]
             };
-            
+
             for (const team of teamConfigs[profile]) {
               try {
                 // Create team if it doesn't exist
@@ -256,7 +256,7 @@ jobs:
                   description: team.description,
                   privacy: 'closed'
                 });
-                
+
                 // Add repository to team
                 await github.rest.teams.addOrUpdateRepoPermissionsInOrg({
                   org: context.repo.owner,
@@ -265,7 +265,7 @@ jobs:
                   repo: repo,
                   permission: team.permission
                 });
-                
+
                 console.log(`✅ Team ${team.name} configured with ${team.permission} access`);
               } catch (error) {
                 if (error.status === 422) {
@@ -285,51 +285,51 @@ jobs:
 
   initialize-governance-policies:
     name: Initialize Governance Policies
-    runs-on: ubuntu-latest  
+    runs-on: ubuntu-latest
     needs: [validate-inputs, setup-repository-structure]
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Create governance policy files
         run: |
           profile="${{ needs.validate-inputs.outputs.business_profile }}"
-          
+
           # Create security policy
           cat > governance/policies/security-policy.md << EOF
           # Security Policy - ${{ needs.validate-inputs.outputs.repository_name }}
-          
+
           ## Automated Security Enforcement
-          
+
           This repository uses automated security enforcement as part of our $profile business profile.
-          
+
           ### Security Measures
           - Automated dependency scanning
-          - Code quality and security analysis  
+          - Code quality and security analysis
           - Branch protection with required reviews
           - Secrets scanning and prevention
-          
+
           ### Incident Response
           1. Automated alerts for security issues
           2. Self-healing remediation where possible
           3. Escalation to security team for critical issues
           4. Compliance reporting and audit trails
-          
+
           ### Contact
           For security issues, create an issue with the \`security\` label.
           EOF
-          
+
           # Create compliance policy based on business profile
           case "$profile" in
             "charity-nonprofit")
               cat > governance/policies/transparency-policy.md << EOF
           # Transparency and Accountability Policy
-          
+
           ## Donor Transparency
           - Automated reporting of fund usage
           - Public dashboards for impact metrics
           - Regular compliance audits
           - Board oversight requirements
-          
+
           ## Compliance Requirements
           - Charity regulatory compliance
           - Financial transparency standards
@@ -339,13 +339,13 @@ jobs:
             "consulting-firm")
               cat > governance/policies/client-data-policy.md << EOF
           # Client Data Protection Policy
-          
+
           ## Data Isolation
           - Client projects in separate repositories
           - Access control by client engagement
           - Data retention and deletion policies
           - Confidentiality enforcement
-          
+
           ## Professional Standards
           - Partner-level approval for client work
           - Client approval for public contributions
@@ -360,7 +360,7 @@ jobs:
     needs: [validate-inputs, initialize-governance-policies]
     steps:
       - uses: actions/checkout@v4
-        
+
       - name: Generate compliance checklist issue
         uses: actions/github-script@v7
         with:
@@ -368,7 +368,7 @@ jobs:
           script: |
             const profile = '${{ needs.validate-inputs.outputs.business_profile }}';
             const repo = '${{ needs.validate-inputs.outputs.repository_name }}';
-            
+
             const checklists = {
               'startup-basic': [
                 'License file added and compliant',
@@ -380,7 +380,7 @@ jobs:
                 'Security scanning activated'
               ],
               'charity-nonprofit': [
-                'License file added and compliant',  
+                'License file added and compliant',
                 'Transparency policy implemented',
                 'Donor privacy protections in place',
                 'Financial reporting automation configured',
@@ -390,7 +390,7 @@ jobs:
               ],
               'smb-standard': [
                 'Business compliance framework established',
-                'Employee access controls configured', 
+                'Employee access controls configured',
                 'Contractor permission management set up',
                 'Professional documentation standards applied',
                 'Business continuity procedures documented',
@@ -405,40 +405,40 @@ jobs:
                 'Billing and time tracking integration prepared'
               ]
             };
-            
+
             const checklistItems = checklists[profile];
             const checklistMd = checklistItems.map(item => `- [ ] ${item}`).join('\n');
-            
+
             const issueBody = `# Post-Onboarding Compliance Checklist
-            
+
             Repository: **${repo}**
             Business Profile: **${profile}**
-            
+
             ## Automated Setup Complete ✅
-            
+
             The following items have been automatically configured:
             - Repository structure
             - Branch protection rules
             - Team permissions
             - Governance policies
             - Basic compliance framework
-            
+
             ## Manual Verification Required
-            
+
             ${checklistMd}
-            
+
             ## Next Steps
-            
+
             1. Review and customize governance policies in \`/governance/\`
             2. Configure any additional integrations needed
             3. Set up monitoring and alerting
             4. Schedule compliance review meetings
             5. Close this issue when all items are complete
-            
+
             ---
             *This issue was automatically created by the business operations automation system.*
             `;
-            
+
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: repo,
@@ -453,53 +453,53 @@ jobs:
     needs: [validate-inputs, create-compliance-checklist]
     steps:
       - uses: actions/checkout@v4
-        
+
       - name: Create reporting automation workflow
         run: |
           mkdir -p .github/workflows
-          
+
           cat > .github/workflows/business-reporting.yml << 'EOF'
           name: Business Operations Reporting
-          
+
           on:
             schedule:
               - cron: '0 9 * * 1'  # Weekly Monday 9 AM
             workflow_dispatch:
-          
+
           jobs:
             generate-reports:
               runs-on: ubuntu-latest
               steps:
                 - uses: actions/checkout@v4
-                
+
                 - name: Generate compliance report
                   run: |
                     echo "📊 Generating business compliance report"
-                    
+
                     # Create reports directory
                     mkdir -p compliance/reports
-                    
+
                     # Generate weekly report
                     cat > compliance/reports/weekly-$(date +%Y-%m-%d).md << REPORT
           # Weekly Business Operations Report - $(date +%Y-%m-%d)
-          
+
           ## Repository Health
           - Branch Protection: ✅ Active
-          - Code Quality Checks: ✅ Passing  
+          - Code Quality Checks: ✅ Passing
           - Security Scanning: ✅ Up to date
           - Documentation: ✅ Current
-          
+
           ## Compliance Status
           - Governance Policies: ✅ Applied
           - Access Controls: ✅ Configured
           - Audit Trail: ✅ Maintained
-          
+
           ## Action Items
           - Review quarterly governance policies
           - Update team permissions as needed
           - Schedule compliance audit
           REPORT
-                
+
                 - name: Commit report
                   run: |
                     git config --local user.email "action@github.com"
@@ -508,7 +508,7 @@ jobs:
                     git commit -m "📊 Weekly business operations report [automated]" || exit 0
                     git push
           EOF
-          
+
           echo "✅ Automated reporting workflow created"
 
   finalize-onboarding:
@@ -523,7 +523,7 @@ jobs:
           script: |
             const repo = '${{ needs.validate-inputs.outputs.repository_name }}';
             const profile = '${{ needs.validate-inputs.outputs.business_profile }}';
-            
+
             console.log(`🎉 Onboarding completed for ${repo} (${profile})`);
             console.log('✅ Repository structure created');
             console.log('✅ Branch protection configured');
@@ -531,13 +531,13 @@ jobs:
             console.log('✅ Governance policies initialized');
             console.log('✅ Compliance checklist created');
             console.log('✅ Automated reporting enabled');
-            
+
             console.log('\n📋 Next steps:');
             console.log('1. Review the compliance checklist issue');
             console.log('2. Customize governance policies as needed');
             console.log('3. Set up any additional integrations');
             console.log('4. Begin using the self-governing automation!');
-      
+
       - name: Create success badge
         run: |
           echo "![Business Operations](https://img.shields.io/badge/Business_Operations-Automated-success)" > .github/business-operations-status.md
