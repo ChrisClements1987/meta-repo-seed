@@ -8,7 +8,7 @@
 - **Coverage**: `python -m pytest --cov=seeding --cov=src --cov-report=term-missing`
 - **Specific Test**: `python -m pytest tests/unit/test_filename.py::TestClass::test_method`
 
-### Quality Checks  
+### Quality Checks
 - **Linting**: `flake8` (current standard), `python -m pytest --flake8` (if plugin available)
 - **Diff Coverage**: `pytest --cov=seeding --cov=src --cov-report=xml && diff-cover coverage.xml` (for PR validation)
 - **Type Checking**: `mypy` (planned, not enforced yet)
@@ -18,7 +18,7 @@
 - **Start Any Work**: `git checkout develop && git pull origin develop && git checkout -b feature/issue-X-desc`
 - **TDD Mandatory**: Write failing tests FIRST, then implement, then refactor
 - **Branch Naming**: `feature/issue-[number]-description` or `bugfix/issue-[number]-description`
-- **Create PR**: `gh pr create --base develop` (always target develop, never main)  
+- **Create PR**: `gh pr create --base develop` (always target develop, never main)
 - **Issue Linking**: MANDATORY use auto-close keywords in PR description: `Closes #123`, `Fixes #456`, `Resolves #789`
 - **Branch Cleanup**: Automated via GitHub settings, manual via `./scripts/cleanup-branches.sh`
 
@@ -50,7 +50,7 @@
 
 **Required Types:**
 - `feat` - New feature for users
-- `fix` - Bug fix that affects users  
+- `fix` - Bug fix that affects users
 - `docs` - Documentation changes only
 - `style` - Code formatting (no logic change)
 - `refactor` - Code refactoring
@@ -99,7 +99,7 @@
 
 **Documentation Category Assessment:**
 - 🚀 User-Facing Changes → Require User + Developer + Operations docs as applicable
-- 🛠️ Technical Changes → Require Developer + Operations docs as applicable  
+- 🛠️ Technical Changes → Require Developer + Operations docs as applicable
 - 📋 Process/Research → Use flexible Process/Research documentation standards
 - 🐛 Bug Fixes → Minimal documentation, focus on changelog if user-visible
 
@@ -153,7 +153,7 @@
 - **Security**: Sanitize all user inputs, validate project names with regex, prevent path traversal attacks
 - **Functions**: Pure functions preferred, idempotent operations, clear separation of concerns
 
-## Development Notes  
+## Development Notes
 - Project uses branch protection (develop→main workflow), idempotent design allows safe re-runs
 - Test markers: `@pytest.mark.unit`, `@pytest.mark.integration`, `@pytest.mark.github`, `@pytest.mark.slow`, `@pytest.mark.network`
 - **PR Standards**: Use diff coverage (>=80% on changed lines), conditional documentation updates, legacy debt tracking
