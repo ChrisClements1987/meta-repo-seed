@@ -17,16 +17,16 @@ on:
 jobs:
   license-compliance:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
-        
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -34,39 +34,39 @@ jobs:
         # Install project dependencies
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         if [ -f requirements-test.txt ]; then pip install -r requirements-test.txt; fi
-        
+
     - name: Run comprehensive license compliance check
       run: |
         echo "🔍 Running comprehensive license compliance check..."
         python scripts/check-licenses.py
-        
+
     - name: Generate license report
       run: |
         echo "📊 Generating license compliance report..."
-        
+
         # Create detailed license report
         echo "# License Compliance Report - $(date)" > license-report.md
         echo "" >> license-report.md
         echo "## All Dependencies" >> license-report.md
         pip-licenses --format=markdown >> license-report.md
-        
+
         echo "" >> license-report.md
         echo "## LGPL Dependencies (MIT Compatible)" >> license-report.md
         pip-licenses --format=csv | grep -i "LGPL" | sed 's/,/ | /g' | sed 's/^/| /' | sed 's/$/ |/' >> license-report.md
-        
+
         echo "" >> license-report.md
         echo "## Summary" >> license-report.md
         echo "- ✅ No GPL license violations" >> license-report.md
         echo "- ⚠️ LGPL dependencies present (MIT compatible when used as libraries)" >> license-report.md
         echo "- 📋 Review unknown licenses quarterly" >> license-report.md
-        
+
     - name: Upload license report
       uses: actions/upload-artifact@v4
       with:
         name: license-compliance-report
         path: license-report.md
         retention-days: 90
-        
+
     - name: License compliance summary
       run: |
         echo "🎯 License Compliance Summary:"

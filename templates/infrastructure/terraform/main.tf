@@ -3,7 +3,7 @@
 
 terraform {
   required_version = ">= 1.0"
-  
+
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -33,7 +33,7 @@ locals {
   project_name = "{{PROJECT_NAME}}"
   owner       = "{{GITHUB_USERNAME}}"
   environment = var.environment
-  
+
   common_tags = {
     Project     = local.project_name
     Owner       = local.owner
@@ -45,7 +45,7 @@ locals {
 # Example resource - customize for your needs
 resource "random_id" "deployment_id" {
   byte_length = 8
-  
+
   keepers = {
     project = local.project_name
   }
@@ -62,7 +62,7 @@ output "deployment_id" {
 
 # module "aws_infrastructure" {
 #   source = "./aws"
-#   
+#
 #   project_name = local.project_name
 #   environment  = local.environment
 #   common_tags  = local.common_tags
@@ -70,7 +70,7 @@ output "deployment_id" {
 
 # module "azure_infrastructure" {
 #   source = "./azure"
-#   
+#
 #   project_name = local.project_name
 #   environment  = local.environment
 #   common_tags  = local.common_tags
@@ -78,7 +78,7 @@ output "deployment_id" {
 
 # module "gcp_infrastructure" {
 #   source = "./gcp"
-#   
+#
 #   project_name = local.project_name
 #   environment  = local.environment
 #   common_tags  = local.common_tags

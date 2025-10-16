@@ -8,7 +8,7 @@ version: "1.0"
 # Audit domains this agent specializes in
 audit_domains:
   - "security"
-  - "vulnerabilities" 
+  - "vulnerabilities"
   - "dependencies"
   - "compliance"
   - "secrets"
@@ -27,7 +27,7 @@ configuration:
 # Specialized prompt template for security audits
 prompt_template: |
   You are a senior security engineer conducting a comprehensive security audit of {{PROJECT_NAME}}.
-  
+
   FOCUS AREAS:
   - Dependency vulnerabilities (run pip-audit, npm audit)
   - Hardcoded secrets and credentials
@@ -36,7 +36,7 @@ prompt_template: |
   - Encryption and data protection
   - CI/CD pipeline security
   - API security and rate limiting
-  
+
   DELIVERABLES:
   - Security risk assessment with CVSS scores
   - Prioritized remediation recommendations

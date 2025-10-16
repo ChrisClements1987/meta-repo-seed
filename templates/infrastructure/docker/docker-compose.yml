@@ -312,16 +312,16 @@ x-development-scripts: &development-scripts
   dev-shell: docker-compose exec app sh
   dev-db-shell: docker-compose exec db mysql -u root -prootpassword {{PROJECT_NAME}}
   dev-redis-shell: docker-compose exec redis redis-cli -a redispassword
-  
+
   # Monitoring and debugging
   dev-full: docker-compose up -d
   dev-monitoring: docker-compose up -d prometheus grafana
   dev-logs-stack: docker-compose up -d elasticsearch kibana
-  
+
   # Database operations
   dev-db-backup: docker-compose exec db mysqldump -u root -prootpassword {{PROJECT_NAME}} > backup.sql
   dev-db-restore: docker-compose exec -T db mysql -u root -prootpassword {{PROJECT_NAME}} < backup.sql
-  
+
   # Cleanup
   dev-clean: docker-compose down -v --remove-orphans
   dev-reset: docker-compose down -v --remove-orphans && docker-compose up -d

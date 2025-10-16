@@ -1,9 +1,9 @@
 #!/bin/bash
 #
 # Branch Cleanup Script for Meta-Repo-Seed
-# 
+#
 # This script helps clean up merged branches both locally and remotely.
-# 
+#
 # Usage:
 #   ./scripts/cleanup-branches.sh [options]
 #
@@ -86,19 +86,19 @@ cleanup_local_branches() {
     echo ""
     echo -e "${GREEN}📍 Cleaning up local merged branches${NC}"
     echo "------------------------------------------------"
-    
+
     # Get list of local branches merged into develop (excluding main, develop, and current branch)
     merged_branches=$(git branch --merged develop | grep -v -E "(main|develop|\*)" | sed 's/^[ \t]*//' || true)
-    
+
     if [ -z "$merged_branches" ]; then
         echo "No local merged branches to clean up."
         return
     fi
-    
+
     echo "Found merged local branches:"
     echo "$merged_branches"
     echo ""
-    
+
     # Delete each merged branch
     for branch in $merged_branches; do
         if [ "$DRY_RUN" = true ]; then
@@ -115,25 +115,25 @@ cleanup_remote_branches() {
     echo ""
     echo -e "${GREEN}🌐 Cleaning up remote merged branches${NC}"
     echo "------------------------------------------------"
-    
+
     # Check if gh CLI is available
     if ! command -v gh &> /dev/null; then
         echo -e "${RED}GitHub CLI (gh) not found. Skipping remote branch cleanup.${NC}"
         return
     fi
-    
+
     # Get list of merged PRs and their branch names
     merged_prs=$(gh pr list --state merged --json headRefName --jq '.[].headRefName' | grep -E "^(feature/|fix/|feat/|hotfix/)" || true)
-    
+
     if [ -z "$merged_prs" ]; then
         echo "No remote merged feature branches to clean up."
         return
     fi
-    
+
     echo "Found merged remote branches:"
     echo "$merged_prs"
     echo ""
-    
+
     # Delete each merged remote branch (only if auto-delete didn't work)
     for branch in $merged_prs; do
         # Check if branch still exists remotely
@@ -155,7 +155,7 @@ prune_remote_branches() {
     echo ""
     echo -e "${GREEN}🔄 Pruning remote-tracking branches${NC}"
     echo "------------------------------------------------"
-    
+
     if [ "$DRY_RUN" = true ]; then
         log_action "Would prune remote-tracking branches"
         git remote prune origin --dry-run

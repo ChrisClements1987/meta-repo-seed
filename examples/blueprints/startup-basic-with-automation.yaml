@@ -5,7 +5,7 @@ metadata:
   displayName: "Startup Basic with Business Operations Automation"
   description: "Growth-ready startup infrastructure with self-governing business operations automation"
   businessProfile: startup-basic
-  tags: 
+  tags:
     - startup
     - automation
     - self-governing
@@ -20,14 +20,14 @@ spec:
         description: "Central governance, automation, and meta-repository management"
         template: meta-governance
         features: ["issues", "projects", "wiki", "actions"]
-        
+
       platformServices:
-        name: platform-services  
+        name: platform-services
         displayName: "Platform Services & Infrastructure"
         description: "Shared services, infrastructure, and operational systems"
         template: platform-infrastructure
         features: ["issues", "actions", "packages"]
-        
+
       cloudStorage:
         strategy:
           enabled: true
@@ -35,31 +35,31 @@ spec:
         documentation:
           enabled: true
           publishSite: true
-          
+
     teams:
       - name: core-team
         role: admin
         members: []
         repositories: ["*"]
-        
+
       - name: contributors
         role: write
         members: []
         repositories: ["products/*", "consulting/*"]
-        
+
       - name: automation-team
         role: maintain
         members: []
         repositories: ["meta-operations", "platform-services"]
         description: "Manages business operations automation systems"
-        
+
     settings:
       defaultBranch: main
       allowMergeCommit: true
       allowSquashMerge: true
       allowRebaseMerge: false
       deleteHeadBranches: true
-      
+
   portfolios:
     - name: products
       type: products
@@ -71,14 +71,14 @@ spec:
           template: nextjs-product
           visibility: private
           features: ["issues", "projects", "actions", "discussions"]
-          
+
         - name: product-platform
           displayName: "Product Platform & APIs"
           description: "Platform services and API infrastructure"
           template: api-platform
           visibility: private
           features: ["issues", "actions", "packages"]
-          
+
       environments:
         - name: development
           type: development
@@ -88,7 +88,7 @@ spec:
               framework: nextjs
               buildCommand: "npm run build"
               outputDirectory: ".next"
-              
+
         - name: staging
           type: staging
           deploymentTarget:
@@ -99,7 +99,7 @@ spec:
               outputDirectory: ".next"
           protection:
             requiredReviewers: ["@core-team"]
-            
+
         - name: production
           type: production
           deploymentTarget:
@@ -112,7 +112,7 @@ spec:
             requiredReviewers: ["@core-team"]
             deploymentBranchPolicy:
               protectedBranches: true
-              
+
   governance:
     policies:
       - name: growth-ready-standards
@@ -123,7 +123,7 @@ spec:
           - documentation_completeness: 75
           - test_coverage_minimum: 70
           - security_scan_required: true
-          
+
       - name: investor-ready-presentation
         type: documentation
         enforcement: advisory
@@ -132,7 +132,7 @@ spec:
           - business_metrics_current: true
           - architecture_documented: true
           - growth_plan_visible: true
-          
+
       - name: startup-scaling-automation
         type: automation
         enforcement: strict
@@ -141,42 +141,42 @@ spec:
           - self_healing_enabled: true
           - compliance_monitoring: true
           - business_metrics_tracking: true
-          
+
     compliance:
       frameworks: []  # Minimal compliance for startups
       auditing:
         enabled: true
         retentionDays: 90  # Shorter for startups
-        
+
     templates:
       issues: ["bug", "feature-request", "investor-inquiry"]
       pullRequests: ["feature", "hotfix", "documentation"]
       codeOfConduct: true
       contributing: true
-      
+
   providers:
     vcs:
       type: github
       organization: "{{ORGANIZATION_NAME}}"
-      
+
     cicd:
       type: github-actions
       workflows:
         - ci-pipeline
         - automated-onboarding
-        - compliance-enforcement  
+        - compliance-enforcement
         - self-healing
         - business-reporting
         - investor-reporting
-        
+
     paas:
       type: vercel
       config:
         team: "{{ORGANIZATION_NAME}}"
-        
+
     secrets:
       type: github-secrets
-      
+
     businessOperations:
       automationLevel: standard
       selfHealing: true
@@ -184,42 +184,42 @@ spec:
       automatedReporting: true
       investorDashboard: true
       growthMetrics: true
-      
+
 # Business Operations Automation Configuration
 businessAutomation:
   profile: startup-basic
   level: standard
-  
+
   components:
     onboarding:
       enabled: true
       workflows: ["automated-onboarding"]
       policies: ["growth-ready-standards", "investor-ready-presentation"]
-      
+
     compliance:
       enabled: true
       workflows: ["compliance-enforcement"]
       schedule: "0 9 * * 1"  # Weekly Monday 9 AM
       enforcement: advisory  # Relaxed for startups
-      
+
     reporting:
       enabled: true
       workflows: ["business-reporting", "investor-reporting"]
       dashboards: ["growth-metrics", "investor-dashboard"]
       schedule: "0 8 * * 1"  # Weekly Monday 8 AM
-      
+
     selfHealing:
       enabled: true
       workflows: ["self-healing"]
       schedule: "0 */6 * * *"  # Every 6 hours
       remediationLevel: standard
-      
+
     governance:
       enabled: true
       codeowners: true
       branchProtection: true
       prReviews: 1  # Single review for startup speed
-      
+
   customizations:
     startup:
       growthReadyStandards: true
@@ -227,14 +227,14 @@ businessAutomation:
       scalingAutomation: true
       leanOperations: true
       rapidIteration: true
-      
+
   notifications:
     channels: ["github-issues", "email"]
     escalation:
       healthScore: 60  # Lower threshold for startups
       criticalIssues: true
       complianceFailures: false  # Don't block startup velocity
-      
+
   integration:
     existingWorkflows: merge
     templateOverrides: true

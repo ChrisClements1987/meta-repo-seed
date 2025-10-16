@@ -5,8 +5,8 @@ This directory contains example configuration files for the Meta-Repo Seeding Sy
 ## 📋 Available Examples
 
 ### `web-app-project.yaml`
-**Purpose**: Configuration for web application projects  
-**Format**: YAML  
+**Purpose**: Configuration for web application projects
+**Format**: YAML
 **Features**:
 - Custom decision title for frontend framework choice
 - Accepted status for architectural decisions
@@ -18,8 +18,8 @@ python seeding.py --config examples/web-app-project.yaml
 ```
 
 ### `data-science-project.json`
-**Purpose**: Configuration for data science projects  
-**Format**: JSON  
+**Purpose**: Configuration for data science projects
+**Format**: JSON
 **Features**:
 - ML framework decision template
 - Data science focused project structure
@@ -44,7 +44,7 @@ python seeding.py --save-config my-project.json --project MyProject --username m
 ### 2. Customize Configuration
 Edit the generated file to customize:
 - **Project-specific replacements**: Update template variables
-- **Decision templates**: Modify decision titles and statuses  
+- **Decision templates**: Modify decision titles and statuses
 - **Alternative names**: Set context-appropriate alternatives
 
 ### 3. Use Configuration
@@ -75,11 +75,11 @@ replacements:
   ALTERNATIVE_NAME: Your Alternative Option Name
 ```
 
-### JSON Format  
+### JSON Format
 ```json
 {
   "project_name": "my-awesome-project",
-  "github_username": "myusername", 
+  "github_username": "myusername",
   "created_at": "2025-09-24T18:40:00.000000",
   "version": "1.1.0",
   "template_path": null,
@@ -87,7 +87,7 @@ replacements:
     "PROJECT_NAME": "my-awesome-project",
     "GITHUB_USERNAME": "myusername",
     "CURRENT_DATE": "2025-09-24",
-    "DECISION_NUMBER": "001", 
+    "DECISION_NUMBER": "001",
     "DECISION_TITLE": "Your Custom Decision Title",
     "STATUS": "Proposed",
     "ALTERNATIVE_NAME": "Your Alternative Option Name"
@@ -114,7 +114,7 @@ replacements:
 # Team lead creates base configuration
 python seeding.py --save-config team-template.yaml --project base-project --username team
 
-# Team members customize for their projects  
+# Team members customize for their projects
 python seeding.py --config team-template.yaml --project member-project --username member
 
 # Share configurations through git

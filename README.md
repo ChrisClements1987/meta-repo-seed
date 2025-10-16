@@ -36,7 +36,7 @@ your-project/
 ### Generated Content
 - **Business Operations Automation**: Self-governing systems with automated onboarding, compliance enforcement, self-healing, and governance integration
 - **Infrastructure as Code**: Terraform, Kubernetes, Docker configurations for 10-minute deployment
-- **Audit Management System**: AI agent coordination and audit-to-implementation tracking for continuous improvement  
+- **Audit Management System**: AI agent coordination and audit-to-implementation tracking for continuous improvement
 - **Repository Governance Automation**: GitHub settings, branch protection, and label management as code
 - **Code Quality Automation**: Pre-commit hooks, formatting tools, and quality checks for consistent development
 - **Governance Policies**: Contributing guidelines, code of conduct, security policies
@@ -91,7 +91,7 @@ python seeding.py --config my-project.yaml --project DifferentName --dry-run
 python seeding.py --list-configs
 ```
 
-**Supported formats**: YAML (`.yaml`, `.yml`) and JSON (`.json`)  
+**Supported formats**: YAML (`.yaml`, `.yml`) and JSON (`.json`)
 **Examples**: See [`examples/`](examples/) directory for sample configurations and detailed usage guide.
 
 4. **Or specify custom parameters**
@@ -124,7 +124,7 @@ python -m src.cli.business_commands start-onboarding \
 
 **Business Profiles Available:**
 - `startup-basic` - Growth-ready infrastructure with investor focus
-- `charity-nonprofit` - Transparency-focused with donor privacy protection  
+- `charity-nonprofit` - Transparency-focused with donor privacy protection
 - `smb-standard` - Professional operations with business continuity
 - `consulting-firm` - Client confidentiality with partner approval workflows
 
@@ -172,7 +172,7 @@ python seeding.py --dry-run
 
 ### 🏛️ Governance Framework
 - **Comprehensive policies** - contributing, security, privacy
-- **Standardized processes** - onboarding, code review, releases  
+- **Standardized processes** - onboarding, code review, releases
 - **Quality standards** - coding, documentation, testing
 - **Template resources** - consistent issue/PR templates
 
@@ -228,7 +228,7 @@ The project includes comprehensive documentation organized in the `docs/` direct
 
 ### Quick Links
 - **[Contributor Onboarding](docs/development/contributor-onboarding.md)** - **REQUIRED** for all contributors
-- **[Contributing Guide](docs/development/contributing.md)** - High-level contribution overview  
+- **[Contributing Guide](docs/development/contributing.md)** - High-level contribution overview
 - **[Documentation Standards](docs/development/documentation-standards.md)** - 3-category documentation system
 - **[Conventional Commits](docs/development/conventional-commits.md)** - Commit message standards
 - **[Project Vision](docs/PROJECT_NORTH_STAR.md)** - Business-in-a-Box vision and strategy
@@ -244,7 +244,7 @@ meta-repo-seed/
 │   ├── map_issues_to_roadmap.py # Issue-roadmap linking
 │   └── README.md              # Scripts documentation
 ├── templates/             # All template files for project generation
-│   ├── github/workflows/  # GitHub Actions templates  
+│   ├── github/workflows/  # GitHub Actions templates
 │   ├── governance/        # Governance document templates
 │   ├── cloud-storage/     # Strategy and architecture templates
 │   └── documentation/     # Documentation templates
@@ -275,7 +275,7 @@ meta-repo-seed/
 - ✅ **Project documentation** - Roadmap, changelog, migration guides updated
 - ✅ **AI context files** - AGENTS.md and patterns maintained
 
-### 🤖 **AI Context Maintenance**  
+### 🤖 **AI Context Maintenance**
 - ✅ **AGENTS.md updated** - New patterns, workflows, decisions documented
 - ✅ **Context preserved** - Ensure AI can understand changes
 - ✅ **Integration guidance** - How changes fit with existing context
@@ -288,7 +288,7 @@ meta-repo-seed/
 ### 📝 **Use PR Templates**
 Choose appropriate template:
 - **Feature PRs**: `.github/PULL_REQUEST_TEMPLATE/feature.md`
-- **Bug Fix PRs**: `.github/PULL_REQUEST_TEMPLATE/bugfix.md`  
+- **Bug Fix PRs**: `.github/PULL_REQUEST_TEMPLATE/bugfix.md`
 - **Documentation PRs**: `.github/PULL_REQUEST_TEMPLATE/documentation.md`
 - **General PRs**: `.github/pull_request_template.md` (default)
 
@@ -298,7 +298,7 @@ Choose appropriate template:
 PRs **CANNOT** be merged without:
 1. ✅ TDD evidence (test-first development proof)
 2. ✅ Complete documentation updates
-3. ✅ AI context maintenance  
+3. ✅ AI context maintenance
 4. ✅ Template compliance verification
 5. ✅ Automated quality checks passing
 
@@ -319,7 +319,7 @@ We welcome contributions! Here's how you can help:
 ### 🚨 **CRITICAL: All Code-Related Issues Must Include TDD Requirements**
 
 **Before creating any issue involving code changes:**
-1. **Read**: [Creating Issues Guide](docs/development/creating-issues.md) 
+1. **Read**: [Creating Issues Guide](docs/development/creating-issues.md)
 2. **Use proper templates** - They enforce mandatory TDD acceptance criteria
 3. **Include test strategy** - How changes will be tested and verified
 
@@ -329,7 +329,7 @@ We welcome contributions! Here's how you can help:
 3. **Join the discussion** - we value community input on feature design
 4. **Include test strategy** - How the feature will be tested
 
-### 🐛 Reporting Bugs  
+### 🐛 Reporting Bugs
 1. **Use our bug report template** - Includes mandatory TDD fix criteria
 2. **Include reproduction steps** and environment details
 3. **Check for existing reports** to avoid duplicates
@@ -346,7 +346,7 @@ We welcome contributions! Here's how you can help:
 # List current roadmap features
 python scripts/roadmap_manager.py list
 
-# Add new feature to roadmap  
+# Add new feature to roadmap
 python scripts/roadmap_manager.py add "Feature Name" "Description"
 
 # Mark feature as completed

@@ -35,7 +35,7 @@ body:
         Key questions to answer:
         1. Question 1?
         2. Question 2?
-        
+
         Areas to research:
         - Area 1: Specific research needed
         - Area 2: Technical investigation required
@@ -103,7 +103,7 @@ body:
       description: Any constraints, requirements, or dependencies for this analysis
       placeholder: |
         - Technical constraints: Platform, technology, performance requirements
-        - Business constraints: Timeline, budget, compliance requirements  
+        - Business constraints: Timeline, budget, compliance requirements
         - Dependencies: Other work that must be completed first
     validations:
       required: false

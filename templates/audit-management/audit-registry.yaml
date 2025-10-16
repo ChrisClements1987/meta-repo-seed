@@ -20,7 +20,7 @@ agents:
     priority: "high"
     active: true
     last_run: null
-    
+
   code-quality-agent:
     name: "Code Quality Agent"
     domains: ["linting", "complexity", "maintainability", "testing"]
@@ -28,7 +28,7 @@ agents:
     priority: "medium"
     active: true
     last_run: null
-    
+
   architecture-agent:
     name: "Architecture Review Agent"
     domains: ["design", "patterns", "scalability", "performance"]
@@ -36,7 +36,7 @@ agents:
     priority: "medium"
     active: true
     last_run: null
-    
+
   business-agent:
     name: "Business Alignment Agent"
     domains: ["requirements", "value", "roi", "user-experience"]
@@ -76,24 +76,24 @@ configuration:
   auto_schedule: true
   default_timezone: "UTC"
   notification_channels: []
-  
+
   # Finding management
   auto_create_issues: true
   issue_labels:
     - "audit-finding"
     - "needs-triage"
   issue_template: ".github/ISSUE_TEMPLATE/audit-finding.yml"
-  
+
   # Quality gates
   critical_finding_threshold: 5
   high_finding_threshold: 10
   auto_block_deployment: true
-  
+
   # Reporting
   report_format: "markdown"
   include_metrics: true
   generate_summaries: true
-  
+
   # Integration settings
   github_integration: true
   slack_integration: false

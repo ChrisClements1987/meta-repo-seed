@@ -16,7 +16,7 @@ import sys
 from pathlib import Path
 
 # Add the src directory to Python path for imports
-src_path = Path(__file__).parent.parent.parent / 'src'
+src_path = Path(__file__).parent.parent.parent / "src"
 if src_path.exists():
     sys.path.insert(0, str(src_path))
 
@@ -24,7 +24,9 @@ try:
     from automation.repository_initializer import RepositoryInitializer
 except ImportError as e:
     print(f"❌ Import error: {e}")
-    print("💡 Make sure you're running from the repository root with the src/ directory available")
+    print(
+        "💡 Make sure you're running from the repository root with the src/ directory available"
+    )
     sys.exit(1)
 
 
@@ -42,56 +44,54 @@ Examples:
   python initialise_repo.py                    # Initialize using default structure.json
   python initialise_repo.py --dry-run         # Preview what would be created
   python initialise_repo.py --verbose         # Show detailed progress
-        """
+        """,
     )
-    
+
     parser.add_argument(
-        '--structure',
+        "--structure",
         type=Path,
-        default=Path('governance/structure/structure.json'),
-        help='Path to structure.json file (default: governance/structure/structure.json)'
+        default=Path("governance/structure/structure.json"),
+        help="Path to structure.json file (default: governance/structure/structure.json)",
     )
-    
+
     parser.add_argument(
-        '--target',
+        "--target",
         type=Path,
-        help='Target directory for initialization (default: current directory)'
+        help="Target directory for initialization (default: current directory)",
     )
-    
+
     parser.add_argument(
-        '--dry-run',
-        action='store_true',
-        help='Preview changes without making them'
+        "--dry-run", action="store_true", help="Preview changes without making them"
     )
-    
-    parser.add_argument(
-        '--verbose',
-        action='store_true', 
-        help='Enable verbose logging'
-    )
-    
+
+    parser.add_argument("--verbose", action="store_true", help="Enable verbose logging")
+
     args = parser.parse_args()
-    
+
     print("🚀 Repository Structure Initializer")
     print("=" * 40)
-    
+
     # Check if structure file exists
     if not args.structure.exists():
         print(f"❌ Structure file not found: {args.structure}")
         print()
-        print("💡 This script expects a structure.json file that defines your repository layout.")
+        print(
+            "💡 This script expects a structure.json file that defines your repository layout."
+        )
         print("   Common locations:")
         print("   - governance/structure/structure.json")
         print("   - structure.json")
-        print() 
-        print("   You can specify a custom path with --structure /path/to/structure.json")
+        print()
+        print(
+            "   You can specify a custom path with --structure /path/to/structure.json"
+        )
         return 1
-    
+
     # Initialize repository
     try:
         initializer = RepositoryInitializer(dry_run=args.dry_run, verbose=args.verbose)
         success = initializer.initialize_repository(args.structure, args.target)
-        
+
         if success:
             print()
             print("✅ Repository initialization completed successfully!")
@@ -104,7 +104,7 @@ Examples:
             print()
             print("❌ Repository initialization failed. Check the log messages above.")
             return 1
-            
+
     except KeyboardInterrupt:
         print("\n⏹️  Initialization cancelled by user")
         return 1

@@ -26,27 +26,27 @@ data:
   METRICS_PORT: "8080"
   LOG_LEVEL: "info"
   DEBUG: "false"
-  
+
   # Database Configuration
   DB_HOST: "{{PROJECT_NAME}}-staging-db.cluster-xyz.us-east-1.rds.amazonaws.com"
   DB_PORT: "3306"
   DB_NAME: "{{PROJECT_NAME}}_staging"
   DB_POOL_SIZE: "15"
   DB_SSL_MODE: "require"
-  
+
   # Cache Configuration
   REDIS_HOST: "{{PROJECT_NAME}}-staging-cache.abc123.use1.cache.amazonaws.com"
   REDIS_PORT: "6379"
   REDIS_DB: "0"
   REDIS_SSL: "true"
-  
+
   # Security Configuration
   ENABLE_CORS: "true"
   CORS_ORIGINS: "https://{{PROJECT_NAME}}-staging.com"
   ENABLE_RATE_LIMITING: "true"
   RATE_LIMIT_REQUESTS: "1000"
   RATE_LIMIT_WINDOW: "3600"
-  
+
   # Feature Flags
   FEATURE_NEW_UI: "true"
   FEATURE_BETA: "false"
@@ -420,7 +420,7 @@ spec:
       annotations:
         summary: "High CPU usage on {{PROJECT_NAME}} staging"
         description: "CPU usage is above 80% for more than 5 minutes"
-    
+
     - alert: HighMemoryUsage
       expr: memory_usage_percent > 85
       for: 5m
@@ -430,7 +430,7 @@ spec:
       annotations:
         summary: "High memory usage on {{PROJECT_NAME}} staging"
         description: "Memory usage is above 85% for more than 5 minutes"
-    
+
     - alert: PodCrashLooping
       expr: rate(kube_pod_container_status_restarts_total[15m]) > 0
       for: 5m

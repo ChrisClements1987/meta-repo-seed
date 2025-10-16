@@ -5,7 +5,7 @@
 resource "google_compute_network" "main" {
   name                    = "vpc-{{PROJECT_NAME}}-${var.environment}"
   auto_create_subnetworks = false
-  
+
   project = var.gcp_project_id
 }
 
@@ -15,7 +15,7 @@ resource "google_compute_subnetwork" "main" {
   ip_cidr_range = "10.0.0.0/24"
   region        = var.gcp_region
   network       = google_compute_network.main.id
-  
+
   project = var.gcp_project_id
 }
 

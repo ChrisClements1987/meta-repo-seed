@@ -56,12 +56,12 @@ body:
         ## 📝 Implementation Requirements:
         - [ ] Feature implemented according to description
         - [ ] Feature works cross-platform (Windows, macOS, Linux)
-        
+
         ## 📚 Documentation Requirements:
         - [ ] Documentation updated with examples
         - [ ] UX changes reflected in user guides
         - [ ] Roadmap and changelog files updated
-        
+
         ## 🤖 AI Context Management:
         - [ ] AGENTS.md updated with new patterns/workflows
         - [ ] AI context preserved for future development

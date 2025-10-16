@@ -8,9 +8,9 @@ This directory contains specialized PR templates designed to enforce our commitm
 **File:** `../pull_request_template.md`
 **Use when:** General changes or unsure which specific template to use
 
-### Feature Template  
+### Feature Template
 **File:** `feature.md`
-**Use when:** 
+**Use when:**
 - Adding new functionality
 - Implementing user-facing features
 - Building new capabilities for Business-in-a-Box platform
@@ -18,7 +18,7 @@ This directory contains specialized PR templates designed to enforce our commitm
 **URL:** `?template=feature.md`
 
 ### Bug Fix Template
-**File:** `bugfix.md`  
+**File:** `bugfix.md`
 **Use when:**
 - Fixing reported bugs
 - Resolving defects or errors
@@ -30,7 +30,7 @@ This directory contains specialized PR templates designed to enforce our commitm
 **File:** `documentation.md`
 **Use when:**
 - Adding user guides or tutorials
-- Updating architecture documentation  
+- Updating architecture documentation
 - Creating developer documentation
 - Updating AI context files
 
@@ -41,7 +41,7 @@ This directory contains specialized PR templates designed to enforce our commitm
 ### ✅ **Test-Driven Development (TDD)**
 Every PR must demonstrate the test-fail-pass-refactor cycle:
 1. **Tests written FIRST** - Before any implementation code
-2. **Evidence provided** - Show failing tests, then passing tests  
+2. **Evidence provided** - Show failing tests, then passing tests
 3. **Coverage maintained** - No reduction in test coverage
 4. **TDD compliance confirmed** - Explicit confirmation TDD was followed
 

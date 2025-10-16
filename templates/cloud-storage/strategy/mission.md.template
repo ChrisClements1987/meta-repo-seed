@@ -14,7 +14,7 @@ Explain the fundamental purpose of the organization and the problem we solve.
 ### Who We Serve
 Define our primary stakeholders and beneficiaries:
 - **Customers:** [Description]
-- **Partners:** [Description]  
+- **Partners:** [Description]
 - **Community:** [Description]
 - **Team Members:** [Description]
 
@@ -93,9 +93,9 @@ Questions we ask to ensure decisions align with our mission:
 
 ---
 
-**Approved:** {{CURRENT_DATE}}  
-**Last Updated:** {{CURRENT_DATE}}  
-**Next Review:** [INSERT DATE]  
+**Approved:** {{CURRENT_DATE}}
+**Last Updated:** {{CURRENT_DATE}}
+**Next Review:** [INSERT DATE]
 **Approved By:** [INSERT APPROVER]
 
 *This mission guides all activities and decisions within {{PROJECT_NAME}}.*

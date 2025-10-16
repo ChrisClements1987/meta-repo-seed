@@ -18,13 +18,9 @@ __author__ = "ChrisClements1987"
 
 # Import main components for easy access
 try:
-    from .structure_sync import (DirectoryStructure, FileTemplate,
-                                 StructureSynchronizer)
-    __all__ = [
-        'StructureSynchronizer',
-        'DirectoryStructure',
-        'FileTemplate'
-    ]
+    from .structure_sync import DirectoryStructure, FileTemplate, StructureSynchronizer
+
+    __all__ = ["StructureSynchronizer", "DirectoryStructure", "FileTemplate"]
 except ImportError:
     # Allow package to be imported even if dependencies aren't installed
     __all__ = []

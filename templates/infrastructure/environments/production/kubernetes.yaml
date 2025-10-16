@@ -34,7 +34,7 @@ data:
   METRICS_PORT: "8080"
   LOG_LEVEL: "warn"
   DEBUG: "false"
-  
+
   # Database Configuration
   DB_HOST: "{{PROJECT_NAME}}-prod-cluster.cluster-xyz.us-east-1.rds.amazonaws.com"
   DB_READ_HOST: "{{PROJECT_NAME}}-prod-cluster-ro.cluster-xyz.us-east-1.rds.amazonaws.com"
@@ -43,14 +43,14 @@ data:
   DB_POOL_SIZE: "50"
   DB_SSL_MODE: "require"
   DB_SSL_CERT_VERIFY: "true"
-  
+
   # Cache Configuration
   REDIS_HOST: "{{PROJECT_NAME}}-prod-cluster.abc123.clustercfg.use1.cache.amazonaws.com"
   REDIS_PORT: "6379"
   REDIS_DB: "0"
   REDIS_SSL: "true"
   REDIS_CLUSTER_MODE: "true"
-  
+
   # Security Configuration
   ENABLE_CORS: "true"
   CORS_ORIGINS: "https://{{PROJECT_NAME}}.com,https://www.{{PROJECT_NAME}}.com"
@@ -59,23 +59,23 @@ data:
   RATE_LIMIT_WINDOW: "3600"
   ENABLE_CSRF_PROTECTION: "true"
   ENABLE_HELMET: "true"
-  
+
   # Performance Configuration
   ENABLE_GZIP: "true"
   ENABLE_ETAG: "true"
   CACHE_TTL: "3600"
   SESSION_TIMEOUT: "1800"
-  
+
   # Feature Flags
   FEATURE_NEW_UI: "false"
   FEATURE_BETA: "false"
   FEATURE_ANALYTICS: "true"
   FEATURE_MONITORING: "true"
-  
+
   # External Services
   CDN_URL: "https://cdn.{{PROJECT_NAME}}.com"
   STATIC_URL: "https://static.{{PROJECT_NAME}}.com"
-  
+
   # Compliance
   ENABLE_AUDIT_LOGGING: "true"
   DATA_RETENTION_DAYS: "2555"  # 7 years
@@ -647,7 +647,7 @@ spec:
       annotations:
         summary: "{{PROJECT_NAME}} application is down"
         description: "{{PROJECT_NAME}} application has been down for more than 1 minute"
-    
+
     - alert: HighErrorRate
       expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.1
       for: 2m
@@ -657,7 +657,7 @@ spec:
       annotations:
         summary: "High error rate detected"
         description: "Error rate is above 10% for more than 2 minutes"
-    
+
     - alert: HighCPUUsage
       expr: cpu_usage_percent > 80
       for: 5m
@@ -667,7 +667,7 @@ spec:
       annotations:
         summary: "High CPU usage on {{PROJECT_NAME}} production"
         description: "CPU usage is above 80% for more than 5 minutes"
-    
+
     - alert: HighMemoryUsage
       expr: memory_usage_percent > 85
       for: 5m
@@ -677,7 +677,7 @@ spec:
       annotations:
         summary: "High memory usage on {{PROJECT_NAME}} production"
         description: "Memory usage is above 85% for more than 5 minutes"
-    
+
     - alert: DatabaseConnectionFailure
       expr: database_connections_failed_total > 0
       for: 1m
