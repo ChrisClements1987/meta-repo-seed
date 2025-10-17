@@ -14,7 +14,7 @@ from pathlib import Path
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
-from commercial import CustomerManager, OrganizationSeeder, SubscriptionPlan
+from src.commercial import CustomerManager, OrganizationSeeder, SubscriptionPlan
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
