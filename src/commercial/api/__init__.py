@@ -205,7 +205,7 @@ async def get_customer(customer_id: str):
         return CustomerResponse.model_validate(customer)
     except HTTPException:
         raise  # Re-raise HTTP exceptions
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Database connection failed",
