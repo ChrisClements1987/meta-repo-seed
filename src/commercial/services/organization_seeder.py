@@ -8,17 +8,17 @@ RepoSeeder with multi-tenant, organization-scoped deployment capabilities.
 import subprocess
 import logging
 from pathlib import Path
-from typing import Dict, Optional, Union, Any
+from typing import Dict, Optional, Union, Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .customer_manager import CustomerManager
 from datetime import datetime
 
 # Import existing utilities from seeding.py
 from seeding import (
-    sanitize_project_name,
     ensure_directory_exists,
     safe_open_for_write,
-    safe_copy_file,
     copy_template_file,
-    process_template_content,
     create_file_from_template,
 )
 

@@ -185,14 +185,14 @@ class Subscription:
     plan: SubscriptionPlan = SubscriptionPlan.STARTUP
     status: str = "active"
     current_period_start: datetime = field(default_factory=datetime.now)
-    current_period_end: datetime = field(default_factory=lambda: datetime.now())
+    current_period_end: Optional[datetime] = None
     cancel_at_period_end: bool = False
     trial_end: Optional[datetime] = None
     usage_this_period: Dict[str, int] = field(default_factory=dict)
 
     def __post_init__(self):
         """Set period end date."""
-        if self.current_period_end == datetime.now():
+        if self.current_period_end is None:
             from datetime import timedelta
 
             self.current_period_end = self.current_period_start + timedelta(
@@ -218,7 +218,7 @@ class UsageMetrics:
     org_id: str = ""
     customer_id: str = ""
     period_start: datetime = field(default_factory=datetime.now)
-    period_end: datetime = field(default_factory=lambda: datetime.now())
+    period_end: Optional[datetime] = None
     deployments_count: int = 0
     api_calls_count: int = 0
     storage_used_mb: int = 0
@@ -228,7 +228,7 @@ class UsageMetrics:
 
     def __post_init__(self):
         """Set period end date."""
-        if self.period_end == datetime.now():
+        if self.period_end is None:
             from datetime import timedelta
 
             self.period_end = self.period_start + timedelta(days=30)  # Monthly period
