@@ -2,7 +2,7 @@
 
 An idempotent, cross-platform system for deploying complete business infrastructure in under 10 minutes. Supports startups, charities, nonprofits, and SMBs with professional-grade templates and automation.
 
-> **📍 [Project North Star](docs/PROJECT_NORTH_STAR.md)** - Our vision and guiding principles for this tool
+> **📍 [Project Vision](docs/00-Foundation/vision.md)** - Our vision and guiding principles for this tool
 
 > **Note**: This repository uses branch protection rules to ensure code quality and proper review processes.
 
@@ -48,7 +48,7 @@ your-project/
 
 ## 🚀 Quick Start
 
-> **👨‍💻 New Contributor?** **MANDATORY:** Complete [Contributor Onboarding](docs/development/contributor-onboarding.md) before making any contributions!
+> **👨‍💻 New Contributor?** **MANDATORY:** Complete [Contributor Onboarding](docs/00-Foundation/onboarding-paths.md) before making any contributions!
 
 ### Prerequisites
 - **Git** (latest version)
@@ -128,7 +128,7 @@ python -m src.cli.business_commands start-onboarding \
 - `smb-standard` - Professional operations with business continuity
 - `consulting-firm` - Client confidentiality with partner approval workflows
 
-> **📖 Full Documentation:** [Business Operations Automation Guide](docs/business-operations-automation.md)
+> **📖 Full Documentation:** [Business Operations Automation Guide](docs/40-Operations/automation/business-operations-automation.md)
 
 ### Command Options
 
@@ -182,13 +182,6 @@ python seeding.py --dry-run
 - **Documentation generation** - automatic README creation
 - **Structure validation** - ensures compliance
 
-### 🏢 Business Operations Automation ✨ NEW
-- **Self-governing repositories** - automated onboarding, compliance, and maintenance
-- **Business profile support** - startup, charity, SMB, consulting firm configurations
-- **Automated compliance enforcement** - weekly validation with issue creation
-- **Self-healing systems** - 6-hour health cycles with auto-remediation
-- **Governance integration** - CODEOWNERS, branch protection, PR review automation
-
 ### 🔒 Security Features
 - **Path traversal protection** - Project names are sanitized to prevent directory traversal attacks
 - **Input validation** - All user inputs are validated against safe character sets
@@ -227,11 +220,11 @@ The project includes comprehensive documentation organized in the `docs/` direct
 > **📖 [Complete Documentation Index](docs/README.md)** - All documentation with organized structure
 
 ### Quick Links
-- **[Contributor Onboarding](docs/development/contributor-onboarding.md)** - **REQUIRED** for all contributors
-- **[Contributing Guide](docs/development/contributing.md)** - High-level contribution overview
-- **[Documentation Standards](docs/development/documentation-standards.md)** - 3-category documentation system
-- **[Conventional Commits](docs/development/conventional-commits.md)** - Commit message standards
-- **[Project Vision](docs/PROJECT_NORTH_STAR.md)** - Business-in-a-Box vision and strategy
+- **[Contributor Onboarding](docs/00-Foundation/onboarding-paths.md)** - **REQUIRED** for all contributors
+- **[Contributing Guide](docs/00-Foundation/contributing-guide.md)** - High-level contribution overview
+- **[Documentation Standards](docs/00-Foundation/documentation-standards.md)** - 3-category documentation system
+- **[Conventional Commits](docs/40-Operations/development/conventional-commits.md)** - Commit message standards
+- **[Project Vision](docs/00-Foundation/vision.md)** - Business-in-a-Box vision and strategy
 
 ## 🔧 Development
 
@@ -319,7 +312,7 @@ We welcome contributions! Here's how you can help:
 ### 🚨 **CRITICAL: All Code-Related Issues Must Include TDD Requirements**
 
 **Before creating any issue involving code changes:**
-1. **Read**: [Creating Issues Guide](docs/development/creating-issues.md)
+1. **Read**: [Issue Management Guide](docs/40-Operations/development/issue-management.md)
 2. **Use proper templates** - They enforce mandatory TDD acceptance criteria
 3. **Include test strategy** - How changes will be tested and verified
 
@@ -336,7 +329,7 @@ We welcome contributions! Here's how you can help:
 4. **Include test requirements** - How the fix will be verified
 
 ### 🔧 Development Process
-1. **Read the [Contributing Guide](docs/development/contributing.md)** for detailed contribution guidelines
+1. **Read the [Contributing Guide](docs/00-Foundation/contributing-guide.md)** for detailed contribution guidelines
 2. **Fork and create feature branches** for your changes
 3. **Follow our branch protection rules** - PRs required for main branch
 4. **Use our roadmap manager**: `python scripts/roadmap_manager.py --help`
@@ -361,8 +354,8 @@ python scripts/roadmap_manager.py report
 - **Issues**: Use [GitHub Issues](https://github.com/ChrisClements1987/meta-repo-seed/issues) with our structured templates
 - **Discussions**: Use GitHub Discussions for questions and ideas
 - **Documentation**: Check the [comprehensive documentation](docs/README.md)
-- **Development**: See [Issue Management](docs/development/issue-management.md) and [Workflow Standards](docs/development/workflow-standards.md)
-- **Contributing**: Review the [Contributing Guide](docs/development/contributing.md) for development process
+- **Development**: See [Issue Management](docs/40-Operations/development/issue-management.md) and [Workflow Standards](docs/40-Operations/development/workflow-standards.md)
+- **Contributing**: Review the [Contributing Guide](docs/00-Foundation/contributing-guide.md) for development process
 
 ## ⭐ Features Roadmap
 
