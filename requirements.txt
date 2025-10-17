@@ -7,5 +7,8 @@ PyYAML==6.0.2
 # JSON Schema validation
 jsonschema==4.25.1
 
+# Email template rendering
+jinja2==3.1.4
+
 # Path and file operations (if needed beyond stdlib)
 # Note: Core functionality uses only Python stdlib for maximum compatibility

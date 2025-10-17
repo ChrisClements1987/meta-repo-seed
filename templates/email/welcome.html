@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Meta-Repo-Seed!</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2563eb;
+            margin-bottom: 10px;
+        }
+        .welcome-title {
+            font-size: 24px;
+            color: #1f2937;
+            margin-bottom: 20px;
+        }
+        .content {
+            margin-bottom: 30px;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #2563eb;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            margin: 10px 5px;
+            transition: background-color 0.2s;
+        }
+        .cta-button:hover {
+            background-color: #1d4ed8;
+        }
+        .secondary-button {
+            background-color: #f3f4f6;
+            color: #374151;
+        }
+        .secondary-button:hover {
+            background-color: #e5e7eb;
+        }
+        .features {
+            background-color: #f8fafc;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .feature-item {
+            margin: 10px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        .feature-item::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: bold;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            color: #6b7280;
+            font-size: 14px;
+        }
+        .trial-info {
+            background-color: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🚀 Meta-Repo-Seed</div>
+            <h1 class="welcome-title">Welcome, {{ customer_name }}!</h1>
+        </div>
+        
+        <div class="content">
+            <p>Thank you for joining Meta-Repo-Seed! We're excited to help you streamline your development workflow and accelerate your project delivery.</p>
+            
+            <div class="trial-info">
+                <strong>🎉 Your {{ trial_days }}-day free trial is now active!</strong><br>
+                You have full access to all features during your trial period.
+            </div>
+            
+            <p>Here's what you can do right away:</p>
+            
+            <div class="features">
+                <div class="feature-item">Deploy your first organization with our automated setup</div>
+                <div class="feature-item">Access pre-built templates for common project types</div>
+                <div class="feature-item">Integrate with GitHub for seamless repository management</div>
+                <div class="feature-item">Set up CI/CD pipelines with our automation tools</div>
+                <div class="feature-item">Monitor your deployments with real-time dashboards</div>
+            </div>
+            
+            <p>Ready to get started? Let's create your first organization!</p>
+        </div>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{{ dashboard_url }}" class="cta-button">Go to Dashboard</a>
+            <a href="{{ getting_started_url }}" class="cta-button secondary-button">Getting Started Guide</a>
+        </div>
+        
+        <div class="content">
+            <h3>Need Help?</h3>
+            <p>Our team is here to support you every step of the way:</p>
+            <ul>
+                <li>📚 <strong>Documentation:</strong> <a href="https://docs.meta-repo-seed.com">docs.meta-repo-seed.com</a></li>
+                <li>💬 <strong>Support:</strong> <a href="mailto:{{ support_email }}">{{ support_email }}</a></li>
+                <li>🎥 <strong>Video Tutorials:</strong> <a href="https://docs.meta-repo-seed.com/tutorials">Watch our tutorials</a></li>
+            </ul>
+        </div>
+        
+        <div class="footer">
+            <p>This email was sent to {{ customer_email }}</p>
+            <p>Meta-Repo-Seed Team | <a href="https://meta-repo-seed.com">meta-repo-seed.com</a></p>
+        </div>
+    </div>
+</body>
+</html>

@@ -113,6 +113,18 @@ class CustomerManager:
         # Create subscription
         self._create_subscription(customer.customer_id, plan, trial_days)
 
+        # Initialize onboarding data
+        customer.onboarding_data = {
+            "status": "pending",
+            "current_step": "signup_complete",
+            "completed_steps": ["signup_complete"],
+            "created_at": datetime.now().isoformat(),
+            "updated_at": datetime.now().isoformat()
+        }
+
+        # Trigger onboarding process
+        self._trigger_onboarding(customer)
+
         self.logger.info(f"Created customer {customer.customer_id} for {company_name}")
         return customer
 
@@ -557,3 +569,20 @@ class CustomerManager:
         """Save usage metrics to database."""
         # Placeholder implementation
         self.logger.debug(f"Saving usage metrics for org: {usage.org_id}")
+    
+    def _trigger_onboarding(self, customer: Customer):
+        """Trigger automated onboarding process for new customer."""
+        try:
+            # Import here to avoid circular imports
+            from .onboarding_manager import OnboardingManager
+            
+            onboarding_manager = OnboardingManager(self)
+            success = onboarding_manager.start_onboarding(customer)
+            
+            if success:
+                self.logger.info(f"Onboarding triggered successfully for {customer.customer_id}")
+            else:
+                self.logger.error(f"Failed to trigger onboarding for {customer.customer_id}")
+                
+        except Exception as e:
+            self.logger.error(f"Error triggering onboarding: {e}")
