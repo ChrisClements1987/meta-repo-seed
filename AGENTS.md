@@ -2,11 +2,17 @@
 
 ## Commands
 
+### Environment Setup (FIRST TIME ONLY)
+- **Setup Workspace**: `bash scripts/setup-workspace.sh` (Linux/Mac) or manually: `pip install -r requirements-test.txt`
+- **Validate Environment**: `python scripts/validate-environment.py` (check Python version + dependencies match)
+- **Why This Matters**: Prevents environment drift across workspaces (quantum, orbit, meta-repo-seed-cursor)
+
 ### Essential Commands
 - **Main Script**: `python seeding.py --dry-run --verbose` (preview), `python seeding.py` (execute)
 - **All Tests**: `python -m pytest` (run entire test suite)
 - **Coverage**: `python -m pytest --cov=seeding --cov=src --cov-report=term-missing`
 - **Specific Test**: `python -m pytest tests/unit/test_filename.py::TestClass::test_method`
+- **Environment Check**: `python scripts/validate-environment.py` (validates Python version + dependencies)
 
 ### Quality Checks
 - **Linting**: `flake8` (current standard), `python -m pytest --flake8` (if plugin available)
