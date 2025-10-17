@@ -6,8 +6,10 @@ Tests the business deployment commands, profiles, and stack templates.
 
 import sys
 import unittest
+import os
+import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch, AsyncMock
 
 # Add src modules to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src" / "cli"))
@@ -15,6 +17,11 @@ from business_commands import (
     BusinessDeploymentProfiles,
     ProductStackTemplates,
     create_business_cli_parser,
+    deploy_business_command,
+    launch_product_command,
+    start_onboarding_command,
+    validate_deployment_command,
+    main_business_cli,
 )
 
 
@@ -141,6 +148,481 @@ class TestBusinessCLIParser(unittest.TestCase):
             self.parser.parse_args(
                 ["launch-product", "--stack=nextjs"]
             )  # Missing --name
+
+
+class TestDeployBusinessCommand(unittest.TestCase):
+    """Test cases for deploy_business_command function."""
+
+    def setUp(self):
+        """Set up test fixtures."""
+        self.args = MagicMock()
+        self.args.profile = "startup-basic"
+        self.args.verbose = False
+        self.args.dry_run = False
+        self.args.org_name = None
+
+    @patch('business_commands.setup_logging')
+    @patch('business_commands.BusinessDeploymentProfiles.list_profiles')
+    def test_deploy_business_invalid_profile(self, mock_list_profiles, mock_setup_logging):
+        """Test deploy_business_command with invalid profile."""
+        mock_list_profiles.return_value = ["startup-basic", "charity-nonprofit"]
+        mock_logger = MagicMock()
+        mock_setup_logging.return_value = mock_logger
+        
+        self.args.profile = "invalid-profile"
+        
+        result = deploy_business_command(self.args)
+        
+        self.assertEqual(result, 1)
+        mock_logger.error.assert_called_with("Unknown business profile: invalid-profile")
+        mock_logger.info.assert_called()
+
+    @patch('asyncio.run')
+    @patch('os.path.basename')
+    @patch('os.getcwd')
+    @patch('business_commands.BusinessDeploymentProfiles.get_profile_description')
+    @patch('business_commands.BusinessDeploymentProfiles.get_profile')
+    @patch('business_commands.BusinessDeploymentProfiles.list_profiles')
+    @patch('business_commands.setup_logging')
+    def test_deploy_business_valid_profile(self, mock_setup_logging, mock_list_profiles, 
+                                         mock_get_profile, mock_get_description, mock_getcwd, mock_basename, mock_asyncio_run):
+        """Test deploy_business_command with valid profile."""
+        mock_list_profiles.return_value = ["startup-basic"]
+        mock_get_profile.return_value = {"name": "Startup Basic", "target_market": "Early-stage startups"}
+        mock_get_description.return_value = "Startup Basic: Growth-ready infrastructure"
+        mock_logger = MagicMock()
+        mock_setup_logging.return_value = mock_logger
+        mock_getcwd.return_value = "/test/dir"
+        mock_basename.return_value = "test-org"
+        mock_asyncio_run.return_value = 0
+        
+        result = deploy_business_command(self.args)
+        
+        self.assertEqual(result, 0)
+        mock_logger.info.assert_called()
+
+    @patch('asyncio.run')
+    @patch('os.path.basename')
+    @patch('os.getcwd')
+    @patch('business_commands.BusinessDeploymentProfiles.get_profile')
+    @patch('business_commands.BusinessDeploymentProfiles.list_profiles')
+    @patch('business_commands.setup_logging')
+    def test_deploy_business_keyboard_interrupt(self, mock_setup_logging, mock_list_profiles, 
+                                               mock_get_profile, mock_getcwd, mock_basename, mock_asyncio_run):
+        """Test deploy_business_command with KeyboardInterrupt."""
+        mock_list_profiles.return_value = ["startup-basic"]
+        mock_get_profile.return_value = {"name": "Startup Basic", "target_market": "Early-stage startups"}
+        mock_logger = MagicMock()
+        mock_setup_logging.return_value = mock_logger
+        mock_getcwd.return_value = "/test/dir"
+        mock_basename.return_value = "test-org"
+        mock_asyncio_run.side_effect = KeyboardInterrupt()
+        
+        result = deploy_business_command(self.args)
+        
+        self.assertEqual(result, 1)
+        mock_logger.info.assert_called_with("Deployment cancelled by user")
+
+    @patch('asyncio.run')
+    @patch('os.path.basename')
+    @patch('os.getcwd')
+    @patch('business_commands.BusinessDeploymentProfiles.get_profile')
+    @patch('business_commands.BusinessDeploymentProfiles.list_profiles')
+    @patch('business_commands.setup_logging')
+    def test_deploy_business_general_exception(self, mock_setup_logging, mock_list_profiles, 
+                                             mock_get_profile, mock_getcwd, mock_basename, mock_asyncio_run):
+        """Test deploy_business_command with general exception."""
+        mock_list_profiles.return_value = ["startup-basic"]
+        mock_get_profile.return_value = {"name": "Startup Basic", "target_market": "Early-stage startups"}
+        mock_logger = MagicMock()
+        mock_setup_logging.return_value = mock_logger
+        mock_getcwd.return_value = "/test/dir"
+        mock_basename.return_value = "test-org"
+        mock_asyncio_run.side_effect = Exception("Test error")
+        
+        result = deploy_business_command(self.args)
+        
+        self.assertEqual(result, 1)
+        mock_logger.error.assert_called_with("Deployment failed with error: Test error")
+
+    @patch('asyncio.run')
+    @patch('os.path.basename')
+    @patch('os.getcwd')
+    @patch('business_commands.BusinessDeploymentProfiles.get_profile')
+    @patch('business_commands.BusinessDeploymentProfiles.list_profiles')
+    @patch('business_commands.setup_logging')
+    def test_deploy_business_verbose_exception(self, mock_setup_logging, mock_list_profiles, 
+                                              mock_get_profile, mock_getcwd, mock_basename, mock_asyncio_run):
+        """Test deploy_business_command with verbose exception."""
+        mock_list_profiles.return_value = ["startup-basic"]
+        mock_get_profile.return_value = {"name": "Startup Basic", "target_market": "Early-stage startups"}
+        mock_logger = MagicMock()
+        mock_setup_logging.return_value = mock_logger
+        mock_getcwd.return_value = "/test/dir"
+        mock_basename.return_value = "test-org"
+        mock_asyncio_run.side_effect = Exception("Test error")
+        self.args.verbose = True
+        
+        result = deploy_business_command(self.args)
+        
+        self.assertEqual(result, 1)
+        mock_logger.error.assert_called_with("Deployment failed with error: Test error")
+
+    @patch('asyncio.run')
+    @patch('os.path.basename')
+    @patch('os.getcwd')
+    @patch('business_commands.BusinessDeploymentProfiles.get_profile')
+    @patch('business_commands.BusinessDeploymentProfiles.list_profiles')
+    @patch('business_commands.setup_logging')
+    def test_deploy_business_success_with_duration(self, mock_setup_logging, mock_list_profiles, 
+                                                  mock_get_profile, mock_getcwd, mock_basename, mock_asyncio_run):
+        """Test deploy_business_command success with duration > 10 minutes."""
+        mock_list_profiles.return_value = ["startup-basic"]
+        mock_get_profile.return_value = {"name": "Startup Basic", "target_market": "Early-stage startups"}
+        mock_logger = MagicMock()
+        mock_setup_logging.return_value = mock_logger
+        mock_getcwd.return_value = "/test/dir"
+        mock_basename.return_value = "test-org"
+        
+        # Mock the async function to return success with duration > 10
+        async def mock_run_deployment():
+            return 0
+        mock_asyncio_run.return_value = 0
+        
+        result = deploy_business_command(self.args)
+        
+        self.assertEqual(result, 0)
+        mock_logger.info.assert_called()
+
+    @patch('asyncio.run')
+    @patch('os.path.basename')
+    @patch('os.getcwd')
+    @patch('business_commands.BusinessDeploymentProfiles.get_profile')
+    @patch('business_commands.BusinessDeploymentProfiles.list_profiles')
+    @patch('business_commands.setup_logging')
+    def test_deploy_business_dry_run_success(self, mock_setup_logging, mock_list_profiles, 
+                                            mock_get_profile, mock_getcwd, mock_basename, mock_asyncio_run):
+        """Test deploy_business_command dry run success."""
+        mock_list_profiles.return_value = ["startup-basic"]
+        mock_get_profile.return_value = {"name": "Startup Basic", "target_market": "Early-stage startups"}
+        mock_logger = MagicMock()
+        mock_setup_logging.return_value = mock_logger
+        mock_getcwd.return_value = "/test/dir"
+        mock_basename.return_value = "test-org"
+        self.args.dry_run = True
+        mock_asyncio_run.return_value = 0
+        
+        result = deploy_business_command(self.args)
+        
+        self.assertEqual(result, 0)
+        mock_logger.info.assert_called()
+
+    @patch('asyncio.run')
+    @patch('os.path.basename')
+    @patch('os.getcwd')
+    @patch('business_commands.BusinessDeploymentProfiles.get_profile')
+    @patch('business_commands.BusinessDeploymentProfiles.list_profiles')
+    @patch('business_commands.setup_logging')
+    def test_deploy_business_failure_with_error(self, mock_setup_logging, mock_list_profiles, 
+                                               mock_get_profile, mock_getcwd, mock_basename, mock_asyncio_run):
+        """Test deploy_business_command failure with error."""
+        mock_list_profiles.return_value = ["startup-basic"]
+        mock_get_profile.return_value = {"name": "Startup Basic", "target_market": "Early-stage startups"}
+        mock_logger = MagicMock()
+        mock_setup_logging.return_value = mock_logger
+        mock_getcwd.return_value = "/test/dir"
+        mock_basename.return_value = "test-org"
+        mock_asyncio_run.return_value = 1
+        
+        result = deploy_business_command(self.args)
+        
+        self.assertEqual(result, 1)
+        mock_logger.info.assert_called()
+
+
+class TestLaunchProductCommand(unittest.TestCase):
+    """Test cases for launch_product_command function."""
+
+    def setUp(self):
+        """Set up test fixtures."""
+        self.args = MagicMock()
+        self.args.stack = "nextjs"
+        self.args.name = "test-app"
+        self.args.verbose = False
+        self.args.dry_run = False
+
+    @patch('business_commands.setup_logging')
+    @patch('business_commands.ProductStackTemplates.list_stacks')
+    def test_launch_product_invalid_stack(self, mock_list_stacks, mock_setup_logging):
+        """Test launch_product_command with invalid stack."""
+        mock_list_stacks.return_value = ["nextjs", "python-api"]
+        mock_logger = MagicMock()
+        mock_setup_logging.return_value = mock_logger
+        
+        self.args.stack = "invalid-stack"
+        
+        result = launch_product_command(self.args)
+        
+        self.assertEqual(result, 1)
+        mock_logger.error.assert_called_with("Unknown product stack: invalid-stack")
+        mock_logger.info.assert_called()
+
+    @patch('asyncio.run')
+    @patch('business_commands.ProductStackTemplates.get_stack')
+    @patch('business_commands.ProductStackTemplates.list_stacks')
+    @patch('business_commands.setup_logging')
+    def test_launch_product_valid_stack(self, mock_setup_logging, mock_list_stacks, mock_get_stack, mock_asyncio_run):
+        """Test launch_product_command with valid stack."""
+        mock_list_stacks.return_value = ["nextjs"]
+        mock_get_stack.return_value = {
+            "name": "Next.js Application",
+            "description": "Full-stack React application",
+            "technologies": ["React", "Next.js"],
+            "deployment_target": "vercel"
+        }
+        mock_logger = MagicMock()
+        mock_setup_logging.return_value = mock_logger
+        mock_asyncio_run.return_value = 0
+        
+        result = launch_product_command(self.args)
+        
+        self.assertEqual(result, 0)
+        mock_logger.info.assert_called()
+
+    @patch('asyncio.run')
+    @patch('business_commands.ProductStackTemplates.get_stack')
+    @patch('business_commands.ProductStackTemplates.list_stacks')
+    @patch('business_commands.setup_logging')
+    def test_launch_product_keyboard_interrupt(self, mock_setup_logging, mock_list_stacks, mock_get_stack, mock_asyncio_run):
+        """Test launch_product_command with KeyboardInterrupt."""
+        mock_list_stacks.return_value = ["nextjs"]
+        mock_get_stack.return_value = {
+            "name": "Next.js Application", 
+            "description": "Full-stack React application",
+            "technologies": ["React", "Next.js"],
+            "deployment_target": "vercel"
+        }
+        mock_logger = MagicMock()
+        mock_setup_logging.return_value = mock_logger
+        mock_asyncio_run.side_effect = KeyboardInterrupt()
+        
+        result = launch_product_command(self.args)
+        
+        self.assertEqual(result, 1)
+        mock_logger.info.assert_called_with("Product launch cancelled by user")
+
+    @patch('asyncio.run')
+    @patch('business_commands.ProductStackTemplates.get_stack')
+    @patch('business_commands.ProductStackTemplates.list_stacks')
+    @patch('business_commands.setup_logging')
+    def test_launch_product_general_exception(self, mock_setup_logging, mock_list_stacks, mock_get_stack, mock_asyncio_run):
+        """Test launch_product_command with general exception."""
+        mock_list_stacks.return_value = ["nextjs"]
+        mock_get_stack.return_value = {
+            "name": "Next.js Application", 
+            "description": "Full-stack React application",
+            "technologies": ["React", "Next.js"],
+            "deployment_target": "vercel"
+        }
+        mock_logger = MagicMock()
+        mock_setup_logging.return_value = mock_logger
+        mock_asyncio_run.side_effect = Exception("Test error")
+        
+        result = launch_product_command(self.args)
+        
+        self.assertEqual(result, 1)
+        mock_logger.error.assert_called_with("Product launch failed with error: Test error")
+
+    @patch('asyncio.run')
+    @patch('business_commands.ProductStackTemplates.get_stack')
+    @patch('business_commands.ProductStackTemplates.list_stacks')
+    @patch('business_commands.setup_logging')
+    def test_launch_product_dry_run(self, mock_setup_logging, mock_list_stacks, mock_get_stack, mock_asyncio_run):
+        """Test launch_product_command with dry run."""
+        mock_list_stacks.return_value = ["nextjs"]
+        mock_get_stack.return_value = {
+            "name": "Next.js Application", 
+            "description": "Full-stack React application",
+            "technologies": ["React", "Next.js"],
+            "deployment_target": "vercel"
+        }
+        mock_logger = MagicMock()
+        mock_setup_logging.return_value = mock_logger
+        self.args.dry_run = True
+        mock_asyncio_run.return_value = 0
+        
+        result = launch_product_command(self.args)
+        
+        self.assertEqual(result, 0)
+        mock_logger.info.assert_called()
+
+
+class TestStartOnboardingCommand(unittest.TestCase):
+    """Test cases for start_onboarding_command function."""
+
+    def setUp(self):
+        """Set up test fixtures."""
+        self.args = MagicMock()
+        self.args.profile = "startup-basic"
+        self.args.automation_level = "standard"
+        self.args.org_name = None
+        self.args.repo_name = None
+        self.args.verbose = False
+        self.args.dry_run = False
+
+    @patch('asyncio.run')
+    @patch('os.path.basename')
+    @patch('os.getcwd')
+    @patch('business_commands.setup_logging')
+    def test_start_onboarding_success(self, mock_setup_logging, mock_getcwd, mock_basename, mock_asyncio_run):
+        """Test start_onboarding_command success."""
+        mock_logger = MagicMock()
+        mock_setup_logging.return_value = mock_logger
+        mock_getcwd.return_value = "/test/dir"
+        mock_basename.return_value = "test-org"
+        mock_asyncio_run.return_value = 0
+        
+        result = start_onboarding_command(self.args)
+        
+        self.assertEqual(result, 0)
+        mock_logger.info.assert_called()
+
+    @patch('asyncio.run')
+    @patch('os.path.basename')
+    @patch('os.getcwd')
+    @patch('business_commands.setup_logging')
+    def test_start_onboarding_keyboard_interrupt(self, mock_setup_logging, mock_getcwd, mock_basename, mock_asyncio_run):
+        """Test start_onboarding_command with KeyboardInterrupt."""
+        mock_logger = MagicMock()
+        mock_setup_logging.return_value = mock_logger
+        mock_getcwd.return_value = "/test/dir"
+        mock_basename.return_value = "test-org"
+        mock_asyncio_run.side_effect = KeyboardInterrupt()
+        
+        result = start_onboarding_command(self.args)
+        
+        self.assertEqual(result, 1)
+        mock_logger.info.assert_called_with("Onboarding cancelled by user")
+
+    @patch('asyncio.run')
+    @patch('os.path.basename')
+    @patch('os.getcwd')
+    @patch('business_commands.setup_logging')
+    def test_start_onboarding_general_exception(self, mock_setup_logging, mock_getcwd, mock_basename, mock_asyncio_run):
+        """Test start_onboarding_command with general exception."""
+        mock_logger = MagicMock()
+        mock_setup_logging.return_value = mock_logger
+        mock_getcwd.return_value = "/test/dir"
+        mock_basename.return_value = "test-org"
+        mock_asyncio_run.side_effect = Exception("Test error")
+        
+        result = start_onboarding_command(self.args)
+        
+        self.assertEqual(result, 1)
+        mock_logger.error.assert_called_with("Onboarding failed with error: Test error")
+
+    @patch('asyncio.run')
+    @patch('os.path.basename')
+    @patch('os.getcwd')
+    @patch('business_commands.setup_logging')
+    def test_start_onboarding_dry_run(self, mock_setup_logging, mock_getcwd, mock_basename, mock_asyncio_run):
+        """Test start_onboarding_command with dry run."""
+        mock_logger = MagicMock()
+        mock_setup_logging.return_value = mock_logger
+        mock_getcwd.return_value = "/test/dir"
+        mock_basename.return_value = "test-org"
+        self.args.dry_run = True
+        mock_asyncio_run.return_value = 0
+        
+        result = start_onboarding_command(self.args)
+        
+        self.assertEqual(result, 0)
+        mock_logger.info.assert_called()
+
+    @patch('asyncio.run')
+    @patch('os.path.basename')
+    @patch('os.getcwd')
+    @patch('business_commands.setup_logging')
+    def test_start_onboarding_with_custom_names(self, mock_setup_logging, mock_getcwd, mock_basename, mock_asyncio_run):
+        """Test start_onboarding_command with custom org and repo names."""
+        mock_logger = MagicMock()
+        mock_setup_logging.return_value = mock_logger
+        mock_getcwd.return_value = "/test/dir"
+        mock_basename.return_value = "test-org"
+        self.args.org_name = "custom-org"
+        self.args.repo_name = "custom-repo"
+        mock_asyncio_run.return_value = 0
+        
+        result = start_onboarding_command(self.args)
+        
+        self.assertEqual(result, 0)
+        mock_logger.info.assert_called()
+
+
+class TestValidateDeploymentCommand(unittest.TestCase):
+    """Test cases for validate_deployment_command function."""
+
+    def setUp(self):
+        """Set up test fixtures."""
+        self.args = MagicMock()
+        self.args.verbose = False
+        self.args.dry_run = False
+        self.args.business = False
+
+    @patch('business_commands.setup_logging')
+    def test_validate_deployment_dry_run(self, mock_setup_logging):
+        """Test validate_deployment_command with dry run."""
+        mock_logger = MagicMock()
+        mock_setup_logging.return_value = mock_logger
+        self.args.dry_run = True
+        
+        result = validate_deployment_command(self.args)
+        
+        self.assertEqual(result, 0)
+        mock_logger.info.assert_called()
+
+    @patch('business_commands.setup_logging')
+    def test_validate_deployment_not_implemented(self, mock_setup_logging):
+        """Test validate_deployment_command not implemented."""
+        mock_logger = MagicMock()
+        mock_setup_logging.return_value = mock_logger
+        
+        result = validate_deployment_command(self.args)
+        
+        self.assertEqual(result, 0)
+        mock_logger.info.assert_called_with("This feature is under development - Phase 1 Sprint 2")
+
+
+class TestMainBusinessCLI(unittest.TestCase):
+    """Test cases for main_business_cli function."""
+
+    @patch('business_commands.create_business_cli_parser')
+    def test_main_business_cli_with_func(self, mock_create_parser):
+        """Test main_business_cli with function."""
+        mock_parser = MagicMock()
+        mock_args = MagicMock()
+        mock_args.func = MagicMock(return_value=0)
+        mock_parser.parse_args.return_value = mock_args
+        mock_create_parser.return_value = mock_parser
+        
+        result = main_business_cli()
+        
+        self.assertEqual(result, 0)
+        mock_args.func.assert_called_once_with(mock_args)
+
+    @patch('business_commands.create_business_cli_parser')
+    def test_main_business_cli_without_func(self, mock_create_parser):
+        """Test main_business_cli without function."""
+        mock_parser = MagicMock()
+        mock_args = MagicMock()
+        del mock_args.func  # Remove func attribute
+        mock_parser.parse_args.return_value = mock_args
+        mock_create_parser.return_value = mock_parser
+        
+        result = main_business_cli()
+        
+        self.assertEqual(result, 1)
+        mock_parser.print_help.assert_called_once()
 
 
 if __name__ == "__main__":
