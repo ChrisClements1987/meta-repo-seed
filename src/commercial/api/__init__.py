@@ -261,7 +261,10 @@ async def list_customers():
     """List all customers (admin endpoint)."""
     try:
         # In a real implementation, this would require admin authentication
-        # For now, we'll return an empty list as this is typically an admin function
+        # For testing, we'll use the customer_manager's list_customers method if available
+        if hasattr(customer_manager, 'list_customers'):
+            customers = customer_manager.list_customers()
+            return [CustomerResponse.model_validate(customer) for customer in customers]
         return []
     except Exception as e:
         raise HTTPException(
