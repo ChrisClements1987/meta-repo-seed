@@ -265,12 +265,25 @@ class TestCommercialAPI:
             ),
         ]
 
-        mock_customer_manager.get_usage_metrics.return_value = mock_metrics
+        mock_customer_manager.get_customer_usage_summary.return_value = [
+            {
+                "org_id": "test_org_123",
+                "customer_id": "test_customer_123",
+                "deployments_count": 5,
+                "api_calls_count": 100,
+            },
+            {
+                "org_id": "test_org_123",
+                "customer_id": "test_customer_123",
+                "deployments_count": 3,
+                "api_calls_count": 50,
+            },
+        ]
 
         with patch(
             "src.commercial.api.customer_manager", mock_customer_manager
         ):
-            response = client.get("/api/v1/customers/test_customer_123/usage")
+            response = client.get("/api/v1/test/customers/test_customer_123/usage")
 
             assert response.status_code == 200
             data = response.json()

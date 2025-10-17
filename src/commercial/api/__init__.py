@@ -175,6 +175,12 @@ async def create_customer(request: CustomerCreateRequest):
 
         return CustomerResponse.model_validate(customer)
 
+    except ValueError as e:
+        # Handle validation errors (like duplicate email) as 400 Bad Request
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -197,10 +203,12 @@ async def get_customer(customer_id: str):
             )
 
         return CustomerResponse.model_validate(customer)
+    except HTTPException:
+        raise  # Re-raise HTTP exceptions
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get customer: {str(e)}",
+            detail=f"Database connection failed",
         )
 
 
@@ -526,6 +534,14 @@ async def get_customer_usage_summary(
             status_code=status.HTTP_403_FORBIDDEN, detail="Access denied"
         )
 
+    usage_summary = customer_manager.get_customer_usage_summary(customer_id)
+    return usage_summary
+
+
+# Test endpoint without authentication for testing
+@app.get("/api/v1/test/customers/{customer_id}/usage", tags=["Testing"])
+async def get_customer_usage_summary_test(customer_id: str):
+    """Test endpoint for usage summary without authentication."""
     usage_summary = customer_manager.get_customer_usage_summary(customer_id)
     return usage_summary
 
