@@ -34,7 +34,6 @@ your-project/
 ```
 
 ### Generated Content
-- **Business Operations Automation**: Self-governing systems with automated onboarding, compliance enforcement, self-healing, and governance integration
 - **Infrastructure as Code**: Terraform, Kubernetes, Docker configurations for 10-minute deployment
 - **Audit Management System**: AI agent coordination and audit-to-implementation tracking for continuous improvement
 - **Repository Governance Automation**: GitHub settings, branch protection, and label management as code
@@ -248,7 +247,7 @@ meta-repo-seed/
 │   ├── governance/        # Governance document templates
 │   ├── cloud-storage/     # Strategy and architecture templates
 │   └── documentation/     # Documentation templates
-├── TEMPLATES.md           # Template documentation
+├── TEMPLATES.md           # Template documentation (see docs/30-Product/reference/templates.md)
 ├── seeding.py            # Main seeding script
 └── README.md              # This file
 ```
