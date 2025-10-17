@@ -6,6 +6,35 @@
 
 ---
 
+## 📋 Work Selection Process
+
+> **🚨 MANDATORY**: All development work MUST originate from a GitHub Issue. No exceptions.
+
+### Before Starting Any Work
+
+1. **Check GitHub Issues Backlog**: https://github.com/ChrisClements1987/meta-repo-seed/issues
+2. **Select an Issue**: Choose from `status: ready` or high-priority issues matching your capacity
+3. **Verify Issue Has**:
+   - Clear acceptance criteria
+   - Proper labels (`type:`, `priority:`, `area:`)
+   - No blocking dependencies
+4. **Assign Yourself**: Comment on issue or assign to yourself
+5. **Link Issue to Branch**: Use format `feature/issue-{number}-description`
+
+### If No Suitable Issue Exists
+
+**DO NOT** start work without an issue. Instead:
+
+1. **Create GitHub Issue** using appropriate template
+2. **Add Required Labels**: `type:`, `priority:`, `area:`
+3. **Define Acceptance Criteria**
+4. **Get Approval** if high-effort or architectural change
+5. **Then** proceed with work
+
+> **Why This Matters**: GitHub Issues is our single source of truth. Ad-hoc work creates drift, duplication, and lost context in multi-agent environments.
+
+---
+
 ## 🔄 Git Branching Strategy
 
 ### Branch Structure

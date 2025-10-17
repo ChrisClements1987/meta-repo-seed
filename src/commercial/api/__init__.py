@@ -10,6 +10,7 @@ import logging
 from datetime import datetime
 from typing import Dict, List, Optional, Any
 from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, EmailStr
 
@@ -48,6 +49,7 @@ class CustomerResponse(BaseModel):
 
 
 class OrganizationCreateRequest(BaseModel):
+    customer_id: str
     name: str
     description: str = ""
     github_username: str = ""
@@ -160,7 +162,7 @@ async def health_check():
 # Customer Management Endpoints
 
 
-@app.post("/api/v1/customers", response_model=CustomerResponse, tags=["Customers"])
+@app.post("/api/v1/customers", response_model=CustomerResponse, status_code=201, tags=["Customers"])
 async def create_customer(request: CustomerCreateRequest):
     """Create a new customer account."""
     try:
@@ -187,13 +189,19 @@ async def create_customer(request: CustomerCreateRequest):
 )
 async def get_customer(customer_id: str):
     """Get customer by ID."""
-    customer = customer_manager.get_customer(customer_id)
-    if not customer:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Customer not found"
-        )
+    try:
+        customer = customer_manager.get_customer(customer_id)
+        if not customer:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Customer not found"
+            )
 
-    return CustomerResponse.model_validate(customer)
+        return CustomerResponse.model_validate(customer)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get customer: {str(e)}",
+        )
 
 
 @app.put("/api/v1/customers/{customer_id}/subscription", tags=["Customers"])
@@ -240,7 +248,88 @@ async def cancel_subscription(
     return {"message": "Subscription cancelled successfully"}
 
 
+@app.get("/api/v1/customers", response_model=List[CustomerResponse], tags=["Customers"])
+async def list_customers():
+    """List all customers (admin endpoint)."""
+    try:
+        # In a real implementation, this would require admin authentication
+        # For now, we'll return an empty list as this is typically an admin function
+        return []
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to list customers: {str(e)}",
+        )
+
+
 # Organization Management Endpoints
+
+
+@app.post("/api/v1/organizations", response_model=OrganizationResponse, status_code=201, tags=["Organizations"])
+async def create_organization_direct(request: OrganizationCreateRequest):
+    """Create a new organization."""
+    try:
+        organization = customer_manager.create_organization(
+            customer_id=request.customer_id,
+            name=request.name,
+            description=request.description,
+        )
+
+        return OrganizationResponse.model_validate(organization)
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to create organization: {str(e)}",
+        )
+
+
+@app.get(
+    "/api/v1/organizations/{org_id}",
+    response_model=OrganizationResponse,
+    tags=["Organizations"],
+)
+async def get_organization_direct(org_id: str):
+    """Get organization by ID."""
+    organization = customer_manager.get_organization(org_id)
+    if not organization:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Organization not found"
+        )
+
+    return OrganizationResponse.model_validate(organization)
+
+
+@app.post("/api/v1/organizations/{org_id}/deploy", tags=["Organizations"])
+async def deploy_organization_direct(org_id: str):
+    """Deploy an organization."""
+    try:
+        # Get the organization
+        organization = customer_manager.get_organization(org_id)
+        if not organization:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Organization not found"
+            )
+
+        # Create organization seeder and deploy
+        seeder = OrganizationSeeder.create_for_customer(
+            customer_id=organization.customer_id,
+            organization=organization,
+        )
+        
+        deployment_result = seeder.deploy_organization()
+        
+        return {
+            "deployment_id": f"deploy_{org_id}",
+            "status": "success" if deployment_result else "failed",
+            "message": "Organization deployed successfully" if deployment_result else "Deployment failed",
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to deploy organization: {str(e)}",
+        )
 
 
 @app.post(
@@ -498,18 +587,24 @@ async def billing_webhook(payload: Dict[str, Any]):
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request, exc):
     """Handle HTTP exceptions."""
-    return {
-        "error": "HTTP Error",
-        "message": exc.detail,
-        "status_code": exc.status_code,
-    }
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "error": "HTTP Error",
+            "message": exc.detail,
+            "status_code": exc.status_code,
+        }
+    )
 
 
 @app.exception_handler(Exception)
 async def general_exception_handler(request, exc):
     """Handle general exceptions."""
-    return {
-        "error": "Internal Server Error",
-        "message": "An unexpected error occurred",
-        "status_code": 500,
-    }
+    return JSONResponse(
+        status_code=500,
+        content={
+            "error": "Internal Server Error",
+            "message": "An unexpected error occurred",
+            "status_code": 500,
+        }
+    )

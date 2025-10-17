@@ -4,6 +4,8 @@ This document defines our issue management workflow, label system, and standards
 
 ## 🎯 Issue Types
 
+> **Note**: GitHub Issues is the single source of truth for all work items. Use structured labels (`type:`, `priority:`, `area:`, `status:`) for consistent tracking.
+
 ### 🚀 Feature Issues
 **Format**: `[FEATURE] Feature Name`
 **Purpose**: New functionality or enhancements to existing features
@@ -149,39 +151,81 @@ Clear description of the issue
 Suggested solution or investigation direction
 ```
 
-**Labels**: `bug`, `priority: [level]`
+**Labels**: `type: bug`, `priority: [level]`, `area: [relevant]`
+
+### 🧪 Testing Issues
+**Format**: `[TEST] Testing Task Description`
+**Purpose**: Testing tasks including unit, integration, E2E, performance, and security testing
+
+**Labels**: `type: testing`, `priority: [level]`, `area: [relevant]`
+
+### 🔧 CI/CD Issues
+**Format**: `[CI/CD] Pipeline/Automation Task`
+**Purpose**: CI/CD pipelines, build automation, deployment automation
+
+**Labels**: `type: ci-cd`, `priority: [level]`, `area: tooling`
+
+### 🔒 Security Issues
+**Format**: `[SECURITY] Security Task Description`
+**Purpose**: Security hardening, vulnerability fixes, security scanning setup
+
+**Labels**: `type: security`, `priority: [level]`, `area: [relevant]`
+
+### 🏗️ Infrastructure Issues
+**Format**: `[INFRA] Infrastructure Task`
+**Purpose**: Infrastructure setup, DevOps, environment configuration, IaC
+
+**Labels**: `type: infra`, `priority: [level]`, `area: [relevant]`
 
 ## 🏷️ Label System
 
-### Priority Labels
-**Required on all issues**
+### Structured Label Taxonomy
 
+All issues should use **structured prefixed labels** for consistency:
+
+#### Type Labels (Required - exactly one)
+- **`type: epic`** - Large features requiring breakdown
+- **`type: feature`** - New features and enhancements
+- **`type: bug`** - Defects and unexpected behavior
+- **`type: tech-debt`** - Code quality, refactoring, TODO items
+- **`type: testing`** - Testing tasks and test infrastructure
+- **`type: docs`** - Documentation creation and updates
+- **`type: ci-cd`** - CI/CD pipelines and automation
+- **`type: security`** - Security tasks and hardening
+- **`type: infra`** - Infrastructure and DevOps tasks
+- **`type: process`** - Process improvement tasks
+- **`type: analysis`** - Research and analysis tasks
+
+#### Priority Labels (Required - exactly one)
 - **`priority: high`** - Blocking current work, security issues, critical bugs
 - **`priority: medium`** - Important features, non-blocking improvements
 - **`priority: low`** - Nice-to-have features, minor improvements
 
-### Work Type Labels
+#### Area Labels (Optional - one or more)
+- **`area: api`** - API related work
+- **`area: backend`** - Backend implementation
+- **`area: tooling`** - Tools and automation
+- Additional areas as needed
 
-- **`enhancement`** - New features and improvements
-- **`technical-debt`** - Code quality improvements, refactoring, TODO items
-- **`documentation`** - Documentation creation and updates
-- **`bug`** - Defects and unexpected behavior
-- **`epic`** - Large features requiring breakdown
-- **`analysis`** - Research and design tasks
-
-### Category Labels
-
-- **`automation`** - Scripts, tooling, CI/CD improvements
-- **`testing`** - Test coverage, test infrastructure
-- **`architecture`** - System design, structural decisions
-- **`missing-templates`** - Template files to be created
-- **`workflow`** - Development process and project management
-
-### Status Labels
-
-- **`roadmap`** - Items from the original roadmap (legacy)
+#### Status Labels (Optional)
+- **`status: ready`** - Ready to pull into work
 - **`blocked`** - Cannot proceed due to dependencies
 - **`in-progress`** - Currently being worked on
+
+### Legacy Labels (Compatibility)
+
+These labels remain for compatibility but prefer structured equivalents:
+- **`enhancement`** → use `type: feature`
+- **`technical-debt`** → use `type: tech-debt`
+- **`documentation`** → use `type: docs`
+- **`bug`** → use `type: bug`
+- **`epic`** → use `type: epic`
+- **`analysis`** → use `type: analysis`
+- **`automation`** → use `area: tooling` + appropriate type
+- **`testing`** → use `type: testing`
+- **`architecture`** → use type + `architecture` label
+- **`workflow`** → use `type: process`
+- **`roadmap`** - Items from the original roadmap (legacy)
 
 ### Special Labels
 
