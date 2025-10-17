@@ -38,15 +38,25 @@ jobs:
               validationPassed = true;
               message = `✅ PR correctly references issue #${issueNumber} with auto-close keyword`;
             } else if (branchIssueMatch) {
+              // Accept branch-based issue reference (gh CLI has body truncation issues)
               issueNumber = branchIssueMatch[1];
-              message = `⚠️ Branch references issue #${issueNumber}, but PR body should include "Fixes #${issueNumber}" or "Closes #${issueNumber}"`;
+              validationPassed = true;
+              message = `✅ PR branch references issue #${issueNumber} (accepted)`;
+              
+              // Post reminder comment to add Fixes keyword for auto-close
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                body: `## 📋 Issue Reference Check\n\n${message}\n\n**💡 Tip**: Add \`Fixes #${issueNumber}\` to PR body for automatic issue closure when merged.\n\n**See:** [Development Workflow](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/develop/docs/40-Operations/development-workflow.md#-work-selection-process)`
+              });
             } else if (hasIssueLink) {
               message = '⚠️ PR includes issue link, but should use auto-close keyword (Fixes #XX, Closes #XX, Resolves #XX)';
             } else {
               message = '❌ PR does not reference any GitHub Issue';
             }
             
-            // Post check result as comment
+            // Only fail if no issue reference at all
             if (!validationPassed) {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
