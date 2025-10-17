@@ -15,12 +15,27 @@
 - **Formatting**: `black` (planned, not enforced yet)
 
 ### Git Workflow - REQUIRED PROCESS
+
+**🚨 CRITICAL: GitHub Issues is the SINGLE SOURCE OF TRUTH for all work**
+
+#### Before Starting ANY Work:
+1. **MUST have a GitHub Issue** - Check https://github.com/ChrisClements1987/meta-repo-seed/issues
+2. **Select issue with** `status: ready` or high priority matching your capacity
+3. **If no issue exists** - CREATE one with labels (`type:`, `priority:`, `area:`) and acceptance criteria
+4. **NEVER start work without an issue number** - This prevents drift and maintains traceability
+
+#### Development Process:
 - **Start Any Work**: `git checkout develop && git pull origin develop && git checkout -b feature/issue-X-desc`
 - **TDD Mandatory**: Write failing tests FIRST, then implement, then refactor
 - **Branch Naming**: `feature/issue-[number]-description` or `bugfix/issue-[number]-description`
+  - ✅ `feature/issue-165-organization-seeder-fix`
+  - ❌ `feature/quick-fix` (no issue reference)
 - **Create PR**: `gh pr create --base develop` (always target develop, never main)
 - **Issue Linking**: MANDATORY use auto-close keywords in PR description: `Closes #123`, `Fixes #456`, `Resolves #789`
+  - CI will FAIL if PR doesn't reference an issue
 - **Branch Cleanup**: Automated via GitHub settings, manual via `./scripts/cleanup-branches.sh`
+
+**Enforcement:** Pre-commit hooks validate branch names, GitHub Actions validate PR issue references
 
 ### Emergency Hotfix Process - USE SPARINGLY
 **Only for production emergencies:** Complete deployment failures, active security exploits, data loss, critical functionality broken for all users

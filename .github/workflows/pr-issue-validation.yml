@@ -1,32 +1,62 @@
-name: PR Issue Link Validation
+name: PR Issue Validation
 
 on:
   pull_request:
-    types: [opened, edited, synchronize]
+    types: [opened, edited, synchronize, reopened]
 
 jobs:
-  validate-issue-links:
+  validate-issue-reference:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Validate PR links to issues
-      run: |
-        echo "Validating PR links to issues..."
-
-        # For now, make this validation non-blocking while we debug
-        # This prevents our guardrails PR from being blocked by the guardrails we're creating
-
-        PR_BODY='${{ github.event.pull_request.body }}'
-
-        if echo "$PR_BODY" | grep -i "closes #\|fixes #\|resolves #"; then
-          echo "SUCCESS: Found auto-close keywords"
-        elif echo "$PR_BODY" | grep -i "related to #"; then
-          echo "WARNING: Found references but no auto-close keywords"
-        elif echo "$PR_BODY" | grep -i "no related issues\|no existing issues"; then
-          echo "SUCCESS: Explains no related issues"
-        else
-          echo "INFO: This validation will be enforced after guardrails are established"
-          echo "Current PR is implementing the guardrails themselves"
-        fi
-
-        echo "Validation completed (non-blocking during guardrails implementation)"
+      - name: Check PR references GitHub Issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prBody = context.payload.pull_request.body || '';
+            const prTitle = context.payload.pull_request.title || '';
+            const branch = context.payload.pull_request.head.ref;
+            
+            // Check for issue reference keywords in PR body
+            const issueKeywords = /(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#\d+/gi;
+            const hasIssueKeyword = issueKeywords.test(prBody);
+            
+            // Check for issue number in branch name
+            const branchIssueMatch = branch.match(/issue-(\d+)/);
+            
+            // Check for issue link
+            const issueLinkPattern = /https:\/\/github\.com\/[^\/]+\/[^\/]+\/issues\/\d+/;
+            const hasIssueLink = issueLinkPattern.test(prBody);
+            
+            let issueNumber = null;
+            let validationPassed = false;
+            let message = '';
+            
+            if (hasIssueKeyword) {
+              const match = prBody.match(/(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)/i);
+              if (match) {
+                issueNumber = match[1];
+                validationPassed = true;
+                message = `✅ PR correctly references issue #${issueNumber} with auto-close keyword`;
+              }
+            } else if (branchIssueMatch) {
+              issueNumber = branchIssueMatch[1];
+              message = `⚠️ Branch references issue #${issueNumber}, but PR body should include "Fixes #${issueNumber}" or "Closes #${issueNumber}"`;
+            } else if (hasIssueLink) {
+              message = '⚠️ PR includes issue link, but should use auto-close keyword (Fixes #XX, Closes #XX, Resolves #XX)';
+            } else {
+              message = '❌ PR does not reference any GitHub Issue';
+            }
+            
+            // Post check result as comment
+            if (!validationPassed) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                body: `## 📋 Issue Reference Check\n\n${message}\n\n**Required Format:**\n- PR body must include: \`Fixes #123\`, \`Closes #456\`, or \`Resolves #789\`\n- Branch name should follow: \`feature/issue-123-description\`\n\n**Why This Matters:**\nGitHub Issues is our single source of truth. All work must trace to an issue to prevent drift and maintain context.\n\n**See:** [Development Workflow](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/develop/docs/40-Operations/development-workflow.md#-work-selection-process)`
+              });
+              
+              core.setFailed(message);
+            } else {
+              console.log(message);
+            }
