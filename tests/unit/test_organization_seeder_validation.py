@@ -145,7 +145,8 @@ class TestOrganizationSeederValidation:
             read_only_dir.mkdir()
             read_only_dir.chmod(0o444)  # Read-only
             
-            self.seeder.config.cloud_storage_path = read_only_dir
+            # Point to a subdirectory that cannot be created
+            self.seeder.config.cloud_storage_path = read_only_dir / "cannot_create_this"
             self.seeder.dry_run = False
             
             result = self.seeder._preflight_validate()
