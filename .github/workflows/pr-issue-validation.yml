@@ -21,27 +21,22 @@ jobs:
             const branch = context.payload.pull_request.head.ref;
             
             // Check for issue reference keywords in PR body
-            const issueKeywords = /(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#\d+/gi;
-            const hasIssueKeyword = issueKeywords.test(prBody);
+            const issueKeywordMatch = prBody.match(/(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)/i);
             
             // Check for issue number in branch name
             const branchIssueMatch = branch.match(/issue-(\d+)/);
             
             // Check for issue link
-            const issueLinkPattern = /https:\/\/github\.com\/[^\/]+\/[^\/]+\/issues\/\d+/;
-            const hasIssueLink = issueLinkPattern.test(prBody);
+            const hasIssueLink = /https:\/\/github\.com\/[^\/]+\/[^\/]+\/issues\/\d+/.test(prBody);
             
             let issueNumber = null;
             let validationPassed = false;
             let message = '';
             
-            if (hasIssueKeyword) {
-              const match = prBody.match(/(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)/i);
-              if (match) {
-                issueNumber = match[1];
-                validationPassed = true;
-                message = `✅ PR correctly references issue #${issueNumber} with auto-close keyword`;
-              }
+            if (issueKeywordMatch) {
+              issueNumber = issueKeywordMatch[1];
+              validationPassed = true;
+              message = `✅ PR correctly references issue #${issueNumber} with auto-close keyword`;
             } else if (branchIssueMatch) {
               issueNumber = branchIssueMatch[1];
               message = `⚠️ Branch references issue #${issueNumber}, but PR body should include "Fixes #${issueNumber}" or "Closes #${issueNumber}"`;
