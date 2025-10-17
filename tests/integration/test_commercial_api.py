@@ -251,21 +251,6 @@ class TestCommercialAPI:
     def test_get_usage_metrics_endpoint(self, client, mock_customer_manager):
         """Test usage metrics retrieval endpoint."""
         mock_metrics = [
-            UsageMetrics(
-                org_id="test_org_123",
-                customer_id="test_customer_123",
-                deployments_count=5,
-                api_calls_count=100,
-            ),
-            UsageMetrics(
-                org_id="test_org_123",
-                customer_id="test_customer_123",
-                deployments_count=3,
-                api_calls_count=50,
-            ),
-        ]
-
-        mock_customer_manager.get_customer_usage_summary.return_value = [
             {
                 "org_id": "test_org_123",
                 "customer_id": "test_customer_123",
@@ -279,6 +264,8 @@ class TestCommercialAPI:
                 "api_calls_count": 50,
             },
         ]
+
+        mock_customer_manager.get_customer_usage_summary.return_value = mock_metrics
 
         with patch(
             "src.commercial.api.customer_manager", mock_customer_manager
