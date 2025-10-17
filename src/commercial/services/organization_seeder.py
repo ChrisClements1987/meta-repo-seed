@@ -528,3 +528,43 @@ class OrganizationSeeder:
 
     # Additional methods would be implemented following the same pattern,
     # reusing existing functionality from seeding.py but with organization context
+    
+    def _create_governance_structure(self):
+        """Create governance structure for the organization."""
+        self.logger.info("Creating governance structure...")
+        # Implementation for governance structure
+    
+    def _create_automation_scripts(self):
+        """Create automation scripts for the organization."""
+        self.logger.info("Creating automation scripts...")
+        # Implementation for automation scripts
+    
+    def _setup_documentation(self):
+        """Set up documentation structure for the organization."""
+        self.logger.info("Setting up documentation...")
+        # Implementation for documentation setup
+    
+    def _create_template_content(self):
+        """Create template content for the organization."""
+        self.logger.info("Creating template content...")
+        # Implementation for template content
+    
+    def _create_infrastructure_templates(self):
+        """Create infrastructure templates for the organization."""
+        self.logger.info("Creating infrastructure templates...")
+        # Implementation for infrastructure templates
+    
+    def _setup_code_formatting(self):
+        """Set up code formatting for the organization."""
+        self.logger.info("Setting up code formatting...")
+        # Implementation for code formatting
+    
+    def _create_github_repository_settings(self):
+        """Create GitHub repository settings for the organization."""
+        self.logger.info("Creating GitHub repository settings...")
+        # Implementation for GitHub repository settings
+    
+    def _create_audit_management_system(self):
+        """Create audit management system for the organization."""
+        self.logger.info("Creating audit management system...")
+        # Implementation for audit management system
