@@ -273,7 +273,7 @@ class OrganizationSeeder:
         self.logger.info("Setting up cloud storage structure...")
 
         # Create cloud storage directories
-        cloud_storage_path = self.config.base_path / "cloud-storage"
+        cloud_storage_path = self.config.cloud_storage_path
         ensure_directory_exists(cloud_storage_path)
 
         # Create strategy and workspace directories
