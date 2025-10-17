@@ -216,6 +216,46 @@ class CustomerManager:
             settings=settings,
         )
 
+    def list_customers(self) -> List[Customer]:
+        """List all customers."""
+        query = """
+        SELECT id, email, company_name, status, created_at, updated_at, settings
+        FROM customers
+        ORDER BY created_at DESC
+        """
+
+        result = self.db_manager.execute_query(query, fetch=True)
+        if not result:
+            return []
+
+        customers = []
+        for row in result:
+            # Parse settings if it's a string
+            settings_data = row["settings"]
+            if isinstance(settings_data, str):
+                settings_data = json.loads(settings_data) if settings_data else {}
+
+            # Create CustomerSettings object
+            settings = CustomerSettings(
+                plan=SubscriptionPlan(settings_data.get("plan", "startup")),
+                max_products=settings_data.get("max_products", 1),
+                max_team_members=settings_data.get("max_team_members", 5),
+            )
+
+            customer = Customer(
+                customer_id=str(row["id"]),
+                email=row["email"],
+                company_name=row["company_name"],
+                status=CustomerStatus(row["status"]),
+                plan=settings.plan,
+                settings=settings,
+                created_at=row["created_at"],
+                updated_at=row["updated_at"],
+            )
+            customers.append(customer)
+
+        return customers
+
     def update_customer(self, customer: Customer) -> bool:
         """Update customer information."""
         try:

@@ -1,7 +1,12 @@
 # Unified Kanban Board - Meta-Repo-Seed Development
 
+> **⚠️ DEPRECATED**: This file-based Kanban is now deprecated as of 2025-10-17.  
+> **GitHub Issues is now the single source of truth** for all work items.  
+> **See**: [GitHub Issues](https://github.com/ChrisClements1987/meta-repo-seed/issues) | [Migration Guide](./MIGRATION.md)  
+> This file is kept for historical reference only.
+
 **Last Updated**: October 16, 2025
-**Status**: Active Development
+**Status**: ~~Active Development~~ **DEPRECATED - Use GitHub Issues**
 **Capacity**: Variable (adapts to daily availability)
 **Framework**: ODR-001 Unified Kanban Workflow
 

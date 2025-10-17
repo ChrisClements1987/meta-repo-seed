@@ -1,9 +1,10 @@
 # Work Item Template
 
-**Work Item ID**: WI-XXX
-**Type**: [Epic | Feature | User Story | Tech Debt | Bug | Infrastructure Task | Process Improvement | Documentation Task | Testing Task | Research Project | Spike | Project Task/Meeting]
+**Work Item ID**: WI-XXX or GitHub Issue #XXX
+**Type**: [Epic | Feature | User Story | Bug | Tech Debt | Testing Task | CI/CD Task | Security Task | Infrastructure Task | Process Improvement | Documentation Task | Analysis | Research Project | Spike | Meeting/Ceremony]
 **Created**: YYYY-MM-DD
 **Priority Score**: [Calculated: Business Value + Urgency - Effort - Risk]
+**Labels**: `type: [type]`, `priority: [level]`, `area: [relevant]`
 
 ---
 
@@ -140,6 +141,16 @@
 - **Test Type**: [Unit | Integration | E2E | Performance | Security]
 - **Scope**: [What needs to be tested?]
 - **Automation**: [Manual | Automated | Semi-automated]
+
+### **CI/CD Task**
+- **Pipeline Type**: [Build | Test | Deploy | Release]
+- **Scope**: [What pipeline or automation needs work?]
+- **Dependencies**: [Required tools or services]
+
+### **Security Task**
+- **Security Type**: [Scanning | Hardening | Vulnerability Fix | Policy]
+- **Scope**: [What security work needs to be done?]
+- **Priority**: [Critical | High | Medium | Low]
 
 ### **Research Project**
 - **Research Question**: [What are we trying to answer?]
