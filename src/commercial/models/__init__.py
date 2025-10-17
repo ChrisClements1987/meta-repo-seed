@@ -106,6 +106,7 @@ class Customer:
     trial_ends_at: Optional[datetime] = None
     billing_email: Optional[str] = None
     billing_address: Optional[Dict[str, str]] = None
+    onboarding_data: Optional[Dict[str, Any]] = None
 
     def __post_init__(self):
         """Initialize settings based on plan."""
@@ -139,6 +140,39 @@ class Customer:
         if self.settings.max_team_members == -1:  # Unlimited
             return True
         return current_count < self.settings.max_team_members
+
+    def get_onboarding_status(self) -> str:
+        """Get current onboarding status."""
+        if not self.onboarding_data:
+            return "pending"
+        return self.onboarding_data.get("status", "pending")
+
+    def get_onboarding_step(self) -> str:
+        """Get current onboarding step."""
+        if not self.onboarding_data:
+            return "signup_complete"
+        return self.onboarding_data.get("current_step", "signup_complete")
+
+    def is_onboarding_complete(self) -> bool:
+        """Check if onboarding is complete."""
+        return self.get_onboarding_status() == "completed"
+
+    def update_onboarding_step(self, step: str, status: str = "in_progress"):
+        """Update onboarding step and status."""
+        if not self.onboarding_data:
+            self.onboarding_data = {}
+        
+        self.onboarding_data.update({
+            "current_step": step,
+            "status": status,
+            "updated_at": datetime.now().isoformat()
+        })
+        
+        # Add to completed steps if not already there
+        completed_steps = self.onboarding_data.get("completed_steps", [])
+        if step not in completed_steps:
+            completed_steps.append(step)
+            self.onboarding_data["completed_steps"] = completed_steps
 
 
 @dataclass
